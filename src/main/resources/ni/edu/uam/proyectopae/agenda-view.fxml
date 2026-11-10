@@ -1,14 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="CONTROLLER_NAME"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox spacing="10.0" prefWidth="760.0" prefHeight="500.0"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ni.edu.uam.proyectopae.controllers.AgendaController">
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
 
-</AnchorPane>
+    <Label text="Agenda de Citas y Reportes Financieros" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="Cliente:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cmbCliente" prefWidth="200" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Servicio:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+        <ComboBox fx:id="cmbServicio" prefWidth="200" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+        <Label text="Fecha Cita:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="dpFecha" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Hora (8-19):" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+        <TextField fx:id="txtHora" promptText="Ej: 14" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+    </GridPane>
+
+    <HBox spacing="10">
+        <Button text="Agendar Turno" onAction="#handleAgendarCita" style="-fx-background-color: #2b5797; -fx-text-fill: white;"/>
+        <Button text="Cancelar Turno" onAction="#handleCancelarCita" style="-fx-background-color: #b30000; -fx-text-fill: white;"/>
+        <Button text="Generar Resumen HQL" onAction="#handleGenerarResumenHQL" style="-fx-background-color: #333333; -fx-text-fill: white;"/>
+        <Label fx:id="lblEstado" textFill="#2b5797" wrapText="true"/>
+    </HBox>
+
+    <TableView fx:id="tblCitas" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="colCliente" text="Cliente" prefWidth="240"/>
+            <TableColumn fx:id="colServicio" text="Servicio Solicitado" prefWidth="200"/>
+            <TableColumn fx:id="colFecha" text="Fecha y Hora" prefWidth="150"/>
+            <TableColumn fx:id="colEstado" text="Estado" prefWidth="100"/>
+        </columns>
+    </TableView>
+</VBox>
