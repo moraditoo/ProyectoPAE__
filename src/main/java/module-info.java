@@ -1,17 +1,20 @@
-module ni.edu.uam.proyectofinalpae {
+module ni.edu.uam.proyectopae {
     requires javafx.controls;
     requires javafx.fxml;
-    requires java.sql;
-    requires jakarta.persistence;
-    requires org.hibernate.orm.core;
 
-    opens ni.edu.uam.proyectofinalpae to javafx.fxml;
-    opens ni.edu.uam.proyectofinalpae.controllers to javafx.fxml;
-    opens ni.edu.uam.proyectofinalpae.models to org.hibernate.orm.core, javafx.base;
+<<<<<<< Updated upstream
 
-    exports ni.edu.uam.proyectofinalpae;
-    exports ni.edu.uam.proyectofinalpae.controllers;
-    exports ni.edu.uam.proyectofinalpae.models;
-    exports ni.edu.uam.proyectofinalpae.dao;
-    exports ni.edu.uam.proyectofinalpae.util;
+    opens ni.edu.uam.proyectopae to javafx.fxml;
+    exports ni.edu.uam.proyectopae;
+=======
+    opens ni.edu.uam.proyectopae to javafx.fxml;
+    opens ni.edu.uam.proyectopae.controllers to javafx.fxml;
+    opens ni.edu.uam.proyectopae.models to org.hibernate.orm.core, javafx.base;
+
+    exports ni.edu.uam.proyectopae;
+    exports ni.edu.uam.proyectopae.controllers;
+    exports ni.edu.uam.proyectopae.models;
+    exports ni.edu.uam.proyectopae.dao;
+    exports ni.edu.uam.proyectopae.util;
+>>>>>>> Stashed changes
 }
