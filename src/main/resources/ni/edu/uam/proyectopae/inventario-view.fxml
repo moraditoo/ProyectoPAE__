@@ -1,14 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="CONTROLLER_NAME"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox spacing="10.0" prefWidth="720.0" prefHeight="480.0"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ni.edu.uam.proyectofinalpae.controllers.InventarioController">
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
 
-</AnchorPane>
+    <Label text="Gestión de Catálogo de Productos Cosméticos" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="Nombre:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtNombre" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Precio (C$):" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+        <TextField fx:id="txtPrecio" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+        <Label text="Categoría:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cmbCategoria" prefWidth="180" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Marca:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+        <ComboBox fx:id="cmbMarca" prefWidth="180" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+    </GridPane>
+
+    <HBox spacing="10">
+        <Button text="Registrar Producto" onAction="#handleGuardarProducto" style="-fx-background-color: #2e7d32; -fx-text-fill: white;"/>
+        <Button text="Eliminar Producto" onAction="#handleEliminarProducto" style="-fx-background-color: #c62828; -fx-text-fill: white;"/>
+        <Label fx:id="lblEstado" textFill="#1b5e20" wrapText="true"/>
+    </HBox>
+
+    <TableView fx:id="tblProductos" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="colNombre" text="Producto" prefWidth="240"/>
+            <TableColumn fx:id="colCategoria" text="Categoría" prefWidth="140"/>
+            <TableColumn fx:id="colMarca" text="Marca" prefWidth="140"/>
+            <TableColumn fx:id="colPrecio" text="Precio Unitario" prefWidth="110"/>
+        </columns>
+    </TableView>
+</VBox>
