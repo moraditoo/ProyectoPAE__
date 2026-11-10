@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="CONTROLLER_NAME"
-            prefHeight="400.0" prefWidth="600.0">
-
-</AnchorPane>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ni.edu.uam.proyectopae.controllers.InventarioController"
+      spacing="12" prefWidth="750" prefHeight="480">
+    <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+    <Label text="Inventario de productos" style="-fx-font-size: 18px;"/>
+    <HBox spacing="10">
+        <TextField fx:id="txtNombre" promptText="Nombre del producto" HBox.hgrow="ALWAYS"/>
+        <Button text="Guardar producto" onAction="#guardar"/>
+        <Button text="Actualizar" onAction="#refrescar"/>
+    </HBox>
+    <Label fx:id="lblEstado" wrapText="true"/>
+    <ListView fx:id="listaProductos" VBox.vgrow="ALWAYS"/>
+</VBox>
