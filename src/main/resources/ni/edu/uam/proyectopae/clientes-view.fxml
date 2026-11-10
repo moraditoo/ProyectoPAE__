@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10.0" prefWidth="900.0" prefHeight="550.0"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ni.edu.uam.proyectopae.controllers.ClienteController">
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <Label text="Registro y Ficha Médica de Clientes" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="Nombres:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtNombres" promptText="Nombres del cliente" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Apellidos:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+        <TextField fx:id="txtApellidos" promptText="Apellidos del cliente" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+        <Label text="Teléfono:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtTelefono" promptText="Ej: 88887777" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Alergias / Sensibilidad Dérmica:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+        <TextField fx:id="txtAlergias" promptText="Ninguna, piel atopica, reactiva a parabenos..." GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="Guardar Cliente" onAction="#handleGuardarCliente" style="-fx-background-color: #2b5797; -fx-text-fill: white; -fx-font-weight: bold;"/>
+        <Button text="Limpiar Campos" onAction="#handleLimpiarCampos"/>
+        <Button text="Eliminar Seleccionado" onAction="#handleEliminarCliente" style="-fx-background-color: #b30000; -fx-text-fill: white;"/>
+        <Label fx:id="lblEstado" wrapText="true"/>
+    </HBox>
+
+    <TableView fx:id="tblClientes" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="colNombres" text="Nombres" prefWidth="180"/>
+            <TableColumn fx:id="colApellidos" text="Apellidos" prefWidth="180"/>
+            <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="130"/>
+            <TableColumn fx:id="colAlergias" text="Alergias / Ficha Técnica" prefWidth="320"/>
+        </columns>
+    </TableView>
+</VBox>

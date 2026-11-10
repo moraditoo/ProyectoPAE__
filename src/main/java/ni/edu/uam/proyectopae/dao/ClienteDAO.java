@@ -51,4 +51,15 @@ public class ClienteDAO {
             return session.createQuery("FROM Cliente ORDER BY nombres ASC", Cliente.class).list();
         }
     }
+
+    public List<Cliente> buscarPorFiltro(String criterio) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery(
+                    "FROM Cliente c WHERE LOWER(c.nombres) LIKE :crit " +
+                            "OR LOWER(c.apellidos) LIKE :crit " +
+                            "OR c.telefono LIKE :crit ORDER BY c.nombres ASC",
+                    Cliente.class
+            ).setParameter("crit", "%" + criterio.toLowerCase().trim() + "%").list();
+        }
+    }
 }

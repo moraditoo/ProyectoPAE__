@@ -43,71 +43,89 @@ public class InventarioController {
         colMarca.setCellValueFactory(new PropertyValueFactory<>("nombreMarca"));
         colPrecio.setCellValueFactory(new PropertyValueFactory<>("precioVenta"));
 
-        precargarCatalogos();
+        // Al hacer clic en un registro, se cargan sus datos en el formulario para edición
+        tblProductos.getSelectionModel().selectedItemProperty().addListener((obs, anterior, seleccionado) -> {
+            if (seleccionado != null) {
+                txtNombre.setText(seleccionado.getNombreProducto());
+                txtPrecio.setText(seleccionado.getPrecioVenta().toString());
+                cmbCategoria.setValue(seleccionado.getCategoria());
+                cmbMarca.setValue(seleccionado.getMarca());
+            }
+        });
+
+        cargarCatalogosAuxiliares();
         refrescarTabla();
     }
 
-    private void precargarCatalogos() {
+    private void cargarCatalogosAuxiliares() {
         try {
             if (categoriaDAO.listarTodas().isEmpty()) {
                 categoriaDAO.guardar(new Categoria("Rostro", "Bases, correctores y polvos"));
-                categoriaDAO.guardar(new Categoria("Labios", "Labiales matte y tintas"));
+                categoriaDAO.guardar(new Categoria("Ojos", "Delineadores, máscaras y sombras"));
+                categoriaDAO.guardar(new Categoria("Labios", "Tintas, lápices y brillos labiales"));
             }
             if (marcaDAO.listarTodas().isEmpty()) {
+                marcaDAO.guardar(new Marca("L'Oréal Paris"));
                 marcaDAO.guardar(new Marca("Maybelline"));
                 marcaDAO.guardar(new Marca("Rare Beauty"));
             }
             cmbCategoria.setItems(FXCollections.observableArrayList(categoriaDAO.listarTodas()));
             cmbMarca.setItems(FXCollections.observableArrayList(marcaDAO.listarTodas()));
         } catch (Exception e) {
-            lblEstado.setText("Error al cargar catalogos auxiliares: " + e.getMessage());
+            mostrarMensaje("Error al sincronizar catálogos de base de datos: " + e.getMessage(), true);
         }
     }
 
-    private void refrescarTabla() {
+    @FXML
+    public void refrescarTabla() {
         try {
             listaProductos.setAll(productoDAO.listarConRelaciones());
             tblProductos.setItems(listaProductos);
         } catch (Exception e) {
-            lblEstado.setText("Error al cargar listado de productos: " + e.getMessage());
+            mostrarMensaje("Error al consultar PostgreSQL con HQL: " + e.getMessage(), true);
         }
     }
 
     @FXML
     protected void handleGuardarProducto() {
-        String nom = txtNombre.getText().trim();
-        String pre = txtPrecio.getText().trim();
-        Categoria cat = cmbCategoria.getValue();
-        Marca mar = cmbMarca.getValue();
+        String nombre = txtNombre.getText().trim();
+        String precioTxt = txtPrecio.getText().trim();
+        Categoria categoria = cmbCategoria.getValue();
+        Marca marca = cmbMarca.getValue();
 
-        if (nom.isEmpty() || pre.isEmpty() || cat == null || mar == null) {
-            lblEstado.setStyle("-fx-text-fill: red;");
-            lblEstado.setText("Validacion: Complete todos los datos solicitados.");
+        if (nombre.isEmpty() || precioTxt.isEmpty() || categoria == null || marca == null) {
+            mostrarMensaje("Validación: Complete todos los campos antes de guardar.", true);
             return;
         }
 
         try {
-            BigDecimal precio = new BigDecimal(pre);
+            BigDecimal precio = new BigDecimal(precioTxt);
             if (precio.compareTo(BigDecimal.ZERO) <= 0) {
-                lblEstado.setStyle("-fx-text-fill: red;");
-                lblEstado.setText("Validacion: El precio debe ser un valor positivo.");
+                mostrarMensaje("Validación: El precio debe ser un número positivo.", true);
                 return;
             }
 
-            Producto nuevo = new Producto(nom, precio, 5, cat, mar);
-            productoDAO.guardar(nuevo);
+            Producto seleccionado = tblProductos.getSelectionModel().getSelectedItem();
+            if (seleccionado != null && seleccionado.getNombreProducto().equalsIgnoreCase(nombre)) {
+                // Actualizar registro existente vía ORM
+                seleccionado.setPrecioVenta(precio);
+                seleccionado.setCategoria(categoria);
+                seleccionado.setMarca(marca);
+                productoDAO.actualizar(seleccionado);
+                mostrarMensaje("Producto #" + seleccionado.getIdProducto() + " actualizado en PostgreSQL.", false);
+            } else {
+                // Insertar nuevo registro vía ORM
+                Producto nuevo = new Producto(nombre, precio, 5, categoria, marca);
+                productoDAO.guardar(nuevo);
+                mostrarMensaje("Nuevo producto persistido exitosamente en la base de datos.", false);
+            }
 
-            txtNombre.clear();
-            txtPrecio.clear();
-            lblEstado.setStyle("-fx-text-fill: green;");
-            lblEstado.setText("Producto registrado mediante Hibernate con exito.");
+            handleLimpiar();
             refrescarTabla();
         } catch (NumberFormatException e) {
-            lblEstado.setStyle("-fx-text-fill: red;");
-            lblEstado.setText("Formato invalido en precio. Utilice formato decimal.");
+            mostrarMensaje("Validación: El formato del precio es incorrecto.", true);
         } catch (Exception e) {
-            lblEstado.setStyle("-fx-text-fill: red;");
-            lblEstado.setText("Error de persistencia: " + e.getMessage());
+            mostrarMensaje("Error ORM: " + e.getMessage(), true);
         }
     }
 
@@ -115,19 +133,31 @@ public class InventarioController {
     protected void handleEliminarProducto() {
         Producto seleccionado = tblProductos.getSelectionModel().getSelectedItem();
         if (seleccionado == null) {
-            lblEstado.setStyle("-fx-text-fill: red;");
-            lblEstado.setText("Seleccione un producto en la tabla para eliminar.");
+            mostrarMensaje("Seleccione un producto de la tabla para eliminar.", true);
             return;
         }
 
         try {
             productoDAO.eliminar(seleccionado.getIdProducto());
-            lblEstado.setStyle("-fx-text-fill: green;");
-            lblEstado.setText("Producto eliminado correctamente.");
+            mostrarMensaje("Producto eliminado de la base de datos.", false);
+            handleLimpiar();
             refrescarTabla();
         } catch (Exception e) {
-            lblEstado.setStyle("-fx-text-fill: red;");
-            lblEstado.setText("No es posible eliminar el producto: Posee lotes o insumos asociados.");
+            mostrarMensaje("Restricción referencial: El producto tiene lotes o consumos activos.", true);
         }
+    }
+
+    @FXML
+    protected void handleLimpiar() {
+        txtNombre.clear();
+        txtPrecio.clear();
+        cmbCategoria.setValue(null);
+        cmbMarca.setValue(null);
+        tblProductos.getSelectionModel().clearSelection();
+    }
+
+    private void mostrarMensaje(String texto, boolean esError) {
+        lblEstado.setStyle(esError ? "-fx-text-fill: #b30000; -fx-font-weight: bold;" : "-fx-text-fill: #1b5e20; -fx-font-weight: bold;");
+        lblEstado.setText(texto);
     }
 }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefHeight="650.0" prefWidth="960.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <Tab text="Clientes y Fichas">
+            <fx:include source="clientes-view.fxml"/>
+        </Tab>
+        <Tab text="Catálogo de Productos">
+            <fx:include source="inventario-view.fxml"/>
+        </Tab>
+        <Tab text="Control de Lotes y Caducidad">
+            <fx:include source="lotes-servicios-view.fxml"/>
+        </Tab>
+        <Tab text="Agenda y Citas">
+            <fx:include source="agenda-view.fxml"/>
+        </Tab>
+    </TabPane>
+</VBox>
