@@ -6,7 +6,7 @@
 
 <VBox spacing="10.0" prefWidth="720.0" prefHeight="480.0"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ni.edu.uam.proyectofinalpae.controllers.InventarioController">
+      fx:controller="ni.edu.uam.proyectopae.controllers.InventarioController">
     <padding>
         <Insets top="15" right="15" bottom="15" left="15"/>
     </padding>

@@ -4,42 +4,42 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10.0" prefWidth="750.0" prefHeight="480.0"
+<VBox spacing="10.0" prefWidth="720.0" prefHeight="480.0"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ni.edu.uam.proyectopae.controllers.LotesServiciosController">
+      fx:controller="ni.edu.uam.proyectopae.controllers.InventarioController">
     <padding>
         <Insets top="15" right="15" bottom="15" left="15"/>
     </padding>
 
-    <Label text="Control de Lotes y Caducidad de Cosméticos" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+    <Label text="Gestión de Catálogo de Productos Cosméticos" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
 
     <GridPane hgap="10" vgap="10">
-        <Label text="Producto:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="cmbProducto" prefWidth="200" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label text="Nombre:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtNombre" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="Código de Lote:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtCodigoLote" promptText="LOTE-2026-001" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+        <Label text="Precio (C$):" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+        <TextField fx:id="txtPrecio" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
 
-        <Label text="Fecha Vencimiento:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <DatePicker fx:id="dpFechaCaducidad" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Categoría:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cmbCategoria" prefWidth="180" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label text="Stock Disponible:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtCantidad" promptText="Unidades" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+        <Label text="Marca:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+        <ComboBox fx:id="cmbMarca" prefWidth="180" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
     </GridPane>
 
     <HBox spacing="10">
-        <Button text="Ingresar Lote" onAction="#handleGuardarLote" style="-fx-background-color: #0078d7; -fx-text-fill: white;"/>
-        <Button text="Eliminar Lote" onAction="#handleEliminarLote" style="-fx-background-color: #d83b01; -fx-text-fill: white;"/>
-        <Label fx:id="lblEstado" textFill="#004e8c" wrapText="true"/>
+        <Button text="Registrar Producto" onAction="#handleGuardarProducto" style="-fx-background-color: #2e7d32; -fx-text-fill: white;"/>
+        <Button text="Eliminar Producto" onAction="#handleEliminarProducto" style="-fx-background-color: #c62828; -fx-text-fill: white;"/>
+        <Label fx:id="lblEstado" textFill="#1b5e20" wrapText="true"/>
     </HBox>
 
-    <TableView fx:id="tblLotes" VBox.vgrow="ALWAYS">
+    <TableView fx:id="tblProductos" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="colProducto" text="Producto" prefWidth="250"/>
-            <TableColumn fx:id="colCodigo" text="Código Lote" prefWidth="150"/>
-            <TableColumn fx:id="colCaducidad" text="Fecha Caducidad" prefWidth="140"/>
-            <TableColumn fx:id="colCantidad" text="Cantidad Stock" prefWidth="120"/>
+            <TableColumn fx:id="colNombre" text="Producto" prefWidth="240"/>
+            <TableColumn fx:id="colCategoria" text="Categoría" prefWidth="140"/>
+            <TableColumn fx:id="colMarca" text="Marca" prefWidth="140"/>
+            <TableColumn fx:id="colPrecio" text="Precio Unitario" prefWidth="110"/>
         </columns>
     </TableView>
 </VBox>

@@ -4,27 +4,25 @@
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-        <!-- Parametros de Conexion PostgreSQL -->
         <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
         <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/tienda_maquillaje_db</property>
         <property name="hibernate.connection.username">postgres</property>
-        <property name="hibernate.connection.password">admin</property>
+        <property name="hibernate.connection.password">1234</property>
 
-        <!-- Configuracion Hibernate -->
         <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
         <property name="hibernate.show_sql">true</property>
         <property name="hibernate.format_sql">true</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
 
-        <!-- Registro de las 8 Entidades Persistentes -->
-        <mapping class="ni.edu.uam.proyectofinalpae.models.Usuario"/>
-        <mapping class="ni.edu.uam.proyectofinalpae.models.Cliente"/>
-        <mapping class="ni.edu.uam.proyectofinalpae.models.Categoria"/>
-        <mapping class="ni.edu.uam.proyectofinalpae.models.Marca"/>
-        <mapping class="ni.edu.uam.proyectofinalpae.models.Producto"/>
-        <mapping class="ni.edu.uam.proyectofinalpae.models.Lote"/>
-        <mapping class="ni.edu.uam.proyectofinalpae.models.Servicio"/>
-        <mapping class="ni.edu.uam.proyectofinalpae.models.Cita"/>
-        <mapping class="ni.edu.uam.proyectofinalpae.models.ConsumoInsumo"/>
+        <!-- Entidades Mapeadas -->
+        <mapping class="ni.edu.uam.proyectopae.models.Usuario"/>
+        <mapping class="ni.edu.uam.proyectopae.models.Cliente"/>
+        <mapping class="ni.edu.uam.proyectopae.models.Categoria"/>
+        <mapping class="ni.edu.uam.proyectopae.models.Marca"/>
+        <mapping class="ni.edu.uam.proyectopae.models.Producto"/>
+        <mapping class="ni.edu.uam.proyectopae.models.Lote"/>
+        <mapping class="ni.edu.uam.proyectopae.models.Servicio"/>
+        <mapping class="ni.edu.uam.proyectopae.models.Cita"/>
+        <mapping class="ni.edu.uam.proyectopae.models.ConsumoInsumo"/>
     </session-factory>
 </hibernate-configuration>

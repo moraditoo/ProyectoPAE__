@@ -6,7 +6,7 @@
 
 <VBox alignment="CENTER" spacing="12.0" prefWidth="360.0" prefHeight="320.0"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ni.edu.uam.proyectofinalpae.controllers.LoginController">
+      fx:controller="ni.edu.uam.proyectopae.controllers.LoginController">
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
@@ -17,6 +17,7 @@
     <TextField fx:id="txtUsuario" promptText="Usuario"/>
     <PasswordField fx:id="txtPassword" promptText="Contraseña"/>
 
-    <Button text="Iniciar Sesión" onAction="#handleLogin" maxWidth="Infinity" style="-fx-background-color: #2b5797; -fx-text-fill: white; -fx-font-weight: bold;"/>
+    <Button text="Iniciar Sesión" onAction="#handleLogin" maxWidth="Infinity"
+            style="-fx-background-color: #2b5797; -fx-text-fill: white; -fx-font-weight: bold;"/>
     <Label fx:id="lblMensaje" wrapText="true"/>
 </VBox>

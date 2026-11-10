@@ -1,4 +1,4 @@
-package ni.edu.uam.proyectofinalpae.models;
+package ni.edu.uam.proyectopae.models;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
