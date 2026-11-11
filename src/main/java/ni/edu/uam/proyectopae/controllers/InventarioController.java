@@ -5,6 +5,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import ni.edu.uam.proyectopae.dao.CategoriaDAO;
 import ni.edu.uam.proyectopae.dao.MarcaDAO;
 import ni.edu.uam.proyectopae.dao.ProductoDAO;
@@ -43,7 +45,6 @@ public class InventarioController {
         colMarca.setCellValueFactory(new PropertyValueFactory<>("nombreMarca"));
         colPrecio.setCellValueFactory(new PropertyValueFactory<>("precioVenta"));
 
-        // Al hacer clic en un registro, se cargan sus datos en el formulario para edición
         tblProductos.getSelectionModel().selectedItemProperty().addListener((obs, anterior, seleccionado) -> {
             if (seleccionado != null) {
                 txtNombre.setText(seleccionado.getNombreProducto());
@@ -55,6 +56,13 @@ public class InventarioController {
 
         cargarCatalogosAuxiliares();
         refrescarTabla();
+    }
+
+    @FXML
+    protected void handleEnterGuardar(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            handleGuardarProducto();
+        }
     }
 
     private void cargarCatalogosAuxiliares() {
@@ -72,7 +80,7 @@ public class InventarioController {
             cmbCategoria.setItems(FXCollections.observableArrayList(categoriaDAO.listarTodas()));
             cmbMarca.setItems(FXCollections.observableArrayList(marcaDAO.listarTodas()));
         } catch (Exception e) {
-            mostrarMensaje("Error al sincronizar catálogos de base de datos: " + e.getMessage(), true);
+            mostrarMensaje("Error al sincronizar catálogos: " + e.getMessage(), true);
         }
     }
 
@@ -88,42 +96,49 @@ public class InventarioController {
 
     @FXML
     protected void handleGuardarProducto() {
-        String nombre = txtNombre.getText().trim();
-        String precioTxt = txtPrecio.getText().trim();
+        String nombre = txtNombre.getText() != null ? txtNombre.getText().trim() : "";
+        String precioTxt = txtPrecio.getText() != null ? txtPrecio.getText().trim().replace(",", ".") : "";
         Categoria categoria = cmbCategoria.getValue();
         Marca marca = cmbMarca.getValue();
 
-        if (nombre.isEmpty() || precioTxt.isEmpty() || categoria == null || marca == null) {
-            mostrarMensaje("Validación: Complete todos los campos antes de guardar.", true);
+        // Validaciones estrictas
+        if (nombre.length() < 3) {
+            mostrarMensaje("Validación: El nombre del producto debe contener al menos 3 caracteres.", true);
+            return;
+        }
+
+        if (categoria == null || marca == null) {
+            mostrarMensaje("Validación: Seleccione una Categoría y una Marca válidas.", true);
+            return;
+        }
+
+        if (precioTxt.isEmpty() || !precioTxt.matches("^\\d+(\\.\\d{1,2})?$")) {
+            mostrarMensaje("Validación: Ingrese un precio numérico positivo válido con hasta 2 decimales.", true);
             return;
         }
 
         try {
             BigDecimal precio = new BigDecimal(precioTxt);
             if (precio.compareTo(BigDecimal.ZERO) <= 0) {
-                mostrarMensaje("Validación: El precio debe ser un número positivo.", true);
+                mostrarMensaje("Validación: El precio del producto no puede ser 0 ni negativo.", true);
                 return;
             }
 
             Producto seleccionado = tblProductos.getSelectionModel().getSelectedItem();
             if (seleccionado != null && seleccionado.getNombreProducto().equalsIgnoreCase(nombre)) {
-                // Actualizar registro existente vía ORM
                 seleccionado.setPrecioVenta(precio);
                 seleccionado.setCategoria(categoria);
                 seleccionado.setMarca(marca);
                 productoDAO.actualizar(seleccionado);
                 mostrarMensaje("Producto #" + seleccionado.getIdProducto() + " actualizado en PostgreSQL.", false);
             } else {
-                // Insertar nuevo registro vía ORM
                 Producto nuevo = new Producto(nombre, precio, 5, categoria, marca);
                 productoDAO.guardar(nuevo);
-                mostrarMensaje("Nuevo producto persistido exitosamente en la base de datos.", false);
+                mostrarMensaje("Nuevo producto persistido exitosamente en PostgreSQL.", false);
             }
 
             handleLimpiar();
             refrescarTabla();
-        } catch (NumberFormatException e) {
-            mostrarMensaje("Validación: El formato del precio es incorrecto.", true);
         } catch (Exception e) {
             mostrarMensaje("Error ORM: " + e.getMessage(), true);
         }
@@ -143,7 +158,7 @@ public class InventarioController {
             handleLimpiar();
             refrescarTabla();
         } catch (Exception e) {
-            mostrarMensaje("Restricción referencial: El producto tiene lotes o consumos activos.", true);
+            mostrarMensaje("Restricción referencial: No se puede eliminar, el producto tiene lotes asociados.", true);
         }
     }
 
