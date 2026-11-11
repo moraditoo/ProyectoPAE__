@@ -46,7 +46,7 @@ public class ClienteController {
         refrescarTabla();
     }
 
-    private void refrescarTabla() {
+    public void refrescarTabla() {
         try {
             listaClientes.setAll(clienteDAO.listarTodos());
             tblClientes.setItems(listaClientes);
