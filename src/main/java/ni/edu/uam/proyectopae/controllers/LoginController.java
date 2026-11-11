@@ -6,6 +6,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import ni.edu.uam.proyectopae.dao.UsuarioDAO;
 import ni.edu.uam.proyectopae.models.Usuario;
@@ -26,27 +28,33 @@ public class LoginController {
             }
         } catch (Exception e) {
             lblMensaje.setStyle("-fx-text-fill: red;");
-            lblMensaje.setText("Aviso: Verifique la conexion a PostgreSQL.");
+            lblMensaje.setText("Aviso: Verifique la conexión a PostgreSQL.");
+        }
+    }
+
+    @FXML
+    protected void handleEnterLogin(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            handleLogin();
         }
     }
 
     @FXML
     protected void handleLogin() {
-        String u = txtUsuario.getText().trim();
-        String p = txtPassword.getText().trim();
+        String u = txtUsuario.getText() != null ? txtUsuario.getText().trim() : "";
+        String p = txtPassword.getText() != null ? txtPassword.getText().trim() : "";
 
         if (u.isEmpty() || p.isEmpty()) {
             lblMensaje.setStyle("-fx-text-fill: #b30000;");
-            lblMensaje.setText("Validacion: Complete todos los campos.");
+            lblMensaje.setText("Validación: Complete todos los campos.");
             return;
         }
 
         try {
             Usuario usuario = usuarioDAO.autenticar(u, p);
             if (usuario != null) {
-                // Cargar vista principal con los modulos del sistema
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/ni/edu/uam/proyectopae/main-view.fxml"));
-                Scene scene = new Scene(loader.load(), 850, 600);
+                Scene scene = new Scene(loader.load(), 980, 660);
 
                 Stage stage = (Stage) txtUsuario.getScene().getWindow();
                 stage.setTitle("Tienda de Maquillaje - Panel Principal (" + usuario.getRol() + ")");
@@ -54,12 +62,11 @@ public class LoginController {
                 stage.centerOnScreen();
             } else {
                 lblMensaje.setStyle("-fx-text-fill: red;");
-                lblMensaje.setText("Credenciales invalidas. Intente nuevamente.");
+                lblMensaje.setText("Credenciales inválidas. Intente nuevamente.");
             }
         } catch (Exception ex) {
             lblMensaje.setStyle("-fx-text-fill: red;");
-            lblMensaje.setText("Error al acceder a los modulos: " + ex.getMessage());
-            ex.printStackTrace();
+            lblMensaje.setText("Error al consultar base de datos: " + ex.getMessage());
         }
     }
 }

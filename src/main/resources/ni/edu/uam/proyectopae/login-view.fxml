@@ -14,8 +14,8 @@
     <Label text="Tienda de Maquillaje" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
     <Label text="Acceso al Sistema (PAE)" style="-fx-font-size: 13px; -fx-text-fill: #555;"/>
 
-    <TextField fx:id="txtUsuario" promptText="Usuario"/>
-    <PasswordField fx:id="txtPassword" promptText="Contraseña"/>
+    <TextField fx:id="txtUsuario" promptText="Usuario" onKeyPressed="#handleEnterLogin"/>
+    <PasswordField fx:id="txtPassword" promptText="Contraseña" onKeyPressed="#handleEnterLogin"/>
 
     <Button text="Iniciar Sesión" onAction="#handleLogin" maxWidth="Infinity"
             style="-fx-background-color: #2b5797; -fx-text-fill: white; -fx-font-weight: bold;"/>

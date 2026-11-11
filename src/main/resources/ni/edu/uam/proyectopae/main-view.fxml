@@ -3,19 +3,20 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefHeight="650.0" prefWidth="960.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
-    <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-        <Tab text="Clientes y Fichas">
-            <fx:include source="clientes-view.fxml"/>
+<VBox prefHeight="660.0" prefWidth="980.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ni.edu.uam.proyectopae.controllers.MainViewController">
+    <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <Tab fx:id="tabClientes" text="Clientes y Fichas">
+            <fx:include fx:id="clientesView" source="clientes-view.fxml"/>
         </Tab>
-        <Tab text="Catálogo de Productos">
-            <fx:include source="inventario-view.fxml"/>
+        <Tab fx:id="tabProductos" text="Catálogo de Productos">
+            <fx:include fx:id="inventarioView" source="inventario-view.fxml"/>
         </Tab>
-        <Tab text="Control de Lotes y Caducidad">
-            <fx:include source="lotes-servicios-view.fxml"/>
+        <Tab fx:id="tabLotes" text="Control de Lotes y Caducidad">
+            <fx:include fx:id="lotesView" source="lotes-servicios-view.fxml"/>
         </Tab>
-        <Tab text="Agenda y Citas">
-            <fx:include source="agenda-view.fxml"/>
+        <Tab fx:id="tabAgenda" text="Agenda y Citas">
+            <fx:include fx:id="agendaView" source="agenda-view.fxml"/>
         </Tab>
     </TabPane>
 </VBox>
