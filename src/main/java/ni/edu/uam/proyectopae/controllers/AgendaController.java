@@ -26,7 +26,7 @@ public class AgendaController {
 
     @FXML private ComboBox<Servicio> cmbServicio;
     @FXML private DatePicker dpFecha;
-    @FXML private TextField txtHora;
+    @FXML private ComboBox<String> cmbHora;
     @FXML private Label lblEstado;
 
     @FXML private TableView<Cita> tblCitas;
@@ -52,13 +52,21 @@ public class AgendaController {
         colFecha.setCellValueFactory(new PropertyValueFactory<>("fechaHora"));
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
 
+        configurarSelectorHoras();
         configurarRestriccionFecha();
-        configurarBuscadorCliente();
+        configurarBuscadorClienteReactivo();
         precargarServiciosBase();
         handleRecargarTodo();
     }
 
-    // Deshabilita en el DatePicker cualquier dia anterior a la fecha actual
+    private void configurarSelectorHoras() {
+        cmbHora.setItems(FXCollections.observableArrayList(
+                "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
+                "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM",
+                "06:00 PM", "07:00 PM"
+        ));
+    }
+
     private void configurarRestriccionFecha() {
         dpFecha.setDayCellFactory(picker -> new DateCell() {
             @Override
@@ -72,29 +80,44 @@ public class AgendaController {
         });
     }
 
-    // Filtra dinamicamente la lista de clientes mientras se escribe en el TextField
-    private void configurarBuscadorCliente() {
+    // Busqueda reactiva caracter por caracter
+    private void configurarBuscadorClienteReactivo() {
         FilteredList<Cliente> clientesFiltrados = new FilteredList<>(masterClientes, p -> true);
 
-        txtBuscarCliente.textProperty().addListener((obs, oldVal, newVal) -> {
+        txtBuscarCliente.textProperty().addListener((observable, valorAnterior, valorNuevo) -> {
             clientesFiltrados.setPredicate(cliente -> {
-                if (newVal == null || newVal.trim().isEmpty()) {
+                if (valorNuevo == null || valorNuevo.trim().isEmpty()) {
                     return true;
                 }
-                String filtro = newVal.toLowerCase().trim();
+                String filtro = valorNuevo.toLowerCase().trim();
                 String nombreCompleto = (cliente.getNombres() + " " + cliente.getApellidos()).toLowerCase();
-                String tel = cliente.getTelefono() != null ? cliente.getTelefono() : "";
+                String tel = cliente.getTelefono() != null ? cliente.getTelefono().toLowerCase() : "";
+                String alergias = cliente.getAlergiasPiel() != null ? cliente.getAlergiasPiel().toLowerCase() : "";
 
-                return nombreCompleto.contains(filtro) || tel.contains(filtro);
+                return nombreCompleto.contains(filtro) || tel.contains(filtro) || alergias.contains(filtro);
             });
         });
 
         lstClientesCoincidentes.setItems(clientesFiltrados);
 
+        // Visualizacion detallada del cliente en cada celda
+        lstClientesCoincidentes.setCellFactory(param -> new ListCell<Cliente>() {
+            @Override
+            protected void updateItem(Cliente item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getNombres() + " " + item.getApellidos() + " | Tel: " + item.getTelefono() + " | " + item.getAlergiasPiel());
+                }
+            }
+        });
+
         lstClientesCoincidentes.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, nuevo) -> {
             if (nuevo != null) {
                 clienteSeleccionado = nuevo;
-                lblClienteSeleccionado.setText("Cliente: " + nuevo.getNombres() + " " + nuevo.getApellidos() + " (Tel: " + nuevo.getTelefono() + ")");
+                lblClienteSeleccionado.setText("Cliente: " + nuevo.getNombres() + " " + nuevo.getApellidos() +
+                        " [Tel: " + nuevo.getTelefono() + " | Ficha: " + nuevo.getAlergiasPiel() + "]");
                 lblClienteSeleccionado.setStyle("-fx-text-fill: #1b5e20; -fx-font-weight: bold;");
             }
         });
@@ -118,84 +141,96 @@ public class AgendaController {
             listaCitas.setAll(citaDAO.listarCitasConRelaciones());
             tblCitas.setItems(listaCitas);
         } catch (Exception e) {
-            mostrarMensaje("Error al sincronizar con PostgreSQL: " + e.getMessage(), true);
+            mostrarMensaje("Error al consultar PostgreSQL: " + e.getMessage(), true);
         }
     }
 
     @FXML
     protected void handleAgendarCita() {
-        Servicio srv = cmbServicio.getValue();
+        Servicio servicio = cmbServicio.getValue();
         LocalDate fecha = dpFecha.getValue();
-        String horaTxt = txtHora.getText().trim();
+        String horaSeleccionada = cmbHora.getValue();
 
-        // 1. Validacion de cliente seleccionado mediante buscador
+        // 1. Validacion de seleccion de cliente desde el buscador
         if (clienteSeleccionado == null) {
-            mostrarMensaje("Validación: Debe buscar y seleccionar un cliente de la lista.", true);
+            mostrarMensaje("Validación: Busque y seleccione un cliente de la lista.", true);
             return;
         }
 
-        if (srv == null || fecha == null || horaTxt.isEmpty()) {
-            mostrarMensaje("Validación: Complete todos los campos del turno.", true);
+        if (servicio == null || fecha == null || horaSeleccionada == null) {
+            mostrarMensaje("Validación: Complete todos los campos requeridos.", true);
             return;
         }
 
-        // 2. Validacion de fecha (no se puede agendar en dias pasados)
+        // 2. Validacion de fecha no anterior a hoy
         if (fecha.isBefore(LocalDate.now())) {
-            mostrarMensaje("Regla de negocio: La fecha no puede ser anterior a la actual.", true);
+            mostrarMensaje("Validación: No se pueden programar citas en días anteriores.", true);
             return;
+        }
+
+        // Mapeo de hora militar
+        int hora24 = convertirHora24(horaSeleccionada);
+        LocalDateTime fechaHoraCita = fecha.atTime(hora24, 0);
+
+        // 3. Validacion contra horas pasadas durante el mismo dia
+        if (fecha.isEqual(LocalDate.now()) && fechaHoraCita.isBefore(LocalDateTime.now())) {
+            mostrarMensaje("Validación: La hora seleccionada para el día de hoy ya ha transcurrido.", true);
+            return;
+        }
+
+        // 4. Validacion de solapamiento horario en PostgreSQL
+        for (Cita c : listaCitas) {
+            if ("PROGRAMADA".equalsIgnoreCase(c.getEstado()) && c.getFechaHora().isEqual(fechaHoraCita)) {
+                mostrarMensaje("Conflicto: Ya existe un turno reservado para las " + horaSeleccionada + " de esa fecha.", true);
+                return;
+            }
         }
 
         try {
-            int hora = Integer.parseInt(horaTxt);
-            if (hora < 8 || hora > 19) {
-                mostrarMensaje("Horario laboral: La hora debe encontrarse entre las 8 y las 19 horas.", true);
-                return;
-            }
-
-            LocalDateTime fechaHoraInicio = fecha.atTime(hora, 0);
-
-            // 3. Validacion si la cita es para hoy pero a una hora ya transcurrida
-            if (fecha.isEqual(LocalDate.now()) && fechaHoraInicio.isBefore(LocalDateTime.now())) {
-                mostrarMensaje("Hora inválida: La hora seleccionada para el día de hoy ya ha transcurrido.", true);
-                return;
-            }
-
-            // 4. Validacion de solapamiento de horario contra citas activas
-            for (Cita c : listaCitas) {
-                if ("PROGRAMADA".equalsIgnoreCase(c.getEstado()) && c.getFechaHora().isEqual(fechaHoraInicio)) {
-                    mostrarMensaje("Solapamiento: Ya existe una cita activa programada para las " + hora + ":00 de ese día.", true);
-                    return;
-                }
-            }
-
-            Cita nueva = new Cita(clienteSeleccionado, srv, fechaHoraInicio, "PROGRAMADA");
+            Cita nueva = new Cita(clienteSeleccionado, servicio, fechaHoraCita, "PROGRAMADA");
             citaDAO.agendar(nueva);
 
-            txtHora.clear();
             dpFecha.setValue(null);
-            mostrarMensaje("Cita confirmada y registrada en BD para " + clienteSeleccionado.getNombres() + ".", false);
+            cmbHora.setValue(null);
+            mostrarMensaje("Cita agendada exitosamente para " + clienteSeleccionado.getNombres() + " a las " + horaSeleccionada + ".", false);
             handleRecargarTodo();
-        } catch (NumberFormatException e) {
-            mostrarMensaje("Formato inválido: La hora debe ser un número entero (ej: 9, 14, 18).", true);
         } catch (Exception e) {
             mostrarMensaje("Error ORM al persistir cita: " + e.getMessage(), true);
         }
+    }
+
+    private int convertirHora24(String horaFormato) {
+        return switch (horaFormato) {
+            case "08:00 AM" -> 8;
+            case "09:00 AM" -> 9;
+            case "10:00 AM" -> 10;
+            case "11:00 AM" -> 11;
+            case "12:00 PM" -> 12;
+            case "01:00 PM" -> 13;
+            case "02:00 PM" -> 14;
+            case "03:00 PM" -> 15;
+            case "04:00 PM" -> 16;
+            case "05:00 PM" -> 17;
+            case "06:00 PM" -> 18;
+            case "07:00 PM" -> 19;
+            default -> 8;
+        };
     }
 
     @FXML
     protected void handleCancelarCita() {
         Cita sel = tblCitas.getSelectionModel().getSelectedItem();
         if (sel == null) {
-            mostrarMensaje("Seleccione una cita de la tabla para cancelar.", true);
+            mostrarMensaje("Seleccione una cita activa en la tabla.", true);
             return;
         }
 
         try {
             citaDAO.cancelar(sel.getIdCita());
-            mostrarMensaje("Cita #" + sel.getIdCita() + " cancelada en la base de datos.", false);
+            mostrarMensaje("Cita #" + sel.getIdCita() + " marcada como CANCELADA.", false);
             handleRecargarTodo();
         } catch (Exception e) {
-            mostrarMensaje("Error al actualizar estado en PostgreSQL: " + e.getMessage(), true);
+            mostrarMensaje("Error al cancelar la cita: " + e.getMessage(), true);
         }
     }
 
@@ -206,7 +241,7 @@ public class AgendaController {
             StringBuilder sb = new StringBuilder("HQL 2 (Ingresos por Servicio): ");
             for (Object[] fila : resultados) {
                 sb.append(fila[0]).append(" [Citas: ").append(fila[1])
-                        .append(" | Total: C$").append(fila[2]).append("]  •  ");
+                        .append(" | Ingresos: C$").append(fila[2]).append("]  •  ");
             }
             mostrarMensaje(sb.toString(), false);
         } catch (Exception e) {

@@ -18,19 +18,21 @@
         <ComboBox fx:id="cmbProducto" prefWidth="250" promptText="Seleccionar producto de BD..." GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
         <Label text="Código de Lote:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtCodigoLote" promptText="Ej: LOT-2026-A1" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+        <TextField fx:id="txtCodigoLote" promptText="Ej: LOT-2026-A1" onKeyPressed="#handleEnterGuardar" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
 
         <Label text="Fecha de Caducidad:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
         <DatePicker fx:id="dpFechaCaducidad" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
         <Label text="Cantidad Ingresada:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtCantidad" promptText="Unidades (entero)" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+        <TextField fx:id="txtCantidad" promptText="Unidades (entero)" onKeyPressed="#handleEnterGuardar" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
     </GridPane>
 
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <Button text="Registrar / Actualizar Lote" onAction="#handleGuardarLote" style="-fx-background-color: #0078d7; -fx-text-fill: white; -fx-font-weight: bold;"/>
+        <Button text="Registrar / Actualizar Lote" onAction="#handleGuardarLote"
+                style="-fx-background-color: #0078d7; -fx-text-fill: white; -fx-font-weight: bold;"/>
         <Button text="Limpiar" onAction="#handleLimpiar"/>
-        <Button text="Eliminar Lote" onAction="#handleEliminarLote" style="-fx-background-color: #d83b01; -fx-text-fill: white;"/>
+        <Button text="Eliminar Lote" onAction="#handleEliminarLote"
+                style="-fx-background-color: #d83b01; -fx-text-fill: white;"/>
         <Button text="Sincronizar con BD" onAction="#refrescarTabla"/>
         <Label fx:id="lblEstado" wrapText="true"/>
     </HBox>

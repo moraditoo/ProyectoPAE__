@@ -4,49 +4,53 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10.0" prefWidth="940.0" prefHeight="600.0"
+<VBox spacing="10.0" prefWidth="950.0" prefHeight="600.0"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ni.edu.uam.proyectopae.controllers.AgendaController">
     <padding>
         <Insets top="12" right="15" bottom="12" left="15"/>
     </padding>
 
-    <Label text="Calendarización y Control de Solapamiento de Citas" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+    <Label text="Calendarización y Control de Turnos" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
 
-    <GridPane hgap="12" vgap="8">
-        <!-- Búsqueda dinámica de Clientes -->
+    <GridPane hgap="15" vgap="8">
+        <!-- Buscador Reactivo Caracter por Caracter -->
         <VBox spacing="4" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.rowSpan="3">
-            <Label text="Buscar Cliente (Nombre o Teléfono):" style="-fx-font-weight: bold;"/>
-            <TextField fx:id="txtBuscarCliente" promptText="Escriba para filtrar cliente..."/>
-            <ListView fx:id="lstClientesCoincidentes" prefHeight="100.0" prefWidth="280.0"/>
-            <Label fx:id="lblClienteSeleccionado" text="Cliente: Ninguno seleccionado" style="-fx-text-fill: #2b5797; -fx-font-weight: bold;"/>
+            <Label text="Buscar Cliente en Tiempo Real:" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="txtBuscarCliente" promptText="Escriba nombre, apellido o teléfono..."/>
+            <ListView fx:id="lstClientesCoincidentes" prefHeight="115.0" prefWidth="340.0"/>
+            <Label fx:id="lblClienteSeleccionado" text="Cliente: Ninguno seleccionado"
+                   style="-fx-text-fill: #2b5797; -fx-font-weight: bold;" wrapText="true"/>
         </VBox>
 
-        <!-- Parámetros del servicio y fecha -->
+        <!-- Parámetros de Selección -->
         <Label text="Servicio de Maquillaje:" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-        <ComboBox fx:id="cmbServicio" prefWidth="250" promptText="Seleccionar servicio..." GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+        <ComboBox fx:id="cmbServicio" prefWidth="260" promptText="Seleccionar servicio..." GridPane.rowIndex="0" GridPane.columnIndex="2"/>
 
         <Label text="Fecha de Turno:" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-        <DatePicker fx:id="dpFecha" prefWidth="250" promptText="Seleccionar fecha..." GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+        <DatePicker fx:id="dpFecha" prefWidth="260" promptText="Seleccionar fecha..." GridPane.rowIndex="1" GridPane.columnIndex="2"/>
 
-        <Label text="Hora Militar (8 a 19):" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-        <TextField fx:id="txtHora" promptText="Ej: 9, 14, 18" prefWidth="250" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+        <Label text="Horario Disponible:" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <ComboBox fx:id="cmbHora" prefWidth="260" promptText="Seleccionar hora..." GridPane.rowIndex="2" GridPane.columnIndex="2"/>
     </GridPane>
 
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <Button text="Agendar Cita" onAction="#handleAgendarCita" style="-fx-background-color: #2b5797; -fx-text-fill: white; -fx-font-weight: bold;"/>
-        <Button text="Cancelar Cita" onAction="#handleCancelarCita" style="-fx-background-color: #b30000; -fx-text-fill: white;"/>
-        <Button text="Recargar Clientes/Citas" onAction="#handleRecargarTodo"/>
-        <Button text="Reporte HQL 2" onAction="#handleGenerarResumenHQL" style="-fx-background-color: #333333; -fx-text-fill: white;"/>
+        <Button text="Agendar Cita (ENTER)" onAction="#handleAgendarCita"
+                style="-fx-background-color: #2b5797; -fx-text-fill: white; -fx-font-weight: bold;"/>
+        <Button text="Cancelar Cita" onAction="#handleCancelarCita"
+                style="-fx-background-color: #b30000; -fx-text-fill: white;"/>
+        <Button text="Recargar de BD" onAction="#handleRecargarTodo"/>
+        <Button text="Reporte HQL 2" onAction="#handleGenerarResumenHQL"
+                style="-fx-background-color: #333333; -fx-text-fill: white;"/>
         <Label fx:id="lblEstado" wrapText="true"/>
     </HBox>
 
     <TableView fx:id="tblCitas" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="colCliente" text="Cliente" prefWidth="270"/>
-            <TableColumn fx:id="colServicio" text="Servicio de Maquillaje" prefWidth="250"/>
-            <TableColumn fx:id="colFecha" text="Fecha y Hora de Inicio" prefWidth="180"/>
+            <TableColumn fx:id="colCliente" text="Cliente (Ficha Técnica)" prefWidth="270"/>
+            <TableColumn fx:id="colServicio" text="Servicio" prefWidth="240"/>
+            <TableColumn fx:id="colFecha" text="Fecha y Hora de Turno" prefWidth="180"/>
             <TableColumn fx:id="colEstado" text="Estado" prefWidth="120"/>
         </columns>
     </TableView>

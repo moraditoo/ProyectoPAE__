@@ -5,6 +5,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import ni.edu.uam.proyectopae.dao.LoteDAO;
 import ni.edu.uam.proyectopae.dao.ProductoDAO;
 import ni.edu.uam.proyectopae.models.Lote;
@@ -39,6 +41,18 @@ public class LotesServiciosController {
         colCaducidad.setCellValueFactory(new PropertyValueFactory<>("fechaCaducidad"));
         colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadDisponible"));
 
+        // Bloqueo de fechas pasadas en el DatePicker de caducidad
+        dpFechaCaducidad.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                if (date != null && date.isBefore(LocalDate.now())) {
+                    setDisable(true);
+                    setStyle("-fx-background-color: #f2f2f2; -fx-text-fill: #a0a0a0;");
+                }
+            }
+        });
+
         tblLotes.getSelectionModel().selectedItemProperty().addListener((obs, anterior, sel) -> {
             if (sel != null) {
                 txtCodigoLote.setText(sel.getCodigoLote());
@@ -48,8 +62,14 @@ public class LotesServiciosController {
             }
         });
 
-        cargarProductos();
         refrescarTabla();
+    }
+
+    @FXML
+    protected void handleEnterGuardar(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            handleGuardarLote();
+        }
     }
 
     public void cargarProductos() {
@@ -74,48 +94,50 @@ public class LotesServiciosController {
     @FXML
     protected void handleGuardarLote() {
         Producto producto = cmbProducto.getValue();
-        String codigo = txtCodigoLote.getText().trim();
+        String codigo = txtCodigoLote.getText() != null ? txtCodigoLote.getText().trim() : "";
         LocalDate vencimiento = dpFechaCaducidad.getValue();
-        String cantidadTxt = txtCantidad.getText().trim();
+        String cantidadTxt = txtCantidad.getText() != null ? txtCantidad.getText().trim() : "";
 
-        if (producto == null || codigo.isEmpty() || vencimiento == null || cantidadTxt.isEmpty()) {
-            mostrarMensaje("Validación: Debe completar todos los campos del lote.", true);
+        if (producto == null) {
+            mostrarMensaje("Validación: Debe seleccionar el producto correspondiente.", true);
             return;
         }
 
-        if (vencimiento.isBefore(LocalDate.now())) {
-            mostrarMensaje("Alerta Sanitaria: No se permite registrar productos con fecha de vencimiento expirada.", true);
+        if (codigo.length() < 3 || !codigo.matches("^[A-Za-z0-9_-]+$")) {
+            mostrarMensaje("Validación: El código debe tener mínimo 3 caracteres alfanuméricos (sin espacios).", true);
+            return;
+        }
+
+        if (vencimiento == null || vencimiento.isBefore(LocalDate.now())) {
+            mostrarMensaje("Alerta Sanitaria: Debe seleccionar una fecha de caducidad futura.", true);
+            return;
+        }
+
+        if (!cantidadTxt.matches("^[1-9]\\d*$")) {
+            mostrarMensaje("Validación: La cantidad ingresada debe ser un entero positivo mayor a cero.", true);
             return;
         }
 
         try {
             int cantidad = Integer.parseInt(cantidadTxt);
-            if (cantidad <= 0) {
-                mostrarMensaje("Validación: El stock disponible debe ser mayor a 0.", true);
-                return;
-            }
 
             Lote seleccionado = tblLotes.getSelectionModel().getSelectedItem();
             if (seleccionado != null && seleccionado.getCodigoLote().equalsIgnoreCase(codigo)) {
-                // Actualizar lote existente vía Hibernate merge
                 seleccionado.setFechaCaducidad(vencimiento);
                 seleccionado.setCantidadDisponible(cantidad);
                 seleccionado.setProducto(producto);
                 loteDAO.actualizar(seleccionado);
-                mostrarMensaje("Lote #" + seleccionado.getIdLote() + " actualizado en PostgreSQL.", false);
+                mostrarMensaje("Lote #" + seleccionado.getIdLote() + " actualizado correctamente.", false);
             } else {
-                // Persistir nuevo lote vía Hibernate persist
                 Lote nuevo = new Lote(codigo, vencimiento, cantidad, producto);
                 loteDAO.guardar(nuevo);
-                mostrarMensaje("Lote registrado exitosamente con Hibernate.", false);
+                mostrarMensaje("Lote registrado en PostgreSQL con Hibernate.", false);
             }
 
             handleLimpiar();
             refrescarTabla();
-        } catch (NumberFormatException e) {
-            mostrarMensaje("Validación: La cantidad debe ser un número entero.", true);
         } catch (Exception e) {
-            mostrarMensaje("Error en base de datos (posible código de lote duplicado): " + e.getMessage(), true);
+            mostrarMensaje("Error al persistir lote (código duplicado o fallo BD): " + e.getMessage(), true);
         }
     }
 
@@ -133,7 +155,7 @@ public class LotesServiciosController {
             handleLimpiar();
             refrescarTabla();
         } catch (Exception e) {
-            mostrarMensaje("Restricción referencial: No se puede eliminar, el lote tiene registros de consumo.", true);
+            mostrarMensaje("Restricción referencial: No se puede eliminar, el lote posee consumos registrados.", true);
         }
     }
 
@@ -150,4 +172,4 @@ public class LotesServiciosController {
         lblEstado.setStyle(esError ? "-fx-text-fill: #b30000; -fx-font-weight: bold;" : "-fx-text-fill: #1b5e20; -fx-font-weight: bold;");
         lblEstado.setText(texto);
     }
-}
+}   
