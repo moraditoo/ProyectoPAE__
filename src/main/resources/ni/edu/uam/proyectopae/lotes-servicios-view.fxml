@@ -1,49 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import ni.edu.uam.proyectopae.util.Icono?>
 
-<VBox spacing="12.0" prefWidth="920.0" prefHeight="580.0"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ni.edu.uam.proyectopae.controllers.LotesServiciosController">
-    <padding>
-        <Insets top="15" right="15" bottom="15" left="15"/>
-    </padding>
+<BorderPane prefWidth="1200.0" prefHeight="760.0"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ni.edu.uam.proyectopae.controllers.LotesServiciosController">
+    <top>
+        <HBox alignment="CENTER_LEFT"><properties estilo="encabezado-modulo"/>
+            <Icono tipo="LOTES" tamano="30"><properties estilo="icono-encabezado"/></Icono>
+            <VBox>
+                <Label text="Lotes y Caducidad"><properties estilo="titulo-modulo"/></Label>
+                <Label text="Ingreso de lotes de insumos y monitoreo de fechas de vencimiento"><properties estilo="subtitulo-modulo"/></Label>
+            </VBox>
+        </HBox>
+    </top>
 
-    <Label text="Control de Lotes de Insumos y Monitoreo de Caducidad" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+    <center>
+        <HBox><properties estilo="contenido-modulo"/>
+            <!-- Formulario -->
+            <VBox spacing="14" prefWidth="430" minWidth="430" maxWidth="460"><properties estilo="card"/>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Datos del lote"><properties estilo="titulo-seccion"/>
+                        <graphic><Icono tipo="LOTES" tamano="18"/></graphic>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblModo" text="Nuevo registro"><properties estilo="indicador-modo"/></Label>
+                </HBox>
 
-    <GridPane hgap="10" vgap="10">
-        <Label text="Producto Relacionado:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="cmbProducto" prefWidth="250" promptText="Seleccionar producto de BD..." GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <GridPane hgap="12" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50"/>
+                        <ColumnConstraints percentWidth="50"/>
+                    </columnConstraints>
 
-        <Label text="Código de Lote:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtCodigoLote" promptText="Ej: LOT-2026-A1" onKeyPressed="#handleEnterGuardar" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                    <VBox spacing="5" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                        <Label text="Producto *"><properties estilo="etiqueta-campo"/></Label>
+                        <ComboBox fx:id="cmbProducto" promptText="Seleccionar producto..."/>
+                    </VBox>
 
-        <Label text="Fecha de Caducidad:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <DatePicker fx:id="dpFechaCaducidad" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <VBox spacing="5" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                        <Label text="Código de lote *"><properties estilo="etiqueta-campo"/></Label>
+                        <TextField fx:id="txtCodigoLote" promptText="Ej: LOT-2026-A1" onKeyPressed="#handleEnterGuardar"/>
+                    </VBox>
+                    <VBox spacing="5" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                        <Label text="Cantidad (unidades) *"><properties estilo="etiqueta-campo"/></Label>
+                        <TextField fx:id="txtCantidad" promptText="Ej: 24" onKeyPressed="#handleEnterGuardar"/>
+                    </VBox>
 
-        <Label text="Cantidad Ingresada:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtCantidad" promptText="Unidades (entero)" onKeyPressed="#handleEnterGuardar" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
-    </GridPane>
+                    <VBox spacing="5" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                        <Label text="Fecha de caducidad *"><properties estilo="etiqueta-campo"/>
+                            <graphic><Icono tipo="RELOJ" tamano="14"/></graphic>
+                        </Label>
+                        <DatePicker fx:id="dpFechaCaducidad" promptText="dd/mm/aaaa"/>
+                    </VBox>
+                </GridPane>
 
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Button text="Registrar / Actualizar Lote" onAction="#handleGuardarLote"
-                style="-fx-background-color: #0078d7; -fx-text-fill: white; -fx-font-weight: bold;"/>
-        <Button text="Limpiar" onAction="#handleLimpiar"/>
-        <Button text="Eliminar Lote" onAction="#handleEliminarLote"
-                style="-fx-background-color: #d83b01; -fx-text-fill: white;"/>
-        <Button text="Sincronizar con BD" onAction="#refrescarTabla"/>
-        <Label fx:id="lblEstado" wrapText="true"/>
-    </HBox>
+                <Label fx:id="lblAyuda" wrapText="true"><properties estilo="texto-ayuda"/></Label>
 
-    <TableView fx:id="tblLotes" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="colProducto" text="Producto Cosmético" prefWidth="280"/>
-            <TableColumn fx:id="colCodigo" text="Código de Lote" prefWidth="180"/>
-            <TableColumn fx:id="colCaducidad" text="Fecha de Caducidad" prefWidth="160"/>
-            <TableColumn fx:id="colCantidad" text="Stock Disponible" prefWidth="140"/>
-        </columns>
-    </TableView>
-</VBox>
+                <HBox spacing="10">
+                    <Button text="Guardar" onAction="#handleGuardarLote"><properties estilo="btn-primario"/>
+                        <graphic><Icono tipo="GUARDAR"/></graphic>
+                        <tooltip><Tooltip text="Registra un lote nuevo o actualiza el seleccionado"/></tooltip>
+                    </Button>
+                    <Button text="Nuevo" onAction="#handleLimpiar"><properties estilo="btn-secundario"/>
+                        <graphic><Icono tipo="NUEVO"/></graphic>
+                    </Button>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Eliminar" onAction="#handleEliminarLote"><properties estilo="btn-peligro"/>
+                        <graphic><Icono tipo="ELIMINAR"/></graphic>
+                    </Button>
+                </HBox>
+            </VBox>
+
+            <!-- Listado -->
+            <VBox spacing="12" HBox.hgrow="ALWAYS"><properties estilo="card"/>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Lotes registrados"><properties estilo="titulo-seccion"/>
+                        <graphic><Icono tipo="INVENTARIO" tamano="18"/></graphic>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Icono tipo="BUSCAR"/>
+                    <TextField fx:id="txtBuscar" promptText="Buscar por producto o código..." prefWidth="240"/>
+                    <Button onAction="#refrescarTabla"><properties estilo="btn-secundario"/>
+                        <graphic><Icono tipo="REFRESCAR"/></graphic>
+                        <tooltip><Tooltip text="Recargar desde la base de datos"/></tooltip>
+                    </Button>
+                </HBox>
+
+                <TableView fx:id="tblLotes" VBox.vgrow="ALWAYS">
+                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+                    <placeholder><Label text="No hay lotes registrados."><properties estilo="texto-ayuda"/></Label></placeholder>
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="55" maxWidth="70"/>
+                        <TableColumn fx:id="colProducto" text="Producto" prefWidth="240"/>
+                        <TableColumn fx:id="colCodigo" text="Código de lote" prefWidth="150"/>
+                        <TableColumn fx:id="colCaducidad" text="Caducidad" prefWidth="120"/>
+                        <TableColumn fx:id="colCantidad" text="Disponible" prefWidth="100"/>
+                        <TableColumn fx:id="colEstado" text="Estado" prefWidth="170"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

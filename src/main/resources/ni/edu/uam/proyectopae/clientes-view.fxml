@@ -3,44 +3,117 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import ni.edu.uam.proyectopae.util.Icono?>
 
-<VBox spacing="10.0" prefWidth="900.0" prefHeight="550.0"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ni.edu.uam.proyectopae.controllers.ClienteController">
-    <padding>
-        <Insets top="15" right="15" bottom="15" left="15"/>
-    </padding>
+<BorderPane prefWidth="1200.0" prefHeight="760.0"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ni.edu.uam.proyectopae.controllers.ClienteController">
+    <top>
+        <HBox alignment="CENTER_LEFT"><properties estilo="encabezado-modulo"/>
+            <Icono tipo="CLIENTES" tamano="30"><properties estilo="icono-encabezado"/></Icono>
+            <VBox>
+                <Label text="Clientes"><properties estilo="titulo-modulo"/></Label>
+                <Label text="Registro de clientes, datos de contacto y sensibilidad de la piel"><properties estilo="subtitulo-modulo"/></Label>
+            </VBox>
+        </HBox>
+    </top>
 
-    <Label text="Registro y Ficha Médica de Clientes" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+    <center>
+        <HBox><properties estilo="contenido-modulo"/>
+            <!-- Formulario -->
+            <VBox spacing="14" prefWidth="430" minWidth="430" maxWidth="460"><properties estilo="card"/>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Registro de Cliente"><properties estilo="titulo-seccion"/>
+                        <graphic><Icono tipo="PERSONA" tamano="18"/></graphic>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblModo" text="Nuevo registro"><properties estilo="indicador-modo"/></Label>
+                </HBox>
 
-    <GridPane hgap="10" vgap="10">
-        <Label text="Nombres:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtNombres" promptText="Nombres del cliente" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <GridPane hgap="12" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50"/>
+                        <ColumnConstraints percentWidth="50"/>
+                    </columnConstraints>
 
-        <Label text="Apellidos:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtApellidos" promptText="Apellidos del cliente" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                    <VBox spacing="5" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                        <Label text="Nombres *"><properties estilo="etiqueta-campo"/></Label>
+                        <TextField fx:id="txtNombres" promptText="Nombres del cliente"/>
+                    </VBox>
+                    <VBox spacing="5" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                        <Label text="Apellidos *"><properties estilo="etiqueta-campo"/></Label>
+                        <TextField fx:id="txtApellidos" promptText="Apellidos del cliente"/>
+                    </VBox>
 
-        <Label text="Teléfono:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtTelefono" promptText="Ej: 88887777" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <VBox spacing="5" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                        <Label text="Sexo *"><properties estilo="etiqueta-campo"/></Label>
+                        <ComboBox fx:id="cmbSexo" promptText="Seleccionar..."/>
+                    </VBox>
+                    <VBox spacing="5" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                        <Label text="Teléfono"><properties estilo="etiqueta-campo"/></Label>
+                        <TextField fx:id="txtTelefono" promptText="Ej: 88887777"/>
+                    </VBox>
 
-        <Label text="Alergias / Sensibilidad Dérmica:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtAlergias" promptText="Ninguna, piel atopica, reactiva a parabenos..." GridPane.rowIndex="1" GridPane.columnIndex="3"/>
-    </GridPane>
+                    <VBox spacing="5" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                        <Label text="Correo electrónico"><properties estilo="etiqueta-campo"/></Label>
+                        <TextField fx:id="txtEmail" promptText="Ej: cliente@correo.com"/>
+                    </VBox>
 
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Button text="Guardar Cliente" onAction="#handleGuardarCliente" style="-fx-background-color: #2b5797; -fx-text-fill: white; -fx-font-weight: bold;"/>
-        <Button text="Limpiar Campos" onAction="#handleLimpiarCampos"/>
-        <Button text="Eliminar Seleccionado" onAction="#handleEliminarCliente" style="-fx-background-color: #b30000; -fx-text-fill: white;"/>
-        <Label fx:id="lblEstado" wrapText="true"/>
-    </HBox>
+                    <VBox spacing="5" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                        <Label text="Alergias / Sensibilidad dérmica"><properties estilo="etiqueta-campo"/></Label>
+                        <TextArea fx:id="txtAlergias" promptText="Ninguna, piel atópica, reactiva a parabenos..."
+                                  prefRowCount="3" wrapText="true"/>
+                    </VBox>
+                </GridPane>
 
-    <TableView fx:id="tblClientes" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="colNombres" text="Nombres" prefWidth="180"/>
-            <TableColumn fx:id="colApellidos" text="Apellidos" prefWidth="180"/>
-            <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="130"/>
-            <TableColumn fx:id="colAlergias" text="Alergias / Ficha Técnica" prefWidth="320"/>
-        </columns>
-    </TableView>
-</VBox>
+                <Label text="* Campos obligatorios. Seleccione un cliente de la tabla para editarlo." wrapText="true"><properties estilo="texto-ayuda"/></Label>
+
+                <HBox spacing="10">
+                    <Button text="Guardar" onAction="#handleGuardarCliente" defaultButton="true"><properties estilo="btn-primario"/>
+                        <graphic><Icono tipo="GUARDAR"/></graphic>
+                        <tooltip><Tooltip text="Registra un cliente nuevo o actualiza el seleccionado"/></tooltip>
+                    </Button>
+                    <Button text="Nuevo" onAction="#handleLimpiarCampos"><properties estilo="btn-secundario"/>
+                        <graphic><Icono tipo="NUEVO"/></graphic>
+                        <tooltip><Tooltip text="Limpia el formulario para registrar un cliente nuevo"/></tooltip>
+                    </Button>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Eliminar" onAction="#handleEliminarCliente"><properties estilo="btn-peligro"/>
+                        <graphic><Icono tipo="ELIMINAR"/></graphic>
+                    </Button>
+                </HBox>
+            </VBox>
+
+            <!-- Listado -->
+            <VBox spacing="12" HBox.hgrow="ALWAYS"><properties estilo="card"/>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Clientes registrados"><properties estilo="titulo-seccion"/>
+                        <graphic><Icono tipo="CLIENTES" tamano="18"/></graphic>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Icono tipo="BUSCAR"/>
+                    <TextField fx:id="txtBuscar" promptText="Buscar por nombre, teléfono o correo..." prefWidth="280"/>
+                    <Button onAction="#refrescarTabla"><properties estilo="btn-secundario"/>
+                        <graphic><Icono tipo="REFRESCAR"/></graphic>
+                        <tooltip><Tooltip text="Recargar desde la base de datos"/></tooltip>
+                    </Button>
+                </HBox>
+
+                <TableView fx:id="tblClientes" VBox.vgrow="ALWAYS">
+                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+                    <placeholder><Label text="No hay clientes registrados."><properties estilo="texto-ayuda"/></Label></placeholder>
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="55" maxWidth="70"/>
+                        <TableColumn fx:id="colNombres" text="Nombres" prefWidth="150"/>
+                        <TableColumn fx:id="colApellidos" text="Apellidos" prefWidth="150"/>
+                        <TableColumn fx:id="colSexo" text="Sexo" prefWidth="95"/>
+                        <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="110"/>
+                        <TableColumn fx:id="colEmail" text="Correo electrónico" prefWidth="200"/>
+                        <TableColumn fx:id="colAlergias" text="Alergias / Sensibilidad" prefWidth="220"/>
+                    </columns>
+                </TableView>
+                <Label fx:id="lblTotal"><properties estilo="texto-ayuda"/></Label>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

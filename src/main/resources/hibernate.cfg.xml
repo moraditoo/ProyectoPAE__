@@ -24,5 +24,7 @@
         <mapping class="ni.edu.uam.proyectopae.models.Servicio"/>
         <mapping class="ni.edu.uam.proyectopae.models.Cita"/>
         <mapping class="ni.edu.uam.proyectopae.models.ConsumoInsumo"/>
+        <mapping class="ni.edu.uam.proyectopae.models.Venta"/>
+        <mapping class="ni.edu.uam.proyectopae.models.DetalleVenta"/>
     </session-factory>
 </hibernate-configuration>

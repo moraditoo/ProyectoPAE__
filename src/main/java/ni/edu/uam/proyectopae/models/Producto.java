@@ -20,6 +20,10 @@ public class Producto {
     @Column(name = "precio_venta", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioVenta;
 
+    // Columna nueva: se agrega con valor por defecto 0 para conservar los productos existentes
+    @Column(name = "precio_compra", precision = 10, scale = 2, columnDefinition = "numeric(10,2) default 0")
+    private BigDecimal precioCompra = BigDecimal.ZERO;
+
     @Column(name = "stock_minimo", nullable = false)
     private Integer stockMinimo = 5;
 
@@ -35,6 +39,11 @@ public class Producto {
     private List<Lote> lotes = new ArrayList<>();
 
     public Producto() {}
+
+    public Producto(String nombreProducto, BigDecimal precioCompra, BigDecimal precioVenta, Integer stockMinimo, Categoria categoria, Marca marca) {
+        this(nombreProducto, precioVenta, stockMinimo, categoria, marca);
+        this.precioCompra = precioCompra;
+    }
 
     public Producto(String nombreProducto, BigDecimal precioVenta, Integer stockMinimo, Categoria categoria, Marca marca) {
         this.nombreProducto = nombreProducto;
@@ -52,6 +61,14 @@ public class Producto {
 
     public BigDecimal getPrecioVenta() { return precioVenta; }
     public void setPrecioVenta(BigDecimal precioVenta) { this.precioVenta = precioVenta; }
+
+    public BigDecimal getPrecioCompra() { return precioCompra != null ? precioCompra : BigDecimal.ZERO; }
+    public void setPrecioCompra(BigDecimal precioCompra) { this.precioCompra = precioCompra; }
+
+    /** Ganancia por unidad vendida (precio de venta - precio de compra). */
+    public BigDecimal getGananciaUnitaria() {
+        return (precioVenta != null ? precioVenta : BigDecimal.ZERO).subtract(getPrecioCompra());
+    }
 
     public Integer getStockMinimo() { return stockMinimo; }
     public void setStockMinimo(Integer stockMinimo) { this.stockMinimo = stockMinimo; }

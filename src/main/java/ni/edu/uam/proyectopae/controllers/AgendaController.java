@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import ni.edu.uam.proyectopae.dao.CitaDAO;
@@ -12,13 +13,20 @@ import ni.edu.uam.proyectopae.dao.ServicioDAO;
 import ni.edu.uam.proyectopae.models.Cita;
 import ni.edu.uam.proyectopae.models.Cliente;
 import ni.edu.uam.proyectopae.models.Servicio;
+import ni.edu.uam.proyectopae.util.Alertas;
+import ni.edu.uam.proyectopae.util.EventosDatos;
+import ni.edu.uam.proyectopae.util.Icono;
+import ni.edu.uam.proyectopae.util.Refrescable;
+import ni.edu.uam.proyectopae.util.Tablas;
+import ni.edu.uam.proyectopae.util.Tema;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-public class AgendaController {
+public class AgendaController implements Refrescable {
 
     @FXML private TextField txtBuscarCliente;
     @FXML private ListView<Cliente> lstClientesCoincidentes;
@@ -27,14 +35,13 @@ public class AgendaController {
     @FXML private ComboBox<Servicio> cmbServicio;
     @FXML private DatePicker dpFecha;
     @FXML private ComboBox<String> cmbHora;
-    @FXML private Label lblEstado;
 
     @FXML private TableView<Cita> tblCitas;
     @FXML private TableColumn<Cita, Integer> colId;
     @FXML private TableColumn<Cita, String> colCliente;
     @FXML private TableColumn<Cita, String> colServicio;
     @FXML private TableColumn<Cita, LocalDateTime> colFecha;
-    @FXML private TableColumn<Cita, String> colEstado;
+    @FXML private TableColumn<Cita, Cita> colEstado;
 
     private final CitaDAO citaDAO = new CitaDAO();
     private final ClienteDAO clienteDAO = new ClienteDAO();
@@ -50,12 +57,19 @@ public class AgendaController {
         colCliente.setCellValueFactory(new PropertyValueFactory<>("nombreCliente"));
         colServicio.setCellValueFactory(new PropertyValueFactory<>("nombreServicio"));
         colFecha.setCellValueFactory(new PropertyValueFactory<>("fechaHora"));
-        colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
+        Tablas.formato(colFecha, Tablas::fechaHora);
+        Tablas.grafico(colEstado, AgendaController::estadoCita);
+        tblCitas.setItems(listaCitas);
 
         configurarSelectorHoras();
         configurarRestriccionFecha();
         configurarBuscadorClienteReactivo();
         precargarServiciosBase();
+        handleRecargarTodo();
+    }
+
+    @Override
+    public void refrescar() {
         handleRecargarTodo();
     }
 
@@ -74,7 +88,7 @@ public class AgendaController {
                 super.updateItem(date, empty);
                 if (date != null && date.isBefore(LocalDate.now())) {
                     setDisable(true);
-                    setStyle("-fx-background-color: #eeeeee; -fx-text-fill: #999999;");
+                    Tema.diaDeshabilitado(this);
                 }
             }
         });
@@ -92,13 +106,15 @@ public class AgendaController {
                 String filtro = valorNuevo.toLowerCase().trim();
                 String nombreCompleto = (cliente.getNombres() + " " + cliente.getApellidos()).toLowerCase();
                 String tel = cliente.getTelefono() != null ? cliente.getTelefono().toLowerCase() : "";
+                String email = cliente.getEmail() != null ? cliente.getEmail().toLowerCase() : "";
                 String alergias = cliente.getAlergiasPiel() != null ? cliente.getAlergiasPiel().toLowerCase() : "";
 
-                return nombreCompleto.contains(filtro) || tel.contains(filtro) || alergias.contains(filtro);
+                return nombreCompleto.contains(filtro) || tel.contains(filtro) || email.contains(filtro) || alergias.contains(filtro);
             });
         });
 
         lstClientesCoincidentes.setItems(clientesFiltrados);
+        lstClientesCoincidentes.setPlaceholder(new Label("Sin coincidencias"));
 
         // Visualizacion detallada del cliente en cada celda
         lstClientesCoincidentes.setCellFactory(param -> new ListCell<Cliente>() {
@@ -107,8 +123,12 @@ public class AgendaController {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
+                    setGraphic(null);
                 } else {
-                    setText(item.getNombres() + " " + item.getApellidos() + " | Tel: " + item.getTelefono() + " | " + item.getAlergiasPiel());
+                    setText(item.getNombres() + " " + item.getApellidos()
+                            + (item.getTelefono() != null ? "  |  Tel: " + item.getTelefono() : "")
+                            + "  |  " + item.getAlergiasPiel());
+                    setGraphic(new Icono(Icono.Tipo.PERSONA, 14));
                 }
             }
         });
@@ -116,9 +136,9 @@ public class AgendaController {
         lstClientesCoincidentes.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, nuevo) -> {
             if (nuevo != null) {
                 clienteSeleccionado = nuevo;
-                lblClienteSeleccionado.setText("Cliente: " + nuevo.getNombres() + " " + nuevo.getApellidos() +
-                        " [Tel: " + nuevo.getTelefono() + " | Ficha: " + nuevo.getAlergiasPiel() + "]");
-                lblClienteSeleccionado.setStyle("-fx-text-fill: #1b5e20; -fx-font-weight: bold;");
+                lblClienteSeleccionado.setText("Cliente: " + nuevo.getNombres() + " " + nuevo.getApellidos()
+                        + "  ·  Ficha: " + nuevo.getAlergiasPiel());
+                lblClienteSeleccionado.setGraphic(new Icono(Icono.Tipo.EXITO, 15));
             }
         });
     }
@@ -137,11 +157,20 @@ public class AgendaController {
     public void handleRecargarTodo() {
         try {
             masterClientes.setAll(clienteDAO.listarTodos());
+            if (clienteSeleccionado != null && masterClientes.stream()
+                    .noneMatch(c -> c.getIdCliente().equals(clienteSeleccionado.getIdCliente()))) {
+                limpiarClienteSeleccionado();
+            }
+            Servicio servicioActual = cmbServicio.getValue();
             cmbServicio.setItems(FXCollections.observableArrayList(servicioDAO.listarTodos()));
+            if (servicioActual != null) {
+                cmbServicio.getItems().stream()
+                        .filter(s -> s.getIdServicio().equals(servicioActual.getIdServicio()))
+                        .findFirst().ifPresent(cmbServicio::setValue);
+            }
             listaCitas.setAll(citaDAO.listarCitasConRelaciones());
-            tblCitas.setItems(listaCitas);
         } catch (Exception e) {
-            mostrarMensaje("Error al consultar PostgreSQL: " + e.getMessage(), true);
+            Alertas.errorBD("cargar la agenda", e);
         }
     }
 
@@ -151,20 +180,20 @@ public class AgendaController {
         LocalDate fecha = dpFecha.getValue();
         String horaSeleccionada = cmbHora.getValue();
 
-        // 1. Validacion de seleccion de cliente desde el buscador
-        if (clienteSeleccionado == null) {
-            mostrarMensaje("Validación: Busque y seleccione un cliente de la lista.", true);
-            return;
-        }
-
-        if (servicio == null || fecha == null || horaSeleccionada == null) {
-            mostrarMensaje("Validación: Complete todos los campos requeridos.", true);
+        // 1. Validacion de campos obligatorios (cliente desde el buscador)
+        List<String> faltantes = new ArrayList<>();
+        if (clienteSeleccionado == null) faltantes.add("Cliente (búsquelo y selecciónelo en la lista)");
+        if (servicio == null) faltantes.add("Servicio");
+        if (fecha == null) faltantes.add("Fecha");
+        if (horaSeleccionada == null) faltantes.add("Hora");
+        if (!faltantes.isEmpty()) {
+            Alertas.camposObligatorios(faltantes);
             return;
         }
 
         // 2. Validacion de fecha no anterior a hoy
         if (fecha.isBefore(LocalDate.now())) {
-            mostrarMensaje("Validación: No se pueden programar citas en días anteriores.", true);
+            Alertas.datoInvalido("No se pueden programar citas en días anteriores a hoy.");
             return;
         }
 
@@ -174,14 +203,15 @@ public class AgendaController {
 
         // 3. Validacion contra horas pasadas durante el mismo dia
         if (fecha.isEqual(LocalDate.now()) && fechaHoraCita.isBefore(LocalDateTime.now())) {
-            mostrarMensaje("Validación: La hora seleccionada para el día de hoy ya ha transcurrido.", true);
+            Alertas.datoInvalido("La hora seleccionada para el día de hoy ya ha transcurrido.");
             return;
         }
 
         // 4. Validacion de solapamiento horario en PostgreSQL
         for (Cita c : listaCitas) {
             if ("PROGRAMADA".equalsIgnoreCase(c.getEstado()) && c.getFechaHora().isEqual(fechaHoraCita)) {
-                mostrarMensaje("Conflicto: Ya existe un turno reservado para las " + horaSeleccionada + " de esa fecha.", true);
+                Alertas.advertencia("Horario no disponible",
+                        "Ya existe un turno reservado para las " + horaSeleccionada + " del " + Tablas.fecha(fecha) + ".");
                 return;
             }
         }
@@ -190,12 +220,15 @@ public class AgendaController {
             Cita nueva = new Cita(clienteSeleccionado, servicio, fechaHoraCita, "PROGRAMADA");
             citaDAO.agendar(nueva);
 
+            Alertas.exito("Registro realizado correctamente",
+                    "Cita agendada para " + clienteSeleccionado.getNombres() + " " + clienteSeleccionado.getApellidos()
+                            + " el " + Tablas.fecha(fecha) + " a las " + horaSeleccionada + ".");
             dpFecha.setValue(null);
             cmbHora.setValue(null);
-            mostrarMensaje("Cita agendada exitosamente para " + clienteSeleccionado.getNombres() + " a las " + horaSeleccionada + ".", false);
             handleRecargarTodo();
+            EventosDatos.publicar(this);
         } catch (Exception e) {
-            mostrarMensaje("Error ORM al persistir cita: " + e.getMessage(), true);
+            Alertas.errorBD("agendar la cita", e);
         }
     }
 
@@ -219,38 +252,91 @@ public class AgendaController {
 
     @FXML
     protected void handleCancelarCita() {
-        Cita sel = tblCitas.getSelectionModel().getSelectedItem();
-        if (sel == null) {
-            mostrarMensaje("Seleccione una cita activa en la tabla.", true);
+        Cita sel = citaProgramadaSeleccionada("cancelar");
+        if (sel == null) return;
+        if (!Alertas.confirmar("¿Cancelar la cita #" + sel.getIdCita() + "?",
+                sel.getNombreCliente() + " — " + sel.getNombreServicio() + " (" + Tablas.fechaHora(sel.getFechaHora()) + ")")) {
             return;
         }
 
         try {
             citaDAO.cancelar(sel.getIdCita());
-            mostrarMensaje("Cita #" + sel.getIdCita() + " marcada como CANCELADA.", false);
+            Alertas.exito("Información actualizada correctamente", "La cita #" + sel.getIdCita() + " fue marcada como CANCELADA.");
             handleRecargarTodo();
+            EventosDatos.publicar(this);
         } catch (Exception e) {
-            mostrarMensaje("Error al cancelar la cita: " + e.getMessage(), true);
+            Alertas.errorBD("cancelar la cita", e);
         }
+    }
+
+    /** El servicio se prestó y se cobró: pasa a contar como ingreso en el Dashboard financiero. */
+    @FXML
+    protected void handleMarcarRealizada() {
+        Cita sel = citaProgramadaSeleccionada("marcar como realizada");
+        if (sel == null) return;
+        if (sel.getFechaHora().isAfter(LocalDateTime.now())
+                && !Alertas.confirmar("La cita aún no ha llegado a su hora",
+                "Está programada para " + Tablas.fechaHora(sel.getFechaHora()) + ". ¿Desea marcarla como realizada de todas formas?")) {
+            return;
+        }
+
+        try {
+            citaDAO.marcarRealizada(sel.getIdCita());
+            Alertas.exito("Información actualizada correctamente",
+                    "La cita #" + sel.getIdCita() + " fue marcada como REALIZADA y se sumó a los ingresos por servicios.");
+            handleRecargarTodo();
+            EventosDatos.publicar(this);
+        } catch (Exception e) {
+            Alertas.errorBD("actualizar la cita", e);
+        }
+    }
+
+    private Cita citaProgramadaSeleccionada(String accion) {
+        Cita sel = tblCitas.getSelectionModel().getSelectedItem();
+        if (sel == null) {
+            Alertas.advertencia("Ninguna cita seleccionada", "Seleccione una cita en la tabla para " + accion + ".");
+            return null;
+        }
+        if (!"PROGRAMADA".equalsIgnoreCase(sel.getEstado())) {
+            Alertas.advertencia("Acción no permitida",
+                    "Solo se pueden " + accion.split(" ")[0] + " citas en estado PROGRAMADA. Esta cita está " + sel.getEstado() + ".");
+            return null;
+        }
+        return sel;
     }
 
     @FXML
     protected void handleGenerarResumenHQL() {
         try {
             List<Object[]> resultados = citaDAO.reporteIngresosPorServicio();
-            StringBuilder sb = new StringBuilder("HQL 2 (Ingresos por Servicio): ");
-            for (Object[] fila : resultados) {
-                sb.append(fila[0]).append(" [Citas: ").append(fila[1])
-                        .append(" | Ingresos: C$").append(fila[2]).append("]  •  ");
+            if (resultados.isEmpty()) {
+                Alertas.info("Resumen por servicio", "No hay citas programadas para resumir.");
+                return;
             }
-            mostrarMensaje(sb.toString(), false);
+            StringBuilder sb = new StringBuilder("Citas programadas e ingresos proyectados (consulta HQL):\n");
+            for (Object[] fila : resultados) {
+                sb.append("\n  •  ").append(fila[0]).append(":  ").append(fila[1]).append(" cita(s)  —  ")
+                        .append(Tablas.dinero((BigDecimal) fila[2]));
+            }
+            Alertas.info("Resumen por servicio", sb.toString());
         } catch (Exception e) {
-            mostrarMensaje("Error en consulta HQL: " + e.getMessage(), true);
+            Alertas.errorBD("generar el resumen", e);
         }
     }
 
-    private void mostrarMensaje(String texto, boolean esError) {
-        lblEstado.setStyle(esError ? "-fx-text-fill: #b30000; -fx-font-weight: bold;" : "-fx-text-fill: #1b5e20; -fx-font-weight: bold;");
-        lblEstado.setText(texto);
+    private void limpiarClienteSeleccionado() {
+        clienteSeleccionado = null;
+        lblClienteSeleccionado.setText("Ningún cliente seleccionado");
+        lblClienteSeleccionado.setGraphic(null);
+    }
+
+    private static Node estadoCita(Cita cita) {
+        return switch (cita.getEstado() == null ? "" : cita.getEstado().toUpperCase()) {
+            case "REALIZADA" -> Tablas.badge("Realizada", Tema.Estado.OK, Icono.Tipo.EXITO);
+            case "CANCELADA" -> Tablas.badge("Cancelada", Tema.Estado.NEUTRO, Icono.Tipo.CANCELAR);
+            default -> cita.getFechaHora().isBefore(LocalDateTime.now())
+                    ? Tablas.badge("Pendiente", Tema.Estado.ALERTA, Icono.Tipo.RELOJ)
+                    : Tablas.badge("Programada", Tema.Estado.INFO, Icono.Tipo.AGENDA);
+        };
     }
 }

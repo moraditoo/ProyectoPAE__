@@ -62,7 +62,7 @@
                     <execution>
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>ni.edu.uam.proyectofinalpae.Launcher</mainClass>
+                            <mainClass>ni.edu.uam.proyectopae/ni.edu.uam.proyectopae.HelloApplication</mainClass>
                         </configuration>
                     </execution>
                 </executions>

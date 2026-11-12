@@ -25,6 +25,12 @@ public class Cliente {
     @Column(name = "alergias_piel", columnDefinition = "TEXT")
     private String alergiasPiel;
 
+    @Column(name = "email", length = 100)
+    private String email;
+
+    @Column(name = "sexo", length = 20)
+    private String sexo;
+
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Cita> citas = new ArrayList<>();
 
@@ -35,6 +41,12 @@ public class Cliente {
         this.apellidos = apellidos;
         this.telefono = telefono;
         this.alergiasPiel = alergiasPiel;
+    }
+
+    public Cliente(String nombres, String apellidos, String telefono, String email, String sexo, String alergiasPiel) {
+        this(nombres, apellidos, telefono, alergiasPiel);
+        this.email = email;
+        this.sexo = sexo;
     }
 
     public Integer getIdCliente() { return idCliente; }
@@ -51,6 +63,12 @@ public class Cliente {
 
     public String getAlergiasPiel() { return alergiasPiel; }
     public void setAlergiasPiel(String alergiasPiel) { this.alergiasPiel = alergiasPiel; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getSexo() { return sexo; }
+    public void setSexo(String sexo) { this.sexo = sexo; }
 
     public List<Cita> getCitas() { return citas; }
     public void setCitas(List<Cita> citas) { this.citas = citas; }

@@ -22,12 +22,21 @@ public class CitaDAO {
     }
 
     public void cancelar(Integer idCita) {
+        cambiarEstado(idCita, "CANCELADA");
+    }
+
+    /** Marca la cita como REALIZADA: el servicio se considera cobrado en los reportes financieros. */
+    public void marcarRealizada(Integer idCita) {
+        cambiarEstado(idCita, "REALIZADA");
+    }
+
+    private void cambiarEstado(Integer idCita, String estado) {
         Transaction tx = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
             Cita c = session.get(Cita.class, idCita);
             if (c != null) {
-                c.setEstado("CANCELADA");
+                c.setEstado(estado);
                 session.merge(c);
             }
             tx.commit();

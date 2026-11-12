@@ -3,21 +3,37 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import ni.edu.uam.proyectopae.util.Icono?>
 
-<VBox alignment="CENTER" spacing="12.0" prefWidth="360.0" prefHeight="320.0"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ni.edu.uam.proyectopae.controllers.LoginController">
+<StackPane prefWidth="420.0" prefHeight="460.0"
+           xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="ni.edu.uam.proyectopae.controllers.LoginController"><properties estilo="fondo-login"/>
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
+        <Insets top="28" right="32" bottom="28" left="32"/>
     </padding>
 
-    <Label text="Tienda de Maquillaje" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-    <Label text="Acceso al Sistema (PAE)" style="-fx-font-size: 13px; -fx-text-fill: #555;"/>
+    <VBox alignment="TOP_CENTER" spacing="14.0" maxWidth="340"><properties estilo="card"/>
+        <Icono tipo="CANDADO" tamano="44"><properties estilo="icono-marca"/></Icono>
+        <Label text="Tienda de Maquillaje"><properties estilo="titulo-login"/></Label>
+        <Label text="Acceso al sistema de gestión"><properties estilo="subtitulo-modulo"/></Label>
 
-    <TextField fx:id="txtUsuario" promptText="Usuario" onKeyPressed="#handleEnterLogin"/>
-    <PasswordField fx:id="txtPassword" promptText="Contraseña" onKeyPressed="#handleEnterLogin"/>
+        <VBox spacing="6" maxWidth="Infinity">
+            <Label text="Usuario"><properties estilo="etiqueta-campo"/>
+                <graphic><Icono tipo="PERSONA" tamano="14"/></graphic>
+            </Label>
+            <TextField fx:id="txtUsuario" promptText="Ingrese su usuario" onKeyPressed="#handleEnterLogin"/>
+        </VBox>
 
-    <Button text="Iniciar Sesión" onAction="#handleLogin" maxWidth="Infinity"
-            style="-fx-background-color: #2b5797; -fx-text-fill: white; -fx-font-weight: bold;"/>
-    <Label fx:id="lblMensaje" wrapText="true"/>
-</VBox>
+        <VBox spacing="6" maxWidth="Infinity">
+            <Label text="Contraseña"><properties estilo="etiqueta-campo"/>
+                <graphic><Icono tipo="CANDADO" tamano="14"/></graphic>
+            </Label>
+            <PasswordField fx:id="txtPassword" promptText="Ingrese su contraseña" onKeyPressed="#handleEnterLogin"/>
+        </VBox>
+
+        <Button text="Iniciar sesión" onAction="#handleLogin" maxWidth="Infinity"><properties estilo="btn-primario"/>
+            <graphic><Icono tipo="ENTRAR"/></graphic>
+        </Button>
+        <Label fx:id="lblMensaje" wrapText="true"><properties estilo="texto-error"/></Label>
+    </VBox>
+</StackPane>
