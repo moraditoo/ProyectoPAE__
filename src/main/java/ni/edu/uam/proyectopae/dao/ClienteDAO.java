@@ -57,9 +57,24 @@ public class ClienteDAO {
             return session.createQuery(
                     "FROM Cliente c WHERE LOWER(c.nombres) LIKE :crit " +
                             "OR LOWER(c.apellidos) LIKE :crit " +
-                            "OR c.telefono LIKE :crit ORDER BY c.nombres ASC",
+                            "OR c.telefono LIKE :crit " +
+                            "OR LOWER(c.correo) LIKE :crit ORDER BY c.nombres ASC",
                     Cliente.class
             ).setParameter("crit", "%" + criterio.toLowerCase().trim() + "%").list();
+        }
+    }
+
+    /** Verifica que el correo no este registrado por otro cliente (idExcluir = cliente en edicion). */
+    public boolean existeCorreo(String correo, Integer idExcluir) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Long total = session.createQuery(
+                            "SELECT COUNT(c) FROM Cliente c WHERE LOWER(c.correo) = :correo " +
+                                    "AND c.idCliente <> :idExcluir",
+                            Long.class
+                    ).setParameter("correo", correo.toLowerCase().trim())
+                    .setParameter("idExcluir", idExcluir == null ? -1 : idExcluir)
+                    .uniqueResult();
+            return total != null && total > 0;
         }
     }
 }

@@ -22,6 +22,13 @@ public class Cliente {
     @Column(name = "telefono", length = 15)
     private String telefono;
 
+    @Column(name = "correo", length = 100)
+    private String correo;
+
+    // Valores: Femenino, Masculino, Otro
+    @Column(name = "sexo", length = 15)
+    private String sexo;
+
     @Column(name = "alergias_piel", columnDefinition = "TEXT")
     private String alergiasPiel;
 
@@ -37,6 +44,12 @@ public class Cliente {
         this.alergiasPiel = alergiasPiel;
     }
 
+    public Cliente(String nombres, String apellidos, String telefono, String correo, String sexo, String alergiasPiel) {
+        this(nombres, apellidos, telefono, alergiasPiel);
+        this.correo = correo;
+        this.sexo = sexo;
+    }
+
     public Integer getIdCliente() { return idCliente; }
     public void setIdCliente(Integer idCliente) { this.idCliente = idCliente; }
 
@@ -48,6 +61,14 @@ public class Cliente {
 
     public String getTelefono() { return telefono; }
     public void setTelefono(String telefono) { this.telefono = telefono; }
+
+    public String getCorreo() { return correo; }
+    public void setCorreo(String correo) { this.correo = correo; }
+
+    public String getSexo() { return sexo; }
+    public void setSexo(String sexo) { this.sexo = sexo; }
+
+    public String getNombreCompleto() { return nombres + " " + apellidos; }
 
     public String getAlergiasPiel() { return alergiasPiel; }
     public void setAlergiasPiel(String alergiasPiel) { this.alergiasPiel = alergiasPiel; }
