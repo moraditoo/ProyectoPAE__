@@ -1,57 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox spacing="10.0" prefWidth="950.0" prefHeight="600.0"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ni.edu.uam.proyectopae.controllers.AgendaController">
-    <padding>
-        <Insets top="12" right="15" bottom="12" left="15"/>
-    </padding>
+<BorderPane prefWidth="1250.0" prefHeight="760.0"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ni.edu.uam.proyectopae.controllers.AgendaController">
 
-    <Label text="Calendarización y Control de Turnos" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+    <top>
+        <HBox styleClass="header-bar, bg-indigo">
+            <FontIcon iconLiteral="fas-calendar-alt" iconSize="32"/>
+            <VBox spacing="2">
+                <Label text="Agenda de Citas" styleClass="header-title"/>
+                <Label text="Calendarización de servicios de maquillaje" styleClass="header-subtitle"/>
+            </VBox>
+        </HBox>
+    </top>
 
-    <GridPane hgap="15" vgap="8">
-        <!-- Buscador Reactivo Caracter por Caracter -->
-        <VBox spacing="4" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.rowSpan="3">
-            <Label text="Buscar Cliente en Tiempo Real:" style="-fx-font-weight: bold;"/>
-            <TextField fx:id="txtBuscarCliente" promptText="Escriba nombre, apellido o teléfono..."/>
-            <ListView fx:id="lstClientesCoincidentes" prefHeight="115.0" prefWidth="340.0"/>
-            <Label fx:id="lblClienteSeleccionado" text="Cliente: Ninguno seleccionado"
-                   style="-fx-text-fill: #2b5797; -fx-font-weight: bold;" wrapText="true"/>
+    <center>
+        <VBox styleClass="content-area">
+            <HBox spacing="14">
+                <!-- Buscador reactivo de clientes -->
+                <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                    <Label text="1. Seleccione el cliente" styleClass="card-title">
+                        <graphic><FontIcon iconLiteral="fas-user-check" iconSize="16"/></graphic>
+                    </Label>
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <FontIcon iconLiteral="fas-search" iconSize="15"/>
+                        <TextField fx:id="txtBuscarCliente" promptText="Escriba nombre, apellido o teléfono..." HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <ListView fx:id="lstClientesCoincidentes" prefHeight="120.0"/>
+                    <Label fx:id="lblClienteSeleccionado" text="Ningún cliente seleccionado" styleClass="modo-label" wrapText="true"/>
+                </VBox>
+
+                <!-- Datos de la cita -->
+                <VBox styleClass="card" prefWidth="400" minWidth="360">
+                    <Label text="2. Datos de la cita" styleClass="card-title">
+                        <graphic><FontIcon iconLiteral="fas-clipboard-check" iconSize="16"/></graphic>
+                    </Label>
+                    <Label text="Servicio *" styleClass="form-label"/>
+                    <ComboBox fx:id="cmbServicio" promptText="Seleccionar servicio..." maxWidth="Infinity"/>
+                    <HBox spacing="10">
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <Label text="Fecha *" styleClass="form-label"/>
+                            <DatePicker fx:id="dpFecha" promptText="Fecha..." maxWidth="Infinity"/>
+                        </VBox>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <Label text="Hora *" styleClass="form-label"/>
+                            <ComboBox fx:id="cmbHora" promptText="Hora..." maxWidth="Infinity"/>
+                        </VBox>
+                    </HBox>
+                    <Button text="Agendar cita" onAction="#handleAgendarCita" styleClass="btn-primary" maxWidth="Infinity">
+                        <graphic><FontIcon iconLiteral="fas-calendar-plus" iconSize="16"/></graphic>
+                    </Button>
+                </VBox>
+            </HBox>
+
+            <!-- Citas -->
+            <VBox styleClass="card" VBox.vgrow="ALWAYS">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Citas registradas" styleClass="card-title">
+                        <graphic><FontIcon iconLiteral="fas-list" iconSize="16"/></graphic>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Completar cita" onAction="#handleCompletarCita" styleClass="btn-success">
+                        <graphic><FontIcon iconLiteral="fas-check" iconSize="14"/></graphic>
+                    </Button>
+                    <Button text="Cancelar cita" onAction="#handleCancelarCita" styleClass="btn-danger">
+                        <graphic><FontIcon iconLiteral="fas-ban" iconSize="14"/></graphic>
+                    </Button>
+                    <Button text="Ingresos proyectados" onAction="#handleGenerarResumenHQL" styleClass="btn-dark">
+                        <graphic><FontIcon iconLiteral="fas-chart-bar" iconSize="14"/></graphic>
+                    </Button>
+                </HBox>
+                <TableView fx:id="tblCitas" VBox.vgrow="ALWAYS">
+                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                    <placeholder><Label text="No hay citas registradas"/></placeholder>
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="50" minWidth="45" maxWidth="70"/>
+                        <TableColumn fx:id="colCliente" text="Cliente" prefWidth="250"/>
+                        <TableColumn fx:id="colServicio" text="Servicio" prefWidth="240"/>
+                        <TableColumn fx:id="colFecha" text="Fecha y hora" prefWidth="180"/>
+                        <TableColumn fx:id="colEstado" text="Estado" prefWidth="130"/>
+                    </columns>
+                </TableView>
+            </VBox>
         </VBox>
-
-        <!-- Parámetros de Selección -->
-        <Label text="Servicio de Maquillaje:" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-        <ComboBox fx:id="cmbServicio" prefWidth="260" promptText="Seleccionar servicio..." GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-
-        <Label text="Fecha de Turno:" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-        <DatePicker fx:id="dpFecha" prefWidth="260" promptText="Seleccionar fecha..." GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-
-        <Label text="Horario Disponible:" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-        <ComboBox fx:id="cmbHora" prefWidth="260" promptText="Seleccionar hora..." GridPane.rowIndex="2" GridPane.columnIndex="2"/>
-    </GridPane>
-
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Button text="Agendar Cita (ENTER)" onAction="#handleAgendarCita"
-                style="-fx-background-color: #2b5797; -fx-text-fill: white; -fx-font-weight: bold;"/>
-        <Button text="Cancelar Cita" onAction="#handleCancelarCita"
-                style="-fx-background-color: #b30000; -fx-text-fill: white;"/>
-        <Button text="Recargar de BD" onAction="#handleRecargarTodo"/>
-        <Button text="Reporte HQL 2" onAction="#handleGenerarResumenHQL"
-                style="-fx-background-color: #333333; -fx-text-fill: white;"/>
-        <Label fx:id="lblEstado" wrapText="true"/>
-    </HBox>
-
-    <TableView fx:id="tblCitas" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="colCliente" text="Cliente (Ficha Técnica)" prefWidth="270"/>
-            <TableColumn fx:id="colServicio" text="Servicio" prefWidth="240"/>
-            <TableColumn fx:id="colFecha" text="Fecha y Hora de Turno" prefWidth="180"/>
-            <TableColumn fx:id="colEstado" text="Estado" prefWidth="120"/>
-        </columns>
-    </TableView>
-</VBox>
+    </center>
+</BorderPane>
