@@ -2,6 +2,7 @@ package ni.edu.uam.proyectopae.models;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,10 @@ public class Producto {
 
     @Column(name = "nombre_producto", nullable = false, length = 100)
     private String nombreProducto;
+
+    // Precio al que la tienda compra el producto al proveedor (nullable para no romper registros antiguos)
+    @Column(name = "precio_compra", precision = 10, scale = 2)
+    private BigDecimal precioCompra;
 
     @Column(name = "precio_venta", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioVenta;
@@ -34,7 +39,16 @@ public class Producto {
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Lote> lotes = new ArrayList<>();
 
+    // Existencias vigentes (lotes no vencidos). Se calcula en ProductoDAO, no se guarda en la BD.
+    @Transient
+    private int stockActual;
+
     public Producto() {}
+
+    public Producto(String nombreProducto, BigDecimal precioCompra, BigDecimal precioVenta, Integer stockMinimo, Categoria categoria, Marca marca) {
+        this(nombreProducto, precioVenta, stockMinimo, categoria, marca);
+        this.precioCompra = precioCompra;
+    }
 
     public Producto(String nombreProducto, BigDecimal precioVenta, Integer stockMinimo, Categoria categoria, Marca marca) {
         this.nombreProducto = nombreProducto;
@@ -50,6 +64,9 @@ public class Producto {
     public String getNombreProducto() { return nombreProducto; }
     public void setNombreProducto(String nombreProducto) { this.nombreProducto = nombreProducto; }
 
+    public BigDecimal getPrecioCompra() { return precioCompra; }
+    public void setPrecioCompra(BigDecimal precioCompra) { this.precioCompra = precioCompra; }
+
     public BigDecimal getPrecioVenta() { return precioVenta; }
     public void setPrecioVenta(BigDecimal precioVenta) { this.precioVenta = precioVenta; }
 
@@ -64,6 +81,26 @@ public class Producto {
 
     public List<Lote> getLotes() { return lotes; }
     public void setLotes(List<Lote> lotes) { this.lotes = lotes; }
+
+    public int getStockActual() { return stockActual; }
+    public void setStockActual(int stockActual) { this.stockActual = stockActual; }
+
+    public boolean isBajoStockMinimo() {
+        return stockMinimo != null && stockActual < stockMinimo;
+    }
+
+    /** Ganancia por unidad = precio de venta - precio de compra. */
+    public BigDecimal getGananciaUnitaria() {
+        BigDecimal venta = precioVenta != null ? precioVenta : BigDecimal.ZERO;
+        BigDecimal compra = precioCompra != null ? precioCompra : BigDecimal.ZERO;
+        return venta.subtract(compra);
+    }
+
+    /** Margen de ganancia sobre el precio de venta, en porcentaje. */
+    public BigDecimal getMargen() {
+        if (precioVenta == null || precioVenta.signum() == 0) return BigDecimal.ZERO;
+        return getGananciaUnitaria().multiply(BigDecimal.valueOf(100)).divide(precioVenta, 2, RoundingMode.HALF_UP);
+    }
 
     public String getNombreCategoria() {
         return categoria != null ? categoria.getNombre() : "";

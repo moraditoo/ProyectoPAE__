@@ -1,49 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox spacing="12.0" prefWidth="920.0" prefHeight="580.0"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ni.edu.uam.proyectopae.controllers.InventarioController">
-    <padding>
-        <Insets top="15" right="15" bottom="15" left="15"/>
-    </padding>
+<BorderPane prefWidth="1250.0" prefHeight="740.0"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ni.edu.uam.proyectopae.controllers.InventarioController">
 
-    <Label text="Gestión de Catálogo de Productos (Inventario General)" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+    <top>
+        <HBox styleClass="header-bar, bg-azul">
+            <FontIcon iconLiteral="fas-box-open" iconSize="32"/>
+            <VBox spacing="2">
+                <Label text="Productos" styleClass="header-title"/>
+                <Label text="Catálogo, precios de compra/venta y stock mínimo" styleClass="header-subtitle"/>
+            </VBox>
+        </HBox>
+    </top>
 
-    <GridPane hgap="10" vgap="10">
-        <Label text="Nombre del Producto:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtNombre" promptText="Ej: Base Líquida Fit Me" onKeyPressed="#handleEnterGuardar" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <center>
+        <HBox styleClass="content-area">
+            <!-- Formulario -->
+            <VBox styleClass="card" prefWidth="360" minWidth="330">
+                <Label text="Registro de Producto" styleClass="card-title">
+                    <graphic><FontIcon iconLiteral="fas-plus-circle" iconSize="18"/></graphic>
+                </Label>
+                <Label fx:id="lblModo" text="Nuevo producto" styleClass="modo-label"/>
 
-        <Label text="Precio Unitario (C$):" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtPrecio" promptText="Ej: 380.00" onKeyPressed="#handleEnterGuardar" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                <Label text="Nombre del producto *" styleClass="form-label"/>
+                <TextField fx:id="txtNombre" promptText="Ej: Base Líquida Fit Me" onKeyPressed="#handleEnterGuardar"/>
 
-        <Label text="Categoría:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="cmbCategoria" prefWidth="220" promptText="Seleccionar..." GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label text="Categoría *" styleClass="form-label"/>
+                <ComboBox fx:id="cmbCategoria" promptText="Seleccionar..." maxWidth="Infinity"/>
 
-        <Label text="Marca:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-        <ComboBox fx:id="cmbMarca" prefWidth="220" promptText="Seleccionar..." GridPane.rowIndex="1" GridPane.columnIndex="3"/>
-    </GridPane>
+                <Label text="Marca *" styleClass="form-label"/>
+                <ComboBox fx:id="cmbMarca" promptText="Seleccionar..." maxWidth="Infinity"/>
 
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Button text="Guardar Producto" onAction="#handleGuardarProducto"
-                style="-fx-background-color: #2b5797; -fx-text-fill: white; -fx-font-weight: bold;"/>
-        <Button text="Limpiar Formulario" onAction="#handleLimpiar"/>
-        <Button text="Eliminar Producto" onAction="#handleEliminarProducto"
-                style="-fx-background-color: #b30000; -fx-text-fill: white;"/>
-        <Button text="Recargar de BD" onAction="#refrescarTabla"/>
-        <Label fx:id="lblEstado" wrapText="true"/>
-    </HBox>
+                <HBox spacing="10">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Precio compra *" styleClass="form-label"/>
+                        <TextField fx:id="txtPrecioCompra" promptText="C$ 250.00" onKeyPressed="#handleEnterGuardar"/>
+                    </VBox>
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Precio venta *" styleClass="form-label"/>
+                        <TextField fx:id="txtPrecio" promptText="C$ 380.00" onKeyPressed="#handleEnterGuardar"/>
+                    </VBox>
+                </HBox>
+                <Label fx:id="lblGanancia" text="Ganancia por unidad: -" styleClass="hint-label">
+                    <graphic><FontIcon iconLiteral="fas-coins" iconSize="14"/></graphic>
+                </Label>
 
-    <TableView fx:id="tblProductos" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
-            <TableColumn fx:id="colNombre" text="Nombre del Cosmético" prefWidth="280"/>
-            <TableColumn fx:id="colCategoria" text="Categoría" prefWidth="180"/>
-            <TableColumn fx:id="colMarca" text="Marca" prefWidth="180"/>
-            <TableColumn fx:id="colPrecio" text="Precio Unitario" prefWidth="140"/>
-        </columns>
-    </TableView>
-</VBox>
+                <Label text="Stock mínimo exigido *" styleClass="form-label"/>
+                <TextField fx:id="txtStockMinimo" promptText="Unidades mínimas en inventario (ej: 5)" onKeyPressed="#handleEnterGuardar"/>
+                <Label text="Se mostrará una alerta cuando las existencias estén por debajo de este valor."
+                       styleClass="hint-label" wrapText="true"/>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <Button fx:id="btnGuardar" text="Guardar" onAction="#handleGuardarProducto"
+                        styleClass="btn-primary" maxWidth="Infinity">
+                    <graphic><FontIcon iconLiteral="fas-save" iconSize="16"/></graphic>
+                </Button>
+                <HBox spacing="10">
+                    <Button text="Nuevo" onAction="#handleLimpiar" styleClass="btn-secondary"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS">
+                        <graphic><FontIcon iconLiteral="fas-broom" iconSize="15"/></graphic>
+                    </Button>
+                    <Button text="Eliminar" onAction="#handleEliminarProducto" styleClass="btn-danger"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS">
+                        <graphic><FontIcon iconLiteral="fas-trash-alt" iconSize="15"/></graphic>
+                    </Button>
+                </HBox>
+            </VBox>
+
+            <!-- Catalogo -->
+            <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Catálogo de productos" styleClass="card-title">
+                        <graphic><FontIcon iconLiteral="fas-list" iconSize="16"/></graphic>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <FontIcon iconLiteral="fas-search" iconSize="16"/>
+                    <TextField fx:id="txtBuscar" promptText="Buscar producto, categoría o marca..." prefWidth="280"/>
+                </HBox>
+
+                <TableView fx:id="tblProductos" VBox.vgrow="ALWAYS">
+                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                    <placeholder><Label text="No hay productos registrados"/></placeholder>
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="50" minWidth="45" maxWidth="70"/>
+                        <TableColumn fx:id="colNombre" text="Producto" prefWidth="200"/>
+                        <TableColumn fx:id="colCategoria" text="Categoría" prefWidth="100"/>
+                        <TableColumn fx:id="colMarca" text="Marca" prefWidth="110"/>
+                        <TableColumn fx:id="colPrecioCompra" text="P. compra" prefWidth="95"/>
+                        <TableColumn fx:id="colPrecio" text="P. venta" prefWidth="95"/>
+                        <TableColumn fx:id="colGanancia" text="Ganancia" prefWidth="95"/>
+                        <TableColumn fx:id="colMargen" text="Margen" prefWidth="75"/>
+                        <TableColumn fx:id="colStock" text="Stock" prefWidth="65"/>
+                        <TableColumn fx:id="colStockMinimo" text="Mínimo" prefWidth="65"/>
+                    </columns>
+                </TableView>
+                <HBox spacing="16" alignment="CENTER_LEFT">
+                    <Label text="Por debajo del stock mínimo" styleClass="hint-label">
+                        <graphic><Region styleClass="fila-peligro" prefWidth="14" prefHeight="14" style="-fx-border-color: #fca5a5;"/></graphic>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblTotal" styleClass="hint-label"/>
+                </HBox>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>
