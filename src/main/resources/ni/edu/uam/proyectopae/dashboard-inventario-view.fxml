@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane prefWidth="1280.0" prefHeight="800.0"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ni.edu.uam.proyectopae.controllers.DashboardInventarioController">
+
+    <top>
+        <HBox styleClass="header-bar, bg-naranja">
+            <FontIcon iconLiteral="fas-clipboard-list" iconSize="32"/>
+            <VBox spacing="2">
+                <Label text="Dashboard de Inventario" styleClass="header-title"/>
+                <Label text="Productos por vencer y control del stock mínimo" styleClass="header-subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Vencen en los próximos:" styleClass="header-subtitle"/>
+            <ComboBox fx:id="cmbDias" prefWidth="110"/>
+            <Button text="Actualizar" onAction="#handleActualizar" styleClass="btn-secondary">
+                <graphic><FontIcon iconLiteral="fas-sync-alt" iconSize="14"/></graphic>
+            </Button>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: #eef1f6;">
+            <VBox styleClass="content-area">
+
+                <!-- KPIs -->
+                <HBox spacing="14">
+                    <HBox styleClass="kpi-card, bg-azul" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                        <FontIcon iconLiteral="fas-box-open" iconSize="34"/>
+                        <VBox>
+                            <Label fx:id="lblKpiProductos" text="0" styleClass="kpi-valor"/>
+                            <Label text="Productos en catálogo" styleClass="kpi-titulo"/>
+                        </VBox>
+                    </HBox>
+                    <HBox styleClass="kpi-card, bg-naranja" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                        <FontIcon iconLiteral="fas-hourglass-half" iconSize="34"/>
+                        <VBox>
+                            <Label fx:id="lblKpiPorVencer" text="0" styleClass="kpi-valor"/>
+                            <Label fx:id="lblKpiPorVencerTitulo" text="Lotes por vencer" styleClass="kpi-titulo"/>
+                        </VBox>
+                    </HBox>
+                    <HBox styleClass="kpi-card, bg-rojo" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                        <FontIcon iconLiteral="fas-calendar-times" iconSize="34"/>
+                        <VBox>
+                            <Label fx:id="lblKpiVencidos" text="0" styleClass="kpi-valor"/>
+                            <Label text="Lotes vencidos con stock" styleClass="kpi-titulo"/>
+                        </VBox>
+                    </HBox>
+                    <HBox styleClass="kpi-card, bg-rosa" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                        <FontIcon iconLiteral="fas-exclamation-triangle" iconSize="34"/>
+                        <VBox>
+                            <Label fx:id="lblKpiBajoMinimo" text="0" styleClass="kpi-valor"/>
+                            <Label text="Productos bajo el mínimo" styleClass="kpi-titulo"/>
+                        </VBox>
+                    </HBox>
+                </HBox>
+
+                <!-- Graficos -->
+                <HBox spacing="14">
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <BarChart fx:id="chartStock" styleClass="chart-stock" title="Stock actual vs. stock mínimo"
+                                  animated="false" legendSide="BOTTOM" prefHeight="300">
+                            <xAxis><CategoryAxis fx:id="ejeProductos"/></xAxis>
+                            <yAxis><NumberAxis label="Unidades" minorTickVisible="false"/></yAxis>
+                        </BarChart>
+                    </VBox>
+                    <VBox styleClass="card" prefWidth="420" minWidth="360">
+                        <PieChart fx:id="chartEstadoLotes" styleClass="pie-lotes" title="Estado de los lotes con stock"
+                                  animated="false" legendSide="BOTTOM" labelsVisible="true" prefHeight="300"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Tablas -->
+                <HBox spacing="14">
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblTituloPorVencer" text="Productos por vencer" styleClass="card-title">
+                            <graphic><FontIcon iconLiteral="fas-hourglass-end" iconSize="16"/></graphic>
+                        </Label>
+                        <TableView fx:id="tblPorVencer" prefHeight="260">
+                            <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                            <placeholder><Label text="Ningún lote por vencer en este periodo"/></placeholder>
+                            <columns>
+                                <TableColumn fx:id="colPvProducto" text="Producto" prefWidth="240" minWidth="170"/>
+                                <TableColumn fx:id="colPvLote" text="Lote" prefWidth="110"/>
+                                <TableColumn fx:id="colPvFecha" text="Caduca" prefWidth="95"/>
+                                <TableColumn fx:id="colPvDias" text="Días" prefWidth="60"/>
+                                <TableColumn fx:id="colPvCantidad" text="Unidades" prefWidth="75"/>
+                                <TableColumn fx:id="colPvEstado" text="Estado" prefWidth="95"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                    <VBox styleClass="card" prefWidth="480" minWidth="400">
+                        <Label text="Productos bajo el stock mínimo" styleClass="card-title">
+                            <graphic><FontIcon iconLiteral="fas-exclamation-circle" iconSize="16"/></graphic>
+                        </Label>
+                        <TableView fx:id="tblBajoMinimo" prefHeight="260">
+                            <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                            <placeholder><Label text="Todos los productos cumplen el mínimo"/></placeholder>
+                            <columns>
+                                <TableColumn fx:id="colBmProducto" text="Producto" prefWidth="240" minWidth="170"/>
+                                <TableColumn fx:id="colBmStock" text="Stock" prefWidth="70"/>
+                                <TableColumn fx:id="colBmMinimo" text="Mínimo" prefWidth="70"/>
+                                <TableColumn fx:id="colBmFaltante" text="Reponer" prefWidth="75"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

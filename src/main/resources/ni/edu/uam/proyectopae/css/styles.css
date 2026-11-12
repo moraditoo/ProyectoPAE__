@@ -199,6 +199,16 @@
 .chart-title { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1f2937; }
 .chart-legend { -fx-background-color: transparent; }
 .chart-plot-background { -fx-background-color: white; }
+.chart-pie-label { -fx-font-size: 12px; -fx-fill: #374151; }
+
+/* Colores de las series de barras (tambien aplican al simbolo de la leyenda) */
+.default-color0.chart-bar { -fx-bar-fill: #2563eb; }
+.default-color1.chart-bar { -fx-bar-fill: #059669; }
+.default-color2.chart-bar { -fx-bar-fill: #d97706; }
+.chart-stock .default-color1.chart-bar { -fx-bar-fill: #f87171; }
+.chart-clientes .default-color0.chart-bar { -fx-bar-fill: #7c3aed; }
+.chart-productos .default-color0.chart-bar { -fx-bar-fill: #0891b2; }
+.chart-productos .default-color1.chart-bar { -fx-bar-fill: #059669; }
 
 /* ---------- Login ---------- */
 .login-root {

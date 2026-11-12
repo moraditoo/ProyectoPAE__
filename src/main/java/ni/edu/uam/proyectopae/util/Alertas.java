@@ -38,7 +38,16 @@ public final class Alertas {
 
     /** Muestra un dialogo de confirmacion Si/No. Devuelve true si el usuario acepta. */
     public static boolean confirmar(String titulo, String mensaje) {
-        Alert alert = crear(Alert.AlertType.CONFIRMATION, titulo, mensaje, "fas-question-circle", "#2563eb");
+        return preguntar(titulo, mensaje, "fas-question-circle", "#2563eb");
+    }
+
+    /** Advertencia con pregunta Si/No (por ejemplo, alertas de inventario al iniciar sesion). */
+    public static boolean advertenciaConPregunta(String titulo, String mensaje) {
+        return preguntar(titulo, mensaje, "fas-exclamation-triangle", "#d97706");
+    }
+
+    private static boolean preguntar(String titulo, String mensaje, String icono, String color) {
+        Alert alert = crear(Alert.AlertType.CONFIRMATION, titulo, mensaje, icono, color);
         ButtonType si = new ButtonType("Sí", ButtonBar.ButtonData.YES);
         ButtonType no = new ButtonType("No", ButtonBar.ButtonData.NO);
         alert.getButtonTypes().setAll(si, no);

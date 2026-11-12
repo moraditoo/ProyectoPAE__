@@ -1,10 +1,15 @@
 package ni.edu.uam.proyectopae.controllers;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import ni.edu.uam.proyectopae.dao.LoteDAO;
+import ni.edu.uam.proyectopae.dao.ProductoDAO;
+import ni.edu.uam.proyectopae.models.Lote;
+import ni.edu.uam.proyectopae.models.Producto;
 import ni.edu.uam.proyectopae.util.Alertas;
 import ni.edu.uam.proyectopae.util.Sesion;
 import ni.edu.uam.proyectopae.util.VentanaManager;
@@ -21,12 +26,67 @@ public class MenuController {
 
     @FXML private Label lblUsuario;
     @FXML private Label lblFecha;
+    @FXML private Label lblBadgeInventario;
+
+    private final LoteDAO loteDAO = new LoteDAO();
+    private final ProductoDAO productoDAO = new ProductoDAO();
 
     @FXML
     public void initialize() {
         lblUsuario.setText(Sesion.descripcion());
         String fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE d 'de' MMMM 'de' yyyy", Locale.forLanguageTag("es-NI")));
         lblFecha.setText(Character.toUpperCase(fecha.charAt(0)) + fecha.substring(1));
+
+        lblBadgeInventario.managedProperty().bind(lblBadgeInventario.visibleProperty());
+        VentanaManager.alCambiarDatos(this::actualizarBadge);
+
+        // Al iniciar sesion se avisa de productos por vencer y stock bajo
+        Platform.runLater(this::mostrarAlertasInventario);
+    }
+
+    /** [porVencer, vencidos, bajoMinimo] */
+    private int[] contarAlertas() {
+        int porVencer = loteDAO.listarPorVencer(Lote.DIAS_ALERTA_VENCIMIENTO).size();
+        int vencidos = loteDAO.listarVencidosConStock().size();
+        int bajoMinimo = (int) productoDAO.listarConStock().stream().filter(Producto::isBajoStockMinimo).count();
+        return new int[]{porVencer, vencidos, bajoMinimo};
+    }
+
+    private void actualizarBadge() {
+        try {
+            int[] a = contarAlertas();
+            int total = a[0] + a[1] + a[2];
+            lblBadgeInventario.setText(total + (total == 1 ? " alerta" : " alertas"));
+            lblBadgeInventario.setVisible(total > 0);
+        } catch (Exception e) {
+            lblBadgeInventario.setVisible(false);
+        }
+    }
+
+    private void mostrarAlertasInventario() {
+        try {
+            int[] a = contarAlertas();
+            actualizarBadge();
+            if (a[0] + a[1] + a[2] == 0) return;
+
+            StringBuilder sb = new StringBuilder();
+            if (a[1] > 0) sb.append("• ").append(a[1]).append(" lote(s) VENCIDOS todavía tienen unidades.\n");
+            if (a[0] > 0) sb.append("• ").append(a[0]).append(" lote(s) vencen en los próximos ")
+                    .append(Lote.DIAS_ALERTA_VENCIMIENTO).append(" días.\n");
+            if (a[2] > 0) sb.append("• ").append(a[2]).append(" producto(s) están por debajo del stock mínimo.\n");
+            sb.append("\n¿Desea abrir el Dashboard de Inventario?");
+
+            if (Alertas.advertenciaConPregunta("Alertas de inventario", sb.toString())) {
+                abrirDashboardInventario();
+            }
+        } catch (Exception e) {
+            Alertas.error("Error de conexión", "No se pudieron revisar las alertas de inventario:\n" + VentanaManager.causaRaiz(e));
+        }
+    }
+
+    @FXML
+    private void abrirDashboardInventario() {
+        VentanaManager.abrir("dashboard-inventario-view.fxml", "Dashboard de Inventario", "fas-clipboard-list", "#d97706");
     }
 
     @FXML
