@@ -30,6 +30,11 @@ public class MenuController {
     }
 
     @FXML
+    private void abrirVentas() {
+        VentanaManager.abrir("ventas-view.fxml", "Ventas", "fas-cash-register", "#0891b2");
+    }
+
+    @FXML
     private void abrirClientes() {
         VentanaManager.abrir("clientes-view.fxml", "Clientes", "fas-users", "#7c3aed");
     }
