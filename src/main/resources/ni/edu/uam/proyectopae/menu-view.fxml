@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane styleClass="menu-root" prefWidth="1280.0" prefHeight="760.0"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ni.edu.uam.proyectopae.controllers.MenuController">
+
+    <!-- Encabezado: marca, usuario y fecha -->
+    <top>
+        <HBox styleClass="header-bar, bg-oscuro">
+            <FontIcon iconLiteral="fas-spa" iconSize="34"/>
+            <VBox spacing="2">
+                <Label text="Tienda de Maquillaje" styleClass="header-title"/>
+                <Label text="Menú principal - seleccione un módulo" styleClass="header-subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <VBox spacing="2" alignment="CENTER_RIGHT">
+                <Label fx:id="lblUsuario" styleClass="header-title" style="-fx-font-size: 14px;">
+                    <graphic><FontIcon iconLiteral="fas-user-circle" iconSize="16"/></graphic>
+                </Label>
+                <Label fx:id="lblFecha" styleClass="header-subtitle"/>
+            </VBox>
+        </HBox>
+    </top>
+
+    <!-- Tarjetas del menu (cada una abre una ventana) -->
+    <center>
+        <GridPane alignment="CENTER" hgap="28" vgap="28">
+            <padding>
+                <Insets top="30" right="40" bottom="30" left="40"/>
+            </padding>
+            <VBox fx:id="cardClientes" styleClass="menu-card, bg-morado" onMouseClicked="#abrirClientes"
+                  prefWidth="290" prefHeight="190" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                <StackPane styleClass="menu-card-icon-circle">
+                    <FontIcon iconLiteral="fas-users" iconSize="38"/>
+                </StackPane>
+                <Label text="Clientes" styleClass="menu-card-title"/>
+                <Label text="Registro de clientes" styleClass="menu-card-subtitle" wrapText="true"/>
+            </VBox>
+            <VBox fx:id="cardProductos" styleClass="menu-card, bg-azul" onMouseClicked="#abrirProductos"
+                  prefWidth="290" prefHeight="190" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                <StackPane styleClass="menu-card-icon-circle">
+                    <FontIcon iconLiteral="fas-box-open" iconSize="38"/>
+                </StackPane>
+                <Label text="Productos" styleClass="menu-card-title"/>
+                <Label text="Catálogo, precios y stock mínimo" styleClass="menu-card-subtitle" wrapText="true"/>
+            </VBox>
+            <VBox fx:id="cardLotes" styleClass="menu-card, bg-rosa" onMouseClicked="#abrirLotes"
+                  prefWidth="290" prefHeight="190" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                <StackPane styleClass="menu-card-icon-circle">
+                    <FontIcon iconLiteral="fas-boxes" iconSize="38"/>
+                </StackPane>
+                <Label text="Lotes" styleClass="menu-card-title"/>
+                <Label text="Existencias y fechas de caducidad" styleClass="menu-card-subtitle" wrapText="true"/>
+            </VBox>
+            <VBox fx:id="cardAgenda" styleClass="menu-card, bg-indigo" onMouseClicked="#abrirAgenda"
+                  prefWidth="290" prefHeight="190" GridPane.rowIndex="1" GridPane.columnIndex="2">
+                <StackPane styleClass="menu-card-icon-circle">
+                    <FontIcon iconLiteral="fas-calendar-alt" iconSize="38"/>
+                </StackPane>
+                <Label text="Agenda de Citas" styleClass="menu-card-title"/>
+                <Label text="Servicios de maquillaje" styleClass="menu-card-subtitle" wrapText="true"/>
+            </VBox>
+            <VBox fx:id="cardCerrarSesion" styleClass="menu-card, bg-rojo" onMouseClicked="#cerrarSesion"
+                  prefWidth="290" prefHeight="190" GridPane.rowIndex="1" GridPane.columnIndex="3">
+                <StackPane styleClass="menu-card-icon-circle">
+                    <FontIcon iconLiteral="fas-sign-out-alt" iconSize="38"/>
+                </StackPane>
+                <Label text="Cerrar Sesión" styleClass="menu-card-title"/>
+                <Label text="Regresar a la pantalla de login" styleClass="menu-card-subtitle" wrapText="true"/>
+            </VBox>
+        </GridPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER" style="-fx-padding: 10;">
+            <Label text="Proyecto PAE · UAM · Sistema de gestión de tienda de maquillaje" styleClass="hint-label"/>
+        </HBox>
+    </bottom>
+</BorderPane>

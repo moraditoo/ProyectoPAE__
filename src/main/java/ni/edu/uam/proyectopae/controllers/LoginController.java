@@ -2,7 +2,7 @@ package ni.edu.uam.proyectopae.controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -11,6 +11,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import ni.edu.uam.proyectopae.dao.UsuarioDAO;
 import ni.edu.uam.proyectopae.models.Usuario;
+import ni.edu.uam.proyectopae.util.Sesion;
+import ni.edu.uam.proyectopae.util.VentanaManager;
 
 public class LoginController {
 
@@ -26,8 +28,7 @@ public class LoginController {
             if (usuarioDAO.listarTodos().isEmpty()) {
                 usuarioDAO.guardar(new Usuario("admin", "admin123", "ADMINISTRADOR"));
             }
-        } catch (Exception e) {
-            lblMensaje.setStyle("-fx-text-fill: red;");
+        } catch (Throwable e) {
             lblMensaje.setText("Aviso: Verifique la conexión a PostgreSQL.");
         }
     }
@@ -45,28 +46,30 @@ public class LoginController {
         String p = txtPassword.getText() != null ? txtPassword.getText().trim() : "";
 
         if (u.isEmpty() || p.isEmpty()) {
-            lblMensaje.setStyle("-fx-text-fill: #b30000;");
-            lblMensaje.setText("Validación: Complete todos los campos.");
+            lblMensaje.setText("Complete usuario y contraseña.");
             return;
         }
 
         try {
             Usuario usuario = usuarioDAO.autenticar(u, p);
             if (usuario != null) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/ni/edu/uam/proyectopae/main-view.fxml"));
-                Scene scene = new Scene(loader.load(), 980, 660);
+                Sesion.iniciar(usuario);
+
+                // Pagina principal: menu de tarjetas en ventana MAXIMIZADA
+                FXMLLoader loader = VentanaManager.loader("menu-view.fxml");
+                Parent root = loader.load();
 
                 Stage stage = (Stage) txtUsuario.getScene().getWindow();
-                stage.setTitle("Tienda de Maquillaje - Panel Principal (" + usuario.getRol() + ")");
-                stage.setScene(scene);
-                stage.centerOnScreen();
+                stage.setTitle("Tienda de Maquillaje - Menú Principal (" + usuario.getRol() + ")");
+                stage.setScene(VentanaManager.crearEscena(root, 1280, 760));
+                stage.setMaximized(true);
             } else {
-                lblMensaje.setStyle("-fx-text-fill: red;");
                 lblMensaje.setText("Credenciales inválidas. Intente nuevamente.");
+                txtPassword.clear();
+                txtPassword.requestFocus();
             }
-        } catch (Exception ex) {
-            lblMensaje.setStyle("-fx-text-fill: red;");
-            lblMensaje.setText("Error al consultar base de datos: " + ex.getMessage());
+        } catch (Throwable ex) {
+            lblMensaje.setText("Error al consultar la base de datos: " + VentanaManager.causaRaiz(ex));
         }
     }
 }
