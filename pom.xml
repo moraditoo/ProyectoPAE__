@@ -26,6 +26,17 @@
             <artifactId>javafx-fxml</artifactId>
             <version>21</version>
         </dependency>
+        <!-- Iconos vectoriales (Font Awesome 5) para botones, menu y dashboards -->
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-javafx</artifactId>
+            <version>12.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-fontawesome5-pack</artifactId>
+            <version>12.3.1</version>
+        </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -62,7 +73,7 @@
                     <execution>
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>ni.edu.uam.proyectofinalpae.Launcher</mainClass>
+                            <mainClass>ni.edu.uam.proyectopae/ni.edu.uam.proyectopae.HelloApplication</mainClass>
                         </configuration>
                     </execution>
                 </executions>
