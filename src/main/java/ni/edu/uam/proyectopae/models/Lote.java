@@ -9,6 +9,9 @@ import java.util.List;
 @Table(name = "lotes")
 public class Lote {
 
+    /** Dias de anticipacion con los que un lote se considera "por vencer". */
+    public static final int DIAS_ALERTA_VENCIMIENTO = 30;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_lote")
@@ -100,6 +103,27 @@ public class Lote {
 
     public String getNombreProducto() {
         return producto != null ? producto.getNombreProducto() : "";
+    }
+
+    /** Dias que faltan para la caducidad (negativo si ya vencio). */
+    public long getDiasParaVencer() {
+        if (fechaCaducidad == null) return 0;
+        return java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), fechaCaducidad);
+    }
+
+    public boolean isVencido() {
+        return fechaCaducidad != null && fechaCaducidad.isBefore(LocalDate.now());
+    }
+
+    public boolean isPorVencer() {
+        long dias = getDiasParaVencer();
+        return !isVencido() && dias <= DIAS_ALERTA_VENCIMIENTO;
+    }
+
+    public String getEstadoCaducidad() {
+        if (isVencido()) return "VENCIDO";
+        if (isPorVencer()) return "POR VENCER";
+        return "VIGENTE";
     }
 
     @Override
