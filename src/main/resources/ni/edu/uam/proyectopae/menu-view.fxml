@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import ni.edu.uam.proyectopae.util.Icono?>
+
+<!-- Menú principal que aparece después del inicio de sesión: una tarjeta por módulo -->
+<BorderPane prefWidth="1280.0" prefHeight="800.0"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ni.edu.uam.proyectopae.controllers.MenuPrincipalController">
+    <properties estilo="fondo-menu"/>
+
+    <top>
+        <HBox alignment="CENTER_LEFT"><properties estilo="encabezado-modulo"/>
+            <Icono tipo="ESTRELLA" tamano="30"><properties estilo="icono-encabezado"/></Icono>
+            <VBox>
+                <Label text="Tienda de Maquillaje"><properties estilo="titulo-modulo"/></Label>
+                <Label fx:id="lblBienvenida" text="Bienvenido(a)"><properties estilo="subtitulo-modulo"/></Label>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblFecha"><properties estilo="subtitulo-modulo"/>
+                <graphic><Icono tipo="AGENDA" tamano="16"/></graphic>
+            </Label>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER">
+            <VBox alignment="CENTER" spacing="26"><properties estilo="fondo-menu"/>
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
+                <Label text="¿Qué desea hacer hoy?"><properties estilo="titulo-grupo"/></Label>
+                <TilePane fx:id="panelModulos" hgap="26" vgap="26" prefColumns="4" alignment="CENTER"
+                          tileAlignment="CENTER" maxWidth="1240"/>
+                <Label text="Cada módulo se abre en su propia ventana. Si ya está abierto, se trae al frente.">
+                    <properties estilo="texto-ayuda"/>
+                </Label>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

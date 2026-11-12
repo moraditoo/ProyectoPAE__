@@ -1,6 +1,5 @@
 package ni.edu.uam.proyectopae.controllers;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.NumberAxis;
@@ -18,7 +17,6 @@ import ni.edu.uam.proyectopae.dao.DashboardDAO.MovimientoPeriodo;
 import ni.edu.uam.proyectopae.dao.DashboardDAO.ResumenFinanciero;
 import ni.edu.uam.proyectopae.dao.DashboardDAO.ServicioRanking;
 import ni.edu.uam.proyectopae.dao.DashboardDAO.StockProducto;
-import ni.edu.uam.proyectopae.models.Usuario;
 import ni.edu.uam.proyectopae.util.Alertas;
 import ni.edu.uam.proyectopae.util.Icono;
 import ni.edu.uam.proyectopae.util.Navegador;
@@ -38,14 +36,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
-/** Ventana principal: menú de navegación hacia los módulos y panel de control del negocio. */
-public class MainViewController implements Refrescable {
+/** Módulo "Panel de control": indicadores de inventario, finanzas, clientes y servicios con gráficos. */
+public class DashboardController implements Refrescable {
 
     private static final Locale ES = Locale.forLanguageTag("es");
     private static final int MAX_LINEAS_ALERTA = 8;
     private static final int TOP_GRAFICOS = 5;
 
-    @FXML private Label lblUsuario;
     @FXML private Label lblActualizado;
 
     // Indicadores
@@ -123,10 +120,6 @@ public class MainViewController implements Refrescable {
         refrescar();
     }
 
-    public void setUsuario(Usuario usuario) {
-        lblUsuario.setText(usuario.getUsername() + "  ·  " + usuario.getRol());
-    }
-
     // ------------------------------------------------------------------ Navegación
 
     @FXML private void abrirClientes() { Navegador.abrir(Modulo.CLIENTES); }
@@ -138,28 +131,6 @@ public class MainViewController implements Refrescable {
     @FXML
     private void handleActualizar() {
         refrescar();
-    }
-
-    @FXML
-    private void handleCerrarSesion() {
-        if (Alertas.confirmar("¿Cerrar la sesión?", "Se cerrarán todas las ventanas abiertas del sistema.")) {
-            Navegador.cerrarSesion();
-        }
-    }
-
-    @FXML
-    private void handleSalir() {
-        if (Alertas.confirmar("¿Salir del sistema?", "Se cerrarán todas las ventanas de la aplicación.")) {
-            Platform.exit();
-        }
-    }
-
-    @FXML
-    private void handleAcercaDe() {
-        Alertas.info("Tienda de Maquillaje — Sistema de gestión",
-                "Proyecto final PAE (UAM).\nJavaFX 21 · Hibernate ORM 6 · PostgreSQL.\n\n"
-                        + "Use el menú Módulos o la barra lateral para abrir cada módulo en su propia ventana.\n"
-                        + "Atajos: Ctrl+1 a Ctrl+5 abren los módulos y F5 actualiza el panel.");
     }
 
     // ------------------------------------------------------------------ Datos
@@ -183,7 +154,7 @@ public class MainViewController implements Refrescable {
     }
 
     /** Alertas al iniciar sesión: productos vencidos, próximos a vencer y existencias bajo el mínimo. */
-    public void mostrarAlertasIniciales() {
+    public static void mostrarAlertasInventario(DatosDashboard datos) {
         if (datos == null) return;
 
         List<LoteAlerta> vencidos = datos.lotesAlerta().stream().filter(LoteAlerta::vencido).toList();

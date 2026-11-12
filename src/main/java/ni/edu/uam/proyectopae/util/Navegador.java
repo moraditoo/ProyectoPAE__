@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import ni.edu.uam.proyectopae.HelloApplication;
-import ni.edu.uam.proyectopae.controllers.MainViewController;
+import ni.edu.uam.proyectopae.controllers.MenuPrincipalController;
 import ni.edu.uam.proyectopae.models.Usuario;
 
 import java.util.ArrayList;
@@ -24,20 +24,23 @@ public final class Navegador {
     public static final String TITULO_APP = "Tienda de Maquillaje";
 
     public enum Modulo {
-        CLIENTES("clientes-view.fxml", "Clientes", Icono.Tipo.CLIENTES),
-        PRODUCTOS("inventario-view.fxml", "Catálogo de Productos", Icono.Tipo.PRODUCTOS),
-        LOTES("lotes-servicios-view.fxml", "Lotes y Caducidad", Icono.Tipo.LOTES),
-        VENTAS("ventas-view.fxml", "Ventas", Icono.Tipo.VENTAS),
-        AGENDA("agenda-view.fxml", "Agenda de Citas", Icono.Tipo.AGENDA);
+        DASHBOARD("dashboard-view.fxml", "Panel de Control", Icono.Tipo.DASHBOARD, true),
+        CLIENTES("clientes-view.fxml", "Clientes", Icono.Tipo.CLIENTES, false),
+        PRODUCTOS("inventario-view.fxml", "Productos", Icono.Tipo.PRODUCTOS, false),
+        LOTES("lotes-servicios-view.fxml", "Lotes y Caducidad", Icono.Tipo.LOTES, false),
+        VENTAS("ventas-view.fxml", "Ventas", Icono.Tipo.VENTAS, false),
+        AGENDA("agenda-view.fxml", "Agenda de Citas", Icono.Tipo.AGENDA, false);
 
         private final String fxml;
         private final String titulo;
         private final Icono.Tipo icono;
+        private final boolean maximizada;
 
-        Modulo(String fxml, String titulo, Icono.Tipo icono) {
+        Modulo(String fxml, String titulo, Icono.Tipo icono, boolean maximizada) {
             this.fxml = fxml;
             this.titulo = titulo;
             this.icono = icono;
+            this.maximizada = maximizada;
         }
 
         public String getTitulo() { return titulo; }
@@ -61,26 +64,24 @@ public final class Navegador {
         stage.show();
     }
 
-    /** Abre el panel principal (Dashboard) maximizado tras un inicio de sesión correcto. */
+    /** Abre el menú principal (tarjetas de módulos) maximizado tras un inicio de sesión correcto. */
     public static void abrirPrincipal(Usuario usuario) throws Exception {
-        FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("main-view.fxml"));
+        FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("menu-view.fxml"));
         Parent raiz = loader.load();
-        MainViewController controlador = loader.getController();
+        MenuPrincipalController controlador = loader.getController();
         controlador.setUsuario(usuario);
 
         Stage stage = new Stage();
         Scene scene = new Scene(raiz, 1280, 800);
         aplicarEstilos(scene);
         stage.setScene(scene);
-        stage.setTitle(TITULO_APP + " - Panel de Control (" + usuario.getRol() + ")");
+        stage.setTitle(TITULO_APP + " - Menú principal (" + usuario.getRol() + ")");
         stage.setMinWidth(1024);
         stage.setMinHeight(680);
         stage.setMaximized(true);
         stage.setOnCloseRequest(e -> Platform.exit());
         ventanaPrincipal = stage;
 
-        EventosDatos.suscribir(controlador);
-        stage.setOnHidden(e -> EventosDatos.desuscribir(controlador));
         stage.show();
 
         Platform.runLater(controlador::mostrarAlertasIniciales);
@@ -140,7 +141,11 @@ public final class Navegador {
 
             ventanasAbiertas.put(modulo, stage);
             stage.show();
-            stage.centerOnScreen();
+            if (modulo.maximizada) {
+                stage.setMaximized(true);
+            } else {
+                stage.centerOnScreen();
+            }
         } catch (Exception e) {
             Alertas.error("No se pudo abrir el módulo " + modulo.titulo, e.getMessage());
         }

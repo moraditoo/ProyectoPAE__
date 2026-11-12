@@ -1,5 +1,6 @@
 package ni.edu.uam.proyectopae.util;
 
+import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -15,7 +16,11 @@ import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
 import javafx.scene.text.Font;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 
 import java.util.Arrays;
 import java.util.List;
@@ -210,6 +215,7 @@ public final class Tema {
                 case "btn-peligro" -> boton((Button) nodo, PELIGRO, Color.web("#9f1f1f"), Color.WHITE, null);
                 case "btn-exito" -> boton((Button) nodo, OK, Color.web("#1f5e23"), Color.WHITE, null);
                 case "btn-secundario" -> boton((Button) nodo, Color.WHITE, Color.web("#f3eef7"), TEXTO, BORDE);
+                case "fondo-menu" -> ((Region) nodo).setBackground(fondo(Color.web("#eef1f6"), 0));
                 case "fondo-login" -> ((Region) nodo).setBackground(new Background(new BackgroundFill(
                         new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
                                 new Stop(0, PRIMARIO_OSCURO), new Stop(1, SIDEBAR)),
@@ -286,6 +292,61 @@ public final class Tema {
 
     public static void textoMonto(Labeled etiqueta, boolean negativo) {
         etiqueta.setTextFill(negativo ? PELIGRO : PRIMARIO_OSCURO);
+    }
+
+    /**
+     * Tarjeta grande del menú principal: fondo de color, icono, título y descripción.
+     * Se anima al pasar el mouse y ejecuta la acción con clic, Enter o Espacio.
+     */
+    public static VBox tarjetaMenu(String titulo, String descripcion, Icono.Tipo tipoIcono, Color color, Runnable accion) {
+        Icono icono = new Icono(tipoIcono, 52);
+        icono.setColor(Color.WHITE);
+
+        Label lblTitulo = new Label(titulo);
+        lblTitulo.setFont(Font.font(FUENTE, FontWeight.BOLD, 19));
+        lblTitulo.setTextFill(Color.WHITE);
+
+        Label lblDescripcion = new Label(descripcion);
+        lblDescripcion.setFont(Font.font(FUENTE, 12.5));
+        lblDescripcion.setTextFill(Color.rgb(255, 255, 255, 0.9));
+        lblDescripcion.setWrapText(true);
+        lblDescripcion.setTextAlignment(TextAlignment.CENTER);
+
+        VBox tarjeta = new VBox(10, icono, lblTitulo, lblDescripcion);
+        tarjeta.setAlignment(Pos.CENTER);
+        tarjeta.setPadding(new Insets(22, 20, 22, 20));
+        tarjeta.setPrefSize(270, 170);
+        tarjeta.setMinSize(270, 170);
+        tarjeta.setMaxSize(270, 170);
+        tarjeta.setCursor(Cursor.HAND);
+        tarjeta.setFocusTraversable(true);
+
+        DropShadow sombra = new DropShadow(16, 0, 6, color.deriveColor(0, 1, 1, 0.35));
+        tarjeta.setEffect(sombra);
+        Color colorHover = color.deriveColor(0, 1, 1.12, 1);
+        tarjeta.setBackground(fondo(color, 12));
+
+        ScaleTransition escala = new ScaleTransition(Duration.millis(140), tarjeta);
+        Runnable animar = () -> {
+            boolean activa = tarjeta.isHover() || tarjeta.isFocused();
+            tarjeta.setBackground(fondo(activa ? colorHover : color, 12));
+            sombra.setRadius(activa ? 24 : 16);
+            escala.stop();
+            escala.setToX(activa ? 1.04 : 1);
+            escala.setToY(activa ? 1.04 : 1);
+            escala.play();
+        };
+        tarjeta.hoverProperty().addListener((obs, antes, ahora) -> animar.run());
+        tarjeta.focusedProperty().addListener((obs, antes, ahora) -> animar.run());
+        tarjeta.setOnMousePressed(e -> { tarjeta.setScaleX(0.98); tarjeta.setScaleY(0.98); });
+        tarjeta.setOnMouseReleased(e -> animar.run());
+        tarjeta.setOnMouseClicked(e -> {
+            if (e.getButton() == MouseButton.PRIMARY) accion.run();
+        });
+        tarjeta.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER || e.getCode() == KeyCode.SPACE) accion.run();
+        });
+        return tarjeta;
     }
 
     // ------------------------------------------------------------ Ayudantes
