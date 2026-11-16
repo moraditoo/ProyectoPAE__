@@ -33,8 +33,17 @@
             <padding>
                 <Insets top="30" right="40" bottom="30" left="40"/>
             </padding>
+            <VBox fx:id="cardDashboard" styleClass="menu-card, bg-naranja" onMouseClicked="#abrirDashboardInventario"
+                  prefWidth="290" prefHeight="190" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                <StackPane styleClass="menu-card-icon-circle">
+                    <FontIcon iconLiteral="fas-clipboard-list" iconSize="38"/>
+                </StackPane>
+                <Label text="Dashboard" styleClass="menu-card-title"/>
+                <Label text="Alertas, métricas y estado del stock" styleClass="menu-card-subtitle" wrapText="true"/>
+                <Label fx:id="lblBadgeInventario" styleClass="badge-alerta" visible="false"/>
+            </VBox>
             <VBox fx:id="cardVentas" styleClass="menu-card, bg-turquesa" onMouseClicked="#abrirVentas"
-                  prefWidth="290" prefHeight="190" GridPane.rowIndex="0" GridPane.columnIndex="2">
+                  prefWidth="290" prefHeight="190" GridPane.rowIndex="0" GridPane.columnIndex="1">
                 <StackPane styleClass="menu-card-icon-circle">
                     <FontIcon iconLiteral="fas-cash-register" iconSize="38"/>
                 </StackPane>
@@ -42,7 +51,7 @@
                 <Label text="Venta de productos a clientes" styleClass="menu-card-subtitle" wrapText="true"/>
             </VBox>
             <VBox fx:id="cardClientes" styleClass="menu-card, bg-morado" onMouseClicked="#abrirClientes"
-                  prefWidth="290" prefHeight="190" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                  prefWidth="290" prefHeight="190" GridPane.rowIndex="0" GridPane.columnIndex="2">
                 <StackPane styleClass="menu-card-icon-circle">
                     <FontIcon iconLiteral="fas-users" iconSize="38"/>
                 </StackPane>

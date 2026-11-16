@@ -37,8 +37,10 @@ public class MenuController {
         String fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE d 'de' MMMM 'de' yyyy", Locale.forLanguageTag("es-NI")));
         lblFecha.setText(Character.toUpperCase(fecha.charAt(0)) + fecha.substring(1));
 
-        lblBadgeInventario.managedProperty().bind(lblBadgeInventario.visibleProperty());
-        VentanaManager.alCambiarDatos(this::actualizarBadge);
+        if (lblBadgeInventario != null) {
+            lblBadgeInventario.managedProperty().bind(lblBadgeInventario.visibleProperty());
+            VentanaManager.alCambiarDatos(this::actualizarBadge);
+        }
 
         // Al iniciar sesion se avisa de productos por vencer y stock bajo
         Platform.runLater(this::mostrarAlertasInventario);
@@ -53,6 +55,7 @@ public class MenuController {
     }
 
     private void actualizarBadge() {
+        if (lblBadgeInventario == null) return;
         try {
             int[] a = contarAlertas();
             int total = a[0] + a[1] + a[2];
