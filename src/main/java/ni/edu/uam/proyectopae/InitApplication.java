@@ -8,7 +8,7 @@ import ni.edu.uam.proyectopae.util.VentanaManager;
 
 import java.io.IOException;
 
-public class HelloApplication extends Application {
+public class InitApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         VentanaManager.setPrincipal(stage);
