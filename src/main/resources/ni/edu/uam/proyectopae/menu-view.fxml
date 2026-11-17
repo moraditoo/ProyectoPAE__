@@ -58,6 +58,15 @@
                 <Label text="Clientes" styleClass="menu-card-title"/>
                 <Label text="Registro de clientes" styleClass="menu-card-subtitle" wrapText="true"/>
             </VBox>
+            <VBox styleClass="menu-card, bg-morado" onMouseClicked="#abrirReportes"
+                  prefWidth="290" prefHeight="190" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                <StackPane styleClass="menu-card-icon-circle">
+                    <FontIcon iconLiteral="fas-file-alt" iconSize="38"/>
+                </StackPane>
+                <Label text="Reportes" styleClass="menu-card-title"/>
+                <Label text="Filtra citas, elige columnas y exporta a CSV"
+                       styleClass="menu-card-subtitle" wrapText="true"/>
+            </VBox>
             <VBox fx:id="cardProductos" styleClass="menu-card, bg-azul" onMouseClicked="#abrirProductos"
                   prefWidth="290" prefHeight="190" GridPane.rowIndex="1" GridPane.columnIndex="0">
                 <StackPane styleClass="menu-card-icon-circle">

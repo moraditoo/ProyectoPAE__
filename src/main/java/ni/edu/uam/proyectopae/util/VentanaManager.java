@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,10 +44,13 @@ public final class VentanaManager {
 
     public static Stage getPrincipal() { return principal; }
 
-    /** Crea una escena aplicando la hoja de estilos global. */
+    /** Crea una escena aplicando la hoja de estilos global si esta disponible. */
     public static Scene crearEscena(Parent root, double ancho, double alto) {
         Scene scene = new Scene(root, ancho, alto);
-        scene.getStylesheets().add(VentanaManager.class.getResource(CSS).toExternalForm());
+        URL stylesheet = VentanaManager.class.getResource(CSS);
+        if (stylesheet != null) {
+            scene.getStylesheets().add(stylesheet.toExternalForm());
+        }
         return scene;
     }
 

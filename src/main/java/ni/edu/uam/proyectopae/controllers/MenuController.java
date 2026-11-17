@@ -118,6 +118,12 @@ public class MenuController {
     }
 
     @FXML
+    private void abrirReportes() {
+        VentanaManager.abrir(
+                "reportes-view.fxml", "Reportes de citas", "fas-file-alt", "#7c3aed");
+    }
+
+    @FXML
     private void cerrarSesion() {
         if (!Alertas.confirmar("Cerrar sesión", "¿Desea cerrar la sesión? Se cerrarán todas las ventanas abiertas.")) {
             return;
