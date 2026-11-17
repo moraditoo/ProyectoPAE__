@@ -5,34 +5,49 @@
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<StackPane styleClass="login-root" prefWidth="440.0" prefHeight="560.0"
-           xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="ni.edu.uam.proyectopae.controllers.LoginController">
-    <padding>
-        <Insets top="30" right="30" bottom="30" left="30"/>
-    </padding>
-
-    <VBox styleClass="login-card" alignment="CENTER" maxWidth="360.0" maxHeight="440.0">
-        <FontIcon styleClass="login-icon" iconLiteral="fas-spa" iconSize="54"/>
-        <Label text="Tienda de Maquillaje" styleClass="login-title"/>
-        <Label text="Acceso al sistema" styleClass="hint-label"/>
-
-        <Region prefHeight="8"/>
-
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <FontIcon styleClass="login-icon" iconLiteral="fas-user" iconSize="18"/>
-            <TextField fx:id="txtUsuario" promptText="Usuario" onKeyPressed="#handleEnterLogin" HBox.hgrow="ALWAYS"/>
-        </HBox>
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <FontIcon styleClass="login-icon" iconLiteral="fas-lock" iconSize="18"/>
-            <PasswordField fx:id="txtPassword" promptText="Contraseña" onKeyPressed="#handleEnterLogin" HBox.hgrow="ALWAYS"/>
-        </HBox>
-
-        <Button text="Iniciar sesión" onAction="#handleLogin" maxWidth="Infinity" styleClass="btn-primary">
-            <graphic>
-                <FontIcon iconLiteral="fas-sign-in-alt" iconSize="16"/>
-            </graphic>
-        </Button>
-        <Label fx:id="lblMensaje" wrapText="true" styleClass="login-error"/>
-    </VBox>
-</StackPane>
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ni.edu.uam.proyectopae.controllers.LoginController" styleClass="pae-ui" fitToWidth="true" fitToHeight="true">
+    <HBox minWidth="760" minHeight="530">
+        <StackPane styleClass="panel-acceso" prefWidth="536" minWidth="310"
+                   HBox.hgrow="ALWAYS">
+            <Pane styleClass="decoracion-acceso" minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity"/>
+            <BorderPane pickOnBounds="false">
+                <padding><Insets top="48" right="25" bottom="42" left="49"/></padding>
+                <top>
+                    <HBox alignment="CENTER_LEFT" spacing="11">
+                        <StackPane styleClass="marca-clara" minWidth="38" minHeight="38" maxWidth="38" maxHeight="38"/>
+                        <Label text="ProyectoPAE" styleClass="marca-invertida"/>
+                    </HBox>
+                </top>
+                <left>
+                    <VBox alignment="CENTER_LEFT" spacing="18" fillWidth="false" translateY="-56">
+                        <Label text="Tienda de&#10;maquillaje" styleClass="titulo-marca-acceso" wrapText="true" maxWidth="385"/>
+                        <Label text="Ventas, inventario y citas en un solo lugar."
+                               styleClass="bienvenida-subtitulo" wrapText="true" maxWidth="300"/>
+                    </VBox>
+                </left>
+                <bottom><Label text="Universidad Americana · Proyecto PAE" styleClass="bienvenida-meta"/></bottom>
+            </BorderPane>
+        </StackPane>
+        <StackPane prefWidth="744" minWidth="450" styleClass="pae-ui" HBox.hgrow="ALWAYS">
+            <padding><Insets top="24" right="20" bottom="24" left="20"/></padding>
+            <VBox styleClass="login-card" spacing="17" prefWidth="448" maxWidth="448" maxHeight="-Infinity">
+                <StackPane styleClass="marca-acceso" minWidth="46" minHeight="46" maxWidth="46" maxHeight="46"/>
+                <VBox spacing="4">
+                    <Label text="Iniciar sesión" styleClass="login-title"/>
+                    <Label text="Ingresa tus credenciales para acceder al sistema." styleClass="hint-label" wrapText="true"/>
+                </VBox>
+                <VBox spacing="6">
+                    <Label text="Usuario" styleClass="form-label"/>
+                    <TextField fx:id="txtUsuario" promptText="Tu usuario"/>
+                </VBox>
+                <VBox spacing="6">
+                    <Label text="Contraseña" styleClass="form-label"/>
+                    <PasswordField fx:id="txtPassword" promptText="Tu contraseña"/>
+                </VBox>
+                <Button text="Iniciar sesión" onAction="#handleLogin" defaultButton="true"
+                        maxWidth="Infinity" styleClass="btn-primary"/>
+                <Label fx:id="lblMensaje" wrapText="true" styleClass="login-error"/>
+            </VBox>
+        </StackPane>
+    </HBox>
+</ScrollPane>

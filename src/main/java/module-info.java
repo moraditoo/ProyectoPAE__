@@ -6,6 +6,7 @@ module ni.edu.uam.proyectopae {
     requires jakarta.persistence;
     requires org.hibernate.orm.core;
     requires org.kordamp.ikonli.javafx;
+    requires org.kordamp.ikonli.fontawesome5;
 
     opens ni.edu.uam.proyectopae to javafx.fxml;
     opens ni.edu.uam.proyectopae.controllers to javafx.fxml;

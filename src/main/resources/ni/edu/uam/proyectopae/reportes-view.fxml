@@ -1,83 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane prefWidth="980" prefHeight="650"
-            xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="ni.edu.uam.proyectopae.controllers.ReporteController">
-
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ni.edu.uam.proyectopae.controllers.ReporteController" styleClass="pae-ui">
     <top>
-        <HBox styleClass="header-bar, bg-morado">
-            <FontIcon iconLiteral="fas-file-alt" iconSize="30"/>
+        <VBox styleClass="encabezado-modulo" spacing="5">
             <Label text="Reportes de citas" styleClass="header-title"/>
-        </HBox>
-    </top>
-
-    <center>
-        <VBox styleClass="content-area">
-            <VBox fx:id="configuracion" spacing="12" styleClass="card">
-                <Label text="Filtros" styleClass="card-title"/>
-
-                <FlowPane hgap="12" vgap="8">
-                    <VBox spacing="4">
-                        <Label text="Desde" styleClass="form-label"/>
-                        <DatePicker fx:id="dpDesde" editable="false" prefWidth="150"/>
-                    </VBox>
-                    <VBox spacing="4">
-                        <Label text="Hasta" styleClass="form-label"/>
-                        <DatePicker fx:id="dpHasta" editable="false" prefWidth="150"/>
-                    </VBox>
-                    <VBox spacing="4">
-                        <Label text="Servicio" styleClass="form-label"/>
-                        <ComboBox fx:id="cmbServicio" prefWidth="270"/>
-                    </VBox>
-                </FlowPane>
-
-                <Label text="Columnas a incluir" styleClass="form-label"/>
-
-                <FlowPane hgap="16" vgap="8">
-                    <CheckBox fx:id="chkId" text="N.º de cita" selected="true"/>
-                    <CheckBox fx:id="chkFecha" text="Fecha y hora" selected="true"/>
-                    <CheckBox fx:id="chkCliente" text="Cliente" selected="true"/>
-                    <CheckBox fx:id="chkServicio" text="Servicio" selected="true"/>
-                    <CheckBox fx:id="chkEstado" text="Estado" selected="true"/>
-                </FlowPane>
-
-                <HBox spacing="10">
-                    <Button text="Generar reporte" onAction="#generarReporte"
-                            defaultButton="true" styleClass="btn-primary"/>
-                    <Button text="Limpiar filtros" onAction="#limpiarFiltros"
-                            styleClass="btn-secondary"/>
-                </HBox>
-            </VBox>
-
-            <VBox spacing="10" styleClass="card" VBox.vgrow="ALWAYS">
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Vista previa" styleClass="card-title"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="btnExportar" text="Exportar CSV"
-                            onAction="#exportarCsv" styleClass="btn-success"/>
-                </HBox>
-
-                <TableView fx:id="tabla" VBox.vgrow="ALWAYS">
-                    <placeholder>
-                        <Label text="No hay citas para mostrar."/>
-                    </placeholder>
-                    <columns>
-                        <TableColumn fx:id="colId" text="N.º de cita" prefWidth="85"/>
-                        <TableColumn fx:id="colFecha" text="Fecha y hora" prefWidth="180"/>
-                        <TableColumn fx:id="colCliente" text="Cliente" prefWidth="200"/>
-                        <TableColumn fx:id="colServicio" text="Servicio" prefWidth="245"/>
-                        <TableColumn fx:id="colEstado" text="Estado" prefWidth="135"/>
-                    </columns>
-                </TableView>
-
-                <Label fx:id="lblEstado" text="Pulsa Generar reporte para ver los resultados."
-                       styleClass="hint-label"/>
-            </VBox>
+            <Label text="Filtra las citas, selecciona las columnas y exporta los resultados."
+                   styleClass="header-subtitle" wrapText="true"/>
         </VBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true">
+            <HBox styleClass="content-area" spacing="18" alignment="TOP_LEFT" minWidth="800">
+                <VBox fx:id="configuracion" spacing="14" styleClass="card" prefWidth="324" minWidth="300" maxHeight="-Infinity">
+                    <Label text="Filtros" styleClass="card-title"/>
+                    <HBox spacing="10">
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <Label text="Desde" styleClass="form-label"/>
+                            <DatePicker fx:id="dpDesde" editable="false" promptText="dd/mm/aaaa" maxWidth="Infinity"/>
+                        </VBox>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <Label text="Hasta" styleClass="form-label"/>
+                            <DatePicker fx:id="dpHasta" editable="false" promptText="dd/mm/aaaa" maxWidth="Infinity"/>
+                        </VBox>
+                    </HBox>
+                    <VBox spacing="6">
+                        <Label text="Servicio" styleClass="form-label"/>
+                        <ComboBox fx:id="cmbServicio" maxWidth="Infinity"/>
+                    </VBox>
+                    <Region styleClass="separador" minHeight="1" maxHeight="1"/>
+                    <Label text="Columnas a incluir" styleClass="card-title"/>
+                    <VBox spacing="8">
+                        <CheckBox fx:id="chkId" text="N.º de cita" selected="true"/>
+                        <CheckBox fx:id="chkFecha" text="Fecha y hora" selected="true"/>
+                        <CheckBox fx:id="chkCliente" text="Cliente" selected="true"/>
+                        <CheckBox fx:id="chkServicio" text="Servicio" selected="true"/>
+                        <CheckBox fx:id="chkEstado" text="Estado" selected="true"/>
+                    </VBox>
+                    <Button text="Generar reporte" onAction="#generarReporte" maxWidth="Infinity"
+                            defaultButton="true" styleClass="btn-primary"/>
+                    <Button text="Limpiar filtros" onAction="#limpiarFiltros" styleClass="btn-ghost"/>
+                </VBox>
+
+                <VBox spacing="16" styleClass="card" HBox.hgrow="ALWAYS"
+                      minHeight="490" prefHeight="532" maxHeight="-Infinity">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Vista previa" styleClass="card-title"/>
+                            <Label text="Los resultados aparecen al generar un reporte." styleClass="hint-label" wrapText="true"/>
+                        </VBox>
+                        <Button fx:id="btnExportar" text="Exportar CSV" onAction="#exportarCsv" styleClass="btn-secondary">
+                            <graphic><FontIcon iconLiteral="fas-download" iconSize="14"/></graphic>
+                        </Button>
+                    </HBox>
+                    <TableView fx:id="tabla" VBox.vgrow="ALWAYS" minHeight="260">
+                        <placeholder>
+                            <VBox alignment="CENTER" spacing="8">
+                                <StackPane styleClass="chip-lila" minWidth="48" minHeight="48" maxWidth="48" maxHeight="48">
+                                    <FontIcon iconLiteral="far-file-alt" iconSize="22"/>
+                                </StackPane>
+                                <Label text="Aún no hay resultados" styleClass="card-title"/>
+                            </VBox>
+                        </placeholder>
+                        <columns>
+                            <TableColumn fx:id="colId" text="N.º de cita" prefWidth="85"/>
+                            <TableColumn fx:id="colFecha" text="Fecha y hora" prefWidth="180"/>
+                            <TableColumn fx:id="colCliente" text="Cliente" prefWidth="200"/>
+                            <TableColumn fx:id="colServicio" text="Servicio" prefWidth="245"/>
+                            <TableColumn fx:id="colEstado" text="Estado" prefWidth="135"/>
+                        </columns>
+                    </TableView>
+                    <Label fx:id="lblEstado" text="Pulsa Generar reporte para ver los resultados."
+                           styleClass="estado-reporte, modo-label" maxWidth="Infinity" wrapText="true"/>
+                </VBox>
+            </HBox>
+        </ScrollPane>
     </center>
 </BorderPane>

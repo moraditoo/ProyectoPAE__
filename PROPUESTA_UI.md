@@ -18,4 +18,6 @@ La propuesta usa una interfaz de escritorio de 1280 × 820 px, una paleta ciruel
 
 En Reportes, el usuario filtra por fecha y servicio, elige las columnas, genera una vista previa y puede exportar a CSV. Figma muestra el estado inicial y el resultado generado. Los nombres, montos y registros del diseño son ilustrativos.
 
-El alcance de esta rama es la documentación de la propuesta. Su implementación en JavaFX queda pendiente.
+La propuesta está implementada en JavaFX y FXML. El tema se aplica con propiedades de JavaFX. La aplicación usa DM Sans cuando está instalada y recurre a Segoe UI en Windows en caso contrario.
+
+El botón «Menú principal» minimiza la ventana activa. Puedes retomarla desde la tarjeta correspondiente. Las alertas de inventario aparecen en el menú y dan acceso al dashboard. Los reportes usan los registros de PostgreSQL.

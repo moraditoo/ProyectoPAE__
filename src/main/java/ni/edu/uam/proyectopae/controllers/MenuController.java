@@ -2,10 +2,8 @@ package ni.edu.uam.proyectopae.controllers;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
+import javafx.scene.layout.HBox;
 import ni.edu.uam.proyectopae.dao.LoteDAO;
 import ni.edu.uam.proyectopae.dao.ProductoDAO;
 import ni.edu.uam.proyectopae.models.Lote;
@@ -26,7 +24,11 @@ public class MenuController {
 
     @FXML private Label lblUsuario;
     @FXML private Label lblFecha;
+    @FXML private Label lblBienvenida;
+    @FXML private Label lblIniciales;
     @FXML private Label lblBadgeInventario;
+    @FXML private Label lblDetalleInventario;
+    @FXML private HBox alertaInventario;
 
     private final LoteDAO loteDAO = new LoteDAO();
     private final ProductoDAO productoDAO = new ProductoDAO();
@@ -34,16 +36,15 @@ public class MenuController {
     @FXML
     public void initialize() {
         lblUsuario.setText(Sesion.descripcion());
+        String usuario = Sesion.getUsuario() == null ? "" : Sesion.getUsuario().getUsername().strip();
+        lblBienvenida.setText(usuario.isEmpty() ? "Bienvenido" : "Hola, " + usuario);
+        lblIniciales.setText(usuario.substring(0, Math.min(2, usuario.length())).toUpperCase(Locale.ROOT));
         String fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE d 'de' MMMM 'de' yyyy", Locale.forLanguageTag("es-NI")));
         lblFecha.setText(Character.toUpperCase(fecha.charAt(0)) + fecha.substring(1));
 
-        if (lblBadgeInventario != null) {
-            lblBadgeInventario.managedProperty().bind(lblBadgeInventario.visibleProperty());
-            VentanaManager.alCambiarDatos(this::actualizarBadge);
-        }
-
-        // Al iniciar sesion se avisa de productos por vencer y stock bajo
-        Platform.runLater(this::mostrarAlertasInventario);
+        alertaInventario.managedProperty().bind(alertaInventario.visibleProperty());
+        VentanaManager.alCambiarDatos(this::actualizarAlertas);
+        Platform.runLater(this::actualizarAlertas);
     }
 
     /** [porVencer, vencidos, bajoMinimo] */
@@ -54,36 +55,18 @@ public class MenuController {
         return new int[]{porVencer, vencidos, bajoMinimo};
     }
 
-    private void actualizarBadge() {
-        if (lblBadgeInventario == null) return;
+    private void actualizarAlertas() {
         try {
             int[] a = contarAlertas();
             int total = a[0] + a[1] + a[2];
-            lblBadgeInventario.setText(total + (total == 1 ? " alerta" : " alertas"));
-            lblBadgeInventario.setVisible(total > 0);
-        } catch (Exception e) {
-            lblBadgeInventario.setVisible(false);
-        }
-    }
-
-    private void mostrarAlertasInventario() {
-        try {
-            int[] a = contarAlertas();
-            actualizarBadge();
-            if (a[0] + a[1] + a[2] == 0) return;
-
-            StringBuilder sb = new StringBuilder();
-            if (a[1] > 0) sb.append("• ").append(a[1]).append(" lote(s) VENCIDOS todavía tienen unidades.\n");
-            if (a[0] > 0) sb.append("• ").append(a[0]).append(" lote(s) vencen en los próximos ")
-                    .append(Lote.DIAS_ALERTA_VENCIMIENTO).append(" días.\n");
-            if (a[2] > 0) sb.append("• ").append(a[2]).append(" producto(s) están por debajo del stock mínimo.\n");
-            sb.append("\n¿Desea abrir el Dashboard de Inventario?");
-
-            if (Alertas.advertenciaConPregunta("Alertas de inventario", sb.toString())) {
-                abrirDashboardInventario();
-            }
-        } catch (Exception e) {
-            Alertas.error("Error de conexión", "No se pudieron revisar las alertas de inventario:\n" + VentanaManager.causaRaiz(e));
+            lblBadgeInventario.setText(total + (total == 1 ? " alerta de inventario" : " alertas de inventario"));
+            lblDetalleInventario.setText(a[0] + " por vencer · " + a[1] + " vencidos con stock · "
+                    + a[2] + " bajo el stock mínimo");
+            alertaInventario.setVisible(total > 0);
+        } catch (Exception ex) {
+            lblBadgeInventario.setText("Alertas de inventario");
+            lblDetalleInventario.setText("No se pudieron consultar las alertas. Abre el Dashboard para volver a intentarlo.");
+            alertaInventario.setVisible(true);
         }
     }
 
@@ -132,13 +115,7 @@ public class MenuController {
             VentanaManager.cerrarTodas();
             Sesion.cerrar();
 
-            FXMLLoader loader = VentanaManager.loader("login-view.fxml");
-            Parent root = loader.load();
-            Stage stage = VentanaManager.getPrincipal();
-            stage.setMaximized(false);
-            stage.setScene(VentanaManager.crearEscena(root, 440, 560));
-            stage.setTitle("Control de Acceso - Tienda de Maquillaje");
-            stage.centerOnScreen();
+            VentanaManager.mostrarAcceso(VentanaManager.getPrincipal());
         } catch (Exception ex) {
             Alertas.error("Error", "No se pudo volver al login: " + VentanaManager.causaRaiz(ex));
         }

@@ -6,8 +6,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import ni.edu.uam.proyectopae.dao.UsuarioDAO;
 import ni.edu.uam.proyectopae.models.Usuario;
@@ -24,19 +22,14 @@ public class LoginController {
 
     @FXML
     public void initialize() {
+        lblMensaje.visibleProperty().bind(lblMensaje.textProperty().isNotEmpty());
+        lblMensaje.managedProperty().bind(lblMensaje.visibleProperty());
         try {
             if (usuarioDAO.listarTodos().isEmpty()) {
                 usuarioDAO.guardar(new Usuario("admin", "admin123", "ADMINISTRADOR"));
             }
         } catch (Throwable e) {
             lblMensaje.setText("Aviso: Verifique la conexión a PostgreSQL.");
-        }
-    }
-
-    @FXML
-    protected void handleEnterLogin(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            handleLogin();
         }
     }
 
@@ -61,7 +54,7 @@ public class LoginController {
 
                 Stage stage = (Stage) txtUsuario.getScene().getWindow();
                 stage.setTitle("Tienda de Maquillaje - Menú Principal (" + usuario.getRol() + ")");
-                stage.setScene(VentanaManager.crearEscena(root, 1280, 760));
+                stage.setScene(VentanaManager.crearEscena(root, 1280, 820));
                 stage.setMaximized(true);
             } else {
                 lblMensaje.setText("Credenciales inválidas. Intente nuevamente.");
