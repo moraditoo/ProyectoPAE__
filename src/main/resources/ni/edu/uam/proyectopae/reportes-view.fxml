@@ -57,6 +57,14 @@
                             <graphic><FontIcon iconLiteral="fas-download" iconSize="14"/></graphic>
                         </Button>
                     </HBox>
+
+                    <!-- Resumen rápido de estados de citas -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label fx:id="lblTotalCitas" text="0 citas" styleClass="badge-lila"/>
+                        <Label fx:id="lblCitasProgramadas" text="0 programadas" styleClass="badge-ambar"/>
+                        <Label fx:id="lblCitasCompletadas" text="0 completadas" styleClass="badge-verde"/>
+                        <Label fx:id="lblCitasCanceladas" text="0 canceladas" styleClass="badge-rosa"/>
+                    </HBox>
                     <TableView fx:id="tabla" VBox.vgrow="ALWAYS" minHeight="260">
                         <placeholder>
                             <VBox alignment="CENTER" spacing="8">

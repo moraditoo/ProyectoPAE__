@@ -21,3 +21,15 @@ En Reportes, el usuario filtra por fecha y servicio, elige las columnas, genera 
 La propuesta está implementada en JavaFX y FXML. El tema se aplica con propiedades de JavaFX. La aplicación usa DM Sans cuando está instalada y recurre a Segoe UI en Windows en caso contrario.
 
 El botón «Menú principal» minimiza la ventana activa. Puedes retomarla desde la tarjeta correspondiente. Las alertas de inventario aparecen en el menú y dan acceso al dashboard. Los reportes usan los registros de PostgreSQL.
+
+## Novedades de la Interfaz
+
+- **Modo Oscuro Dinámico:** Botón de alternancia rápida (Sol / Luna) disponible en la pantalla de login, en la barra del menú principal y en la barra superior compartida de todas las ventanas de módulos (`TemaPAE.barra`). Adapta fondos, tarjetas, textos, sombras, tablas y entradas con una paleta ciruela-carbón de alto contraste.
+- **Centro de Control con Mini-KPIs en Vivo:** El menú principal ahora muestra estadísticas en tiempo real:
+  - Ventas del día
+  - Total de productos en catálogo
+  - Clientes registrados
+  - Citas agendadas
+- **Barra de Acciones Rápidas:** Atajos directos a Nueva Venta, Registrar Cliente, Agendar Cita y Reportes desde el menú principal.
+- **Resumen de Estados en Reportes:** Badges interactivos que totalizan citas programadas, completadas y canceladas al generar cualquier consulta.
+- **Panel de Acceso Enriquecido:** Tarjetas de características y atajos en el login.

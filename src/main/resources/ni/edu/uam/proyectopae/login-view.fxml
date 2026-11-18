@@ -7,11 +7,11 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ni.edu.uam.proyectopae.controllers.LoginController" styleClass="pae-ui" fitToWidth="true" fitToHeight="true">
     <HBox minWidth="760" minHeight="530">
-        <StackPane styleClass="panel-acceso" prefWidth="536" minWidth="310"
-                   HBox.hgrow="ALWAYS">
+        <!-- Panel Izquierdo: Branding y Decoración Gráfica -->
+        <StackPane styleClass="panel-acceso" prefWidth="536" minWidth="310" HBox.hgrow="ALWAYS">
             <Pane styleClass="decoracion-acceso" minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity"/>
             <BorderPane pickOnBounds="false">
-                <padding><Insets top="48" right="25" bottom="42" left="49"/></padding>
+                <padding><Insets top="44" right="30" bottom="36" left="44"/></padding>
                 <top>
                     <HBox alignment="CENTER_LEFT" spacing="11">
                         <StackPane styleClass="marca-clara" minWidth="38" minHeight="38" maxWidth="38" maxHeight="38"/>
@@ -19,33 +19,76 @@
                     </HBox>
                 </top>
                 <left>
-                    <VBox alignment="CENTER_LEFT" spacing="18" fillWidth="false" translateY="-56">
-                        <Label text="Tienda de&#10;maquillaje" styleClass="titulo-marca-acceso" wrapText="true" maxWidth="385"/>
-                        <Label text="Ventas, inventario y citas en un solo lugar."
-                               styleClass="bienvenida-subtitulo" wrapText="true" maxWidth="300"/>
+                    <VBox alignment="CENTER_LEFT" spacing="22" fillWidth="false" translateY="-30">
+                        <VBox spacing="8">
+                            <Label text="Tienda de&#10;maquillaje" styleClass="titulo-marca-acceso" wrapText="true" maxWidth="385"/>
+                            <Label text="Ventas, inventario y citas en un solo lugar." styleClass="bienvenida-subtitulo" wrapText="true" maxWidth="320"/>
+                        </VBox>
+
+                        <!-- Chips de características del sistema -->
+                        <VBox spacing="10">
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <FontIcon iconLiteral="fas-check-circle" iconSize="14" style="-fx-icon-color: #6EE7B7;"/>
+                                <Label text="Facturación ágil con descuento FEFO" styleClass="bienvenida-meta"/>
+                            </HBox>
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <FontIcon iconLiteral="fas-check-circle" iconSize="14" style="-fx-icon-color: #6EE7B7;"/>
+                                <Label text="Alertas de caducidad y stock mínimo" styleClass="bienvenida-meta"/>
+                            </HBox>
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <FontIcon iconLiteral="fas-check-circle" iconSize="14" style="-fx-icon-color: #6EE7B7;"/>
+                                <Label text="Agenda de servicios y citas de maquillaje" styleClass="bienvenida-meta"/>
+                            </HBox>
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <FontIcon iconLiteral="fas-check-circle" iconSize="14" style="-fx-icon-color: #6EE7B7;"/>
+                                <Label text="Exportación de reportes a formato CSV" styleClass="bienvenida-meta"/>
+                            </HBox>
+                        </VBox>
                     </VBox>
                 </left>
-                <bottom><Label text="Universidad Americana · Proyecto PAE" styleClass="bienvenida-meta"/></bottom>
+                <bottom>
+                    <Label text="Universidad Americana · Proyecto PAE · 2026" styleClass="bienvenida-meta"/>
+                </bottom>
             </BorderPane>
         </StackPane>
+
+        <!-- Panel Derecho: Formulario de Acceso y Selector de Tema -->
         <StackPane prefWidth="744" minWidth="450" styleClass="pae-ui" HBox.hgrow="ALWAYS">
-            <padding><Insets top="24" right="20" bottom="24" left="20"/></padding>
-            <VBox styleClass="login-card" spacing="17" prefWidth="448" maxWidth="448" maxHeight="-Infinity">
+            <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+
+            <!-- Botón de Modo Oscuro en la esquina superior derecha -->
+            <HBox alignment="TOP_RIGHT" pickOnBounds="false">
+                <Button fx:id="btnTema" onAction="#handleAlternarTema" styleClass="btn-tema"/>
+            </HBox>
+
+            <!-- Tarjeta Central de Login -->
+            <VBox styleClass="login-card" spacing="16" prefWidth="440" maxWidth="440" maxHeight="-Infinity" alignment="CENTER_LEFT">
                 <StackPane styleClass="marca-acceso" minWidth="46" minHeight="46" maxWidth="46" maxHeight="46"/>
                 <VBox spacing="4">
                     <Label text="Iniciar sesión" styleClass="login-title"/>
                     <Label text="Ingresa tus credenciales para acceder al sistema." styleClass="hint-label" wrapText="true"/>
                 </VBox>
+
                 <VBox spacing="6">
                     <Label text="Usuario" styleClass="form-label"/>
-                    <TextField fx:id="txtUsuario" promptText="Tu usuario"/>
+                    <TextField fx:id="txtUsuario" promptText="Tu usuario (ej. admin)"/>
                 </VBox>
+
                 <VBox spacing="6">
                     <Label text="Contraseña" styleClass="form-label"/>
                     <PasswordField fx:id="txtPassword" promptText="Tu contraseña"/>
                 </VBox>
+
                 <Button text="Iniciar sesión" onAction="#handleLogin" defaultButton="true"
-                        maxWidth="Infinity" styleClass="btn-primary"/>
+                        maxWidth="Infinity" styleClass="btn-primary">
+                    <graphic><FontIcon iconLiteral="fas-sign-in-alt" iconSize="14"/></graphic>
+                </Button>
+
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-info-circle" iconSize="13"/>
+                    <Label text="Usuario demo: admin · Clave: admin123" styleClass="hint-label"/>
+                </HBox>
+
                 <Label fx:id="lblMensaje" wrapText="true" styleClass="login-error"/>
             </VBox>
         </StackPane>

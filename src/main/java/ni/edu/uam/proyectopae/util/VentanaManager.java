@@ -145,6 +145,24 @@ public final class VentanaManager {
     /** Permite que el menu principal actualice sus indicadores cuando cambian los datos. */
     public static void alCambiarDatos(Runnable oyente) { oyentesCambios.add(oyente); }
 
+    /** Re-aplica el tema visual (modo claro u oscuro) a todas las ventanas abiertas. */
+    public static void actualizarTemaGlobal() {
+        if (principal != null && principal.getScene() != null) {
+            Parent root = principal.getScene().getRoot();
+            if (TemaPAE.usaTema(root)) {
+                TemaPAE.aplicar(root);
+            }
+        }
+        for (Stage stage : new ArrayList<>(ventanas.values())) {
+            if (stage != null && stage.getScene() != null) {
+                Parent root = stage.getScene().getRoot();
+                if (TemaPAE.usaTema(root)) {
+                    TemaPAE.aplicar(root);
+                }
+            }
+        }
+    }
+
     public static void cerrarTodas() {
         new ArrayList<>(ventanas.values()).forEach(Stage::close);
         ventanas.clear();

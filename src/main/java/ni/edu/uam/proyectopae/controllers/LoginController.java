@@ -3,6 +3,7 @@ package ni.edu.uam.proyectopae.controllers;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -10,6 +11,7 @@ import javafx.stage.Stage;
 import ni.edu.uam.proyectopae.dao.UsuarioDAO;
 import ni.edu.uam.proyectopae.models.Usuario;
 import ni.edu.uam.proyectopae.util.Sesion;
+import ni.edu.uam.proyectopae.util.TemaPAE;
 import ni.edu.uam.proyectopae.util.VentanaManager;
 
 public class LoginController {
@@ -17,11 +19,15 @@ public class LoginController {
     @FXML private TextField txtUsuario;
     @FXML private PasswordField txtPassword;
     @FXML private Label lblMensaje;
+    @FXML private Button btnTema;
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
     @FXML
     public void initialize() {
+        if (btnTema != null) {
+            TemaPAE.actualizarBotonTema(btnTema);
+        }
         lblMensaje.visibleProperty().bind(lblMensaje.textProperty().isNotEmpty());
         lblMensaje.managedProperty().bind(lblMensaje.visibleProperty());
         try {
@@ -30,6 +36,14 @@ public class LoginController {
             }
         } catch (Throwable e) {
             lblMensaje.setText("Aviso: Verifique la conexión a PostgreSQL.");
+        }
+    }
+
+    @FXML
+    protected void handleAlternarTema() {
+        TemaPAE.alternarModoOscuro();
+        if (btnTema != null) {
+            TemaPAE.actualizarBotonTema(btnTema);
         }
     }
 
