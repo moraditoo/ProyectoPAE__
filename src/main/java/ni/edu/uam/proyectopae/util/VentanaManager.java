@@ -103,7 +103,7 @@ public final class VentanaManager {
                 var encabezado = vista.getTop();
                 vista.setTop(null);
                 VBox superior = new VBox(TemaPAE.barra(titulo, () -> {
-                    stage.setIconified(true);
+                    stage.close();
                     if (principal != null) {
                         principal.setIconified(false);
                         principal.toFront();
