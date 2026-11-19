@@ -235,7 +235,6 @@ public final class TemaPAE {
     }
 
     public static void aplicar(Parent raiz) {
-        aplicarPaleta(raiz);
         pintar(raiz);
     }
 
@@ -248,52 +247,109 @@ public final class TemaPAE {
             """;
 
     private static void pintar(Node nodo) {
-        if (nodo == null) return;
-        if (nodo instanceof Region region) pintarRegion(region);
+        if (nodo == null) {
+            return;
+        }
+
+        if (nodo instanceof Region region) {
+            pintarRegion(region);
+        }
+
         if (nodo instanceof Label etiqueta) {
             pintarEtiqueta(etiqueta);
             pintar(etiqueta.getGraphic());
+
         } else if (nodo instanceof Button boton) {
             pintarBoton(boton);
+
         } else if (nodo instanceof CheckBox casilla) {
             letra(casilla, 14, FontWeight.NORMAL, texto());
             casilla.setCursor(Cursor.HAND);
+
         } else if (nodo instanceof TextInputControl entrada) {
-            entrada.setStyle(SUPERFICIE_ENTRADA + TINTA_ENTRADA + (entrada instanceof TextArea ? "-fx-padding: 3;" : ""));
             entrada.setFont(fuente(FontWeight.NORMAL, 13));
-            if (entrada instanceof TextField campo) campo.setPrefHeight(42);
-            enfocable(entrada);
+
+            fondo(entrada, Color.WHITE, 9);
+            bordeControl(entrada, lilaBorde(), 9);
+
+            if (entrada instanceof TextField campo) {
+                campo.setPrefHeight(42);
+            }
+
+            alInteractuar(entrada, () ->
+                    bordeControl(
+                            entrada,
+                            entrada.isFocused()
+                                    ? ciruela()
+                                    : lilaBorde(),
+                            9
+                    )
+            );
+
         } else if (nodo instanceof ComboBoxBase<?> selector) {
             selector.setPrefHeight(42);
-            selector.setStyle(SUPERFICIE_ENTRADA + "-fx-padding: 1;");
-            enfocable(selector);
+
+            fondo(selector, Color.WHITE, 9);
+            bordeControl(selector, lilaBorde(), 9);
+
+            alInteractuar(selector, () ->
+                    bordeControl(
+                            selector,
+                            selector.isFocused() || selector.isShowing()
+                                    ? ciruela()
+                                    : lilaBorde(),
+                            9
+                    )
+            );
+
             if (selector instanceof DatePicker fecha) {
-                fecha.getEditor().setStyle(TINTA_ENTRADA + "-fx-background-color: transparent;");
+                fecha.getEditor().setFont(
+                        fuente(FontWeight.NORMAL, 13)
+                );
             }
-            if (selector instanceof ComboBox<?> combo && combo.isEditable()) combo.getEditor().setStyle(TINTA_ENTRADA);
-            if (selector.getProperties().putIfAbsent("pae-popup", true) == null) {
-                selector.showingProperty().addListener((o, antes, abierto) -> {
-                    if (abierto) pintarOpciones(selector);
-                });
+
+            if (selector instanceof ComboBox<?> combo
+                    && combo.isEditable()) {
+                combo.getEditor().setFont(
+                        fuente(FontWeight.NORMAL, 13)
+                );
             }
-            if (selector.isShowing()) pintarOpciones(selector);
+
         } else if (nodo instanceof TableView<?> tabla) {
             pintarTabla(tabla);
+
         } else if (nodo instanceof FontIcon icono) {
-            Node chip = icono.getParent();
+            Node padre = icono.getParent();
             Color tinta = ciruela();
-            if (tiene(chip, "chip-verde")) tinta = verdeTexto();
-            else if (tiene(chip, "chip-ambar", "alerta-menu")) tinta = ambarTexto();
-            else if (tiene(chip, "chip-turquesa")) tinta = turquesaTexto();
-            else if (tiene(chip, "chip-rosa")) tinta = rosaTexto();
+
+            if (tiene(padre, "chip-verde")) {
+                tinta = verdeTexto();
+
+            } else if (tiene(
+                    padre,
+                    "chip-ambar",
+                    "alerta-menu"
+            )) {
+                tinta = ambarTexto();
+
+            } else if (tiene(padre, "chip-turquesa")) {
+                tinta = turquesaTexto();
+
+            } else if (tiene(padre, "chip-rosa")) {
+                tinta = rosaTexto();
+            }
+
             icono.setIconColor(tinta);
         }
 
         if (nodo instanceof ScrollPane scroll) {
             fondo(scroll, fondo(), 0);
             pintar(scroll.getContent());
+
         } else if (nodo instanceof Pane panel) {
-            for (Node hijo : panel.getChildren()) pintar(hijo);
+            for (Node hijo : panel.getChildren()) {
+                pintar(hijo);
+            }
         }
     }
 
@@ -456,9 +512,15 @@ public final class TemaPAE {
         if (principal) superficie = activo ? ciruelaOscuro() : ciruela();
         else if (activo || tema) superficie = peligro ? rosa() : lila();
         else if (tiene(b, "btn-ghost")) superficie = Color.TRANSPARENT;
-        b.setStyle("-fx-background-color: " + (superficie == Color.TRANSPARENT ? "transparent" : hex(superficie))
-                + "; -fx-background-insets: 0; -fx-background-radius: " + radio + "; -fx-text-fill: " + hex(tinta)
-                + "; -fx-font-weight: bold; -fx-font-size: " + (tema ? 12 : 13) + "px;");
+        fondo(b, superficie, radio);
+        b.setTextFill(tinta);
+
+        b.setFont(
+                fuente(
+                        FontWeight.BOLD,
+                        tema ? 12 : 13
+                )
+        );
         Color contorno = b.isFocused() || activo ? ciruela() : borde();
         if (!b.isFocused() && (principal || tiene(b, "btn-ghost"))) contorno = Color.TRANSPARENT;
         bordeControl(b, contorno, radio);
@@ -486,26 +548,15 @@ public final class TemaPAE {
     }
 
     private static <T> void pintarTabla(TableView<T> tabla) {
-        tabla.setStyle(SUPERFICIE_ENTRADA + "-fx-padding: 2;");
+        fondo(tabla, Color.WHITE, 9);
         borde(tabla, borde(), 9);
+
+        tabla.setPadding(new Insets(2));
         tabla.setFixedCellSize(44);
+
         pintar(tabla.getPlaceholder());
 
-        // Las fábricas del módulo conservan su lógica de caducidad y stock mínimo.
-        var fabrica = tabla.getRowFactory();
-        if (fabrica == null || tabla.getProperties().putIfAbsent("pae-filas", true) != null) return;
-        tabla.setRowFactory(t -> {
-            TableRow<T> fila = fabrica.call(t);
-            Runnable actualizar = () -> {
-                String color = tiene(fila, "fila-peligro") ? "-pae-peligro"
-                        : tiene(fila, "fila-advertencia") ? "-pae-aviso" : null;
-                fila.setStyle(color == null ? "" : "-fx-control-inner-background: " + color
-                        + "; -fx-control-inner-background-alt: " + color + ";");
-            };
-            fila.getStyleClass().addListener((ListChangeListener<String>) cambio -> actualizar.run());
-            actualizar.run();
-            return fila;
-        });
+        tabla.refresh();
     }
 
     private static void decorar(Pane panel, boolean acceso) {
@@ -570,13 +621,15 @@ public final class TemaPAE {
         return Font.font(FUENTE, grosor, tamano);
     }
 
-    private static void letra(Labeled etiqueta, double tamano, FontWeight grosor, Color tinta) {
+    private static void letra(
+            Labeled etiqueta,
+            double tamano,
+            FontWeight grosor,
+            Color tinta
+    ) {
         etiqueta.setFont(fuente(grosor, tamano));
-        if (etiqueta.getStyle().isEmpty() || etiqueta.getStyle().startsWith("-fx-text-background-color:")) {
-            etiqueta.setStyle("-fx-text-background-color: " + hex(tinta) + "; -fx-text-fill: -fx-text-background-color;");
-        }
+        etiqueta.setTextFill(tinta);
     }
-
     private static void fondo(Region region, Color color, double radio) {
         region.setBackground(new Background(new BackgroundFill(color, new CornerRadii(radio), Insets.EMPTY)));
     }
