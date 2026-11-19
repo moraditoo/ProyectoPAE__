@@ -25,7 +25,9 @@
                     <Label text="Vencen en los próximos" styleClass="form-label"/>
                     <ComboBox fx:id="cmbDias" prefWidth="135"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="Actualizar" onAction="#handleActualizar" styleClass="btn-secondary"/>
+                    <Button text="Actualizar" onAction="#handleActualizar" styleClass="btn-secondary">
+                        <graphic><FontIcon iconLiteral="fas-sync-alt" iconSize="14"/></graphic>
+                    </Button>
                 </HBox>
 
                 <HBox spacing="16">

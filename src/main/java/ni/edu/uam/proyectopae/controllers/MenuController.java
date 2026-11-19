@@ -2,7 +2,6 @@ package ni.edu.uam.proyectopae.controllers;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import ni.edu.uam.proyectopae.dao.*;
@@ -34,7 +33,6 @@ public class MenuController {
     @FXML private Label lblBadgeInventario;
     @FXML private Label lblDetalleInventario;
     @FXML private HBox alertaInventario;
-    @FXML private Button btnTema;
 
     @FXML private Label lblKpiVentasHoy;
     @FXML private Label lblKpiProductos;
@@ -57,9 +55,6 @@ public class MenuController {
         String fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE d 'de' MMMM 'de' yyyy", Locale.forLanguageTag("es-NI")));
         lblFecha.setText(Character.toUpperCase(fecha.charAt(0)) + fecha.substring(1));
 
-        if (btnTema != null) {
-            TemaPAE.actualizarBotonTema(btnTema);
-        }
 
         if (alertaInventario != null) {
             alertaInventario.managedProperty().bind(alertaInventario.visibleProperty());
@@ -79,9 +74,6 @@ public class MenuController {
     @FXML
     private void handleAlternarTema() {
         TemaPAE.alternarModoOscuro();
-        if (btnTema != null) {
-            TemaPAE.actualizarBotonTema(btnTema);
-        }
     }
 
     @FXML

@@ -53,6 +53,7 @@ public final class VentanaManager {
             TemaPAE.aplicar(root);
             return scene;
         }
+        TemaPAE.aplicarPaleta(root);
         URL stylesheet = VentanaManager.class.getResource(CSS);
         if (stylesheet != null) {
             scene.getStylesheets().add(stylesheet.toExternalForm());

@@ -24,12 +24,12 @@ El botón «Menú principal» minimiza la ventana activa. Puedes retomarla desde
 
 ## Novedades de la Interfaz
 
-- **Modo Oscuro Dinámico:** Botón de alternancia rápida (Sol / Luna) disponible en la pantalla de login, en la barra del menú principal y en la barra superior compartida de todas las ventanas de módulos (`TemaPAE.barra`). Adapta fondos, tarjetas, textos, sombras, tablas y entradas con una paleta ciruela-carbón de alto contraste.
+- El selector de tema está disponible en el acceso, el menú y las ventanas de los módulos. Cambia la paleta de los campos, las listas desplegadas, los calendarios, las casillas, las tablas y los diálogos. Los campos conservan su contenido y las opciones elegidas al cambiar de modo.
 - **Centro de Control con Mini-KPIs en Vivo:** El menú principal ahora muestra estadísticas en tiempo real:
   - Ventas del día
   - Total de productos en catálogo
   - Clientes registrados
   - Citas agendadas
 - **Barra de Acciones Rápidas:** Atajos directos a Nueva Venta, Registrar Cliente, Agendar Cita y Reportes desde el menú principal.
-- **Resumen de Estados en Reportes:** Badges interactivos que totalizan citas programadas, completadas y canceladas al generar cualquier consulta.
-- **Panel de Acceso Enriquecido:** Tarjetas de características y atajos en el login.
+- **Resumen de Estados en Reportes:** Indicadores que totalizan citas programadas, completadas y canceladas al generar cualquier consulta.
+- El acceso y el menú comparten una ilustración de una polvera. El formulario de acceso permite mostrar u ocultar la contraseña y enviarla con Enter.

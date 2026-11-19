@@ -31,68 +31,61 @@
         <ScrollPane fitToWidth="true">
             <VBox styleClass="content-area" spacing="22" maxWidth="Infinity">
 
-                <!-- Banner de bienvenida con resumen en vivo -->
-                <StackPane styleClass="bienvenida" minHeight="220" prefHeight="220">
+                <StackPane styleClass="bienvenida" minHeight="142">
                     <Pane styleClass="decoracion-menu" minWidth="0" minHeight="0"/>
-                    <VBox spacing="14" alignment="CENTER_LEFT">
-                        <padding><Insets top="20" right="30" bottom="20" left="28"/></padding>
-                        <HBox spacing="12" alignment="CENTER_LEFT">
-                            <Label fx:id="lblFecha" styleClass="bienvenida-meta"/>
-                            <Label text="🟢 Sistema activo" styleClass="badge-verde"/>
-                        </HBox>
-                        <VBox spacing="3">
-                            <Label fx:id="lblBienvenida" styleClass="bienvenida-titulo"/>
-                            <Label text="Centro de control comercial, inventario y servicios de belleza." styleClass="bienvenida-subtitulo"/>
-                        </VBox>
-
-                        <!-- Fila de 4 Mini-KPIs en vivo -->
-                        <HBox spacing="14" alignment="CENTER_LEFT">
-                            <HBox styleClass="mini-kpi" spacing="10" alignment="CENTER_LEFT" prefWidth="180">
-                                <StackPane styleClass="chip-verde" minWidth="32" minHeight="32">
-                                    <FontIcon iconLiteral="fas-cash-register" iconSize="15"/>
-                                </StackPane>
-                                <VBox spacing="1">
-                                    <Label text="Ventas hoy" styleClass="kpi-titulo-mini"/>
-                                    <Label fx:id="lblKpiVentasHoy" text="Cargando..." styleClass="kpi-valor-mini"/>
-                                </VBox>
-                            </HBox>
-
-                            <HBox styleClass="mini-kpi" spacing="10" alignment="CENTER_LEFT" prefWidth="180">
-                                <StackPane styleClass="chip-turquesa" minWidth="32" minHeight="32">
-                                    <FontIcon iconLiteral="fas-box-open" iconSize="15"/>
-                                </StackPane>
-                                <VBox spacing="1">
-                                    <Label text="En catálogo" styleClass="kpi-titulo-mini"/>
-                                    <Label fx:id="lblKpiProductos" text="Cargando..." styleClass="kpi-valor-mini"/>
-                                </VBox>
-                            </HBox>
-
-                            <HBox styleClass="mini-kpi" spacing="10" alignment="CENTER_LEFT" prefWidth="180">
-                                <StackPane styleClass="chip-rosa" minWidth="32" minHeight="32">
-                                    <FontIcon iconLiteral="fas-users" iconSize="15"/>
-                                </StackPane>
-                                <VBox spacing="1">
-                                    <Label text="Clientes" styleClass="kpi-titulo-mini"/>
-                                    <Label fx:id="lblKpiClientes" text="Cargando..." styleClass="kpi-valor-mini"/>
-                                </VBox>
-                            </HBox>
-
-                            <HBox styleClass="mini-kpi" spacing="10" alignment="CENTER_LEFT" prefWidth="180">
-                                <StackPane styleClass="chip-ambar" minWidth="32" minHeight="32">
-                                    <FontIcon iconLiteral="far-calendar-alt" iconSize="15"/>
-                                </StackPane>
-                                <VBox spacing="1">
-                                    <Label text="Citas registradas" styleClass="kpi-titulo-mini"/>
-                                    <Label fx:id="lblKpiCitas" text="Cargando..." styleClass="kpi-valor-mini"/>
-                                </VBox>
-                            </HBox>
-                        </HBox>
+                    <VBox spacing="5" alignment="CENTER_LEFT">
+                        <padding><Insets top="18" right="30" bottom="18" left="28"/></padding>
+                        <Label fx:id="lblFecha" styleClass="bienvenida-meta"/>
+                        <Label fx:id="lblBienvenida" styleClass="bienvenida-titulo"/>
+                        <Label text="Ventas, inventario y servicios de belleza." styleClass="bienvenida-subtitulo"/>
                     </VBox>
                 </StackPane>
 
+                <HBox spacing="14" alignment="CENTER_LEFT">
+                    <HBox styleClass="mini-kpi" spacing="10" alignment="CENTER_LEFT" prefWidth="180" HBox.hgrow="ALWAYS">
+                        <StackPane styleClass="chip-verde" minWidth="32" minHeight="32">
+                            <FontIcon iconLiteral="fas-cash-register" iconSize="15"/>
+                        </StackPane>
+                        <VBox spacing="1">
+                            <Label text="Ventas hoy" styleClass="kpi-titulo-mini"/>
+                            <Label fx:id="lblKpiVentasHoy" text="Cargando..." styleClass="kpi-valor-mini"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox styleClass="mini-kpi" spacing="10" alignment="CENTER_LEFT" prefWidth="180" HBox.hgrow="ALWAYS">
+                        <StackPane styleClass="chip-turquesa" minWidth="32" minHeight="32">
+                            <FontIcon iconLiteral="fas-box-open" iconSize="15"/>
+                        </StackPane>
+                        <VBox spacing="1">
+                            <Label text="En catálogo" styleClass="kpi-titulo-mini"/>
+                            <Label fx:id="lblKpiProductos" text="Cargando..." styleClass="kpi-valor-mini"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox styleClass="mini-kpi" spacing="10" alignment="CENTER_LEFT" prefWidth="180" HBox.hgrow="ALWAYS">
+                        <StackPane styleClass="chip-rosa" minWidth="32" minHeight="32">
+                            <FontIcon iconLiteral="fas-users" iconSize="15"/>
+                        </StackPane>
+                        <VBox spacing="1">
+                            <Label text="Clientes" styleClass="kpi-titulo-mini"/>
+                            <Label fx:id="lblKpiClientes" text="Cargando..." styleClass="kpi-valor-mini"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox styleClass="mini-kpi" spacing="10" alignment="CENTER_LEFT" prefWidth="180" HBox.hgrow="ALWAYS">
+                        <StackPane styleClass="chip-ambar" minWidth="32" minHeight="32">
+                            <FontIcon iconLiteral="far-calendar-alt" iconSize="15"/>
+                        </StackPane>
+                        <VBox spacing="1">
+                            <Label text="Citas registradas" styleClass="kpi-titulo-mini"/>
+                            <Label fx:id="lblKpiCitas" text="Cargando..." styleClass="kpi-valor-mini"/>
+                        </VBox>
+                    </HBox>
+                </HBox>
+
                 <!-- Barra de Acciones Rápidas -->
-                <HBox spacing="12" alignment="CENTER_LEFT">
-                    <Label text="Acciones rápidas:" styleClass="card-title" style="-fx-font-size: 14px;">
+                <FlowPane hgap="10" vgap="6" alignment="CENTER_LEFT">
+                    <Label text="Acciones rápidas" styleClass="form-label">
                         <graphic><FontIcon iconLiteral="fas-bolt" iconSize="15"/></graphic>
                     </Label>
                     <Button text="Nueva venta" onAction="#abrirVentas" styleClass="quick-action-btn">
@@ -107,11 +100,10 @@
                     <Button text="Reportes" onAction="#abrirReportes" styleClass="quick-action-btn">
                         <graphic><FontIcon iconLiteral="far-file-alt" iconSize="14"/></graphic>
                     </Button>
-                    <Region HBox.hgrow="ALWAYS"/>
                     <Button text="Actualizar métricas" onAction="#refrescarMetricas" styleClass="btn-ghost">
                         <graphic><FontIcon iconLiteral="fas-sync-alt" iconSize="13"/></graphic>
                     </Button>
-                </HBox>
+                </FlowPane>
 
                 <!-- Alerta de inventario destacada -->
                 <HBox fx:id="alertaInventario" styleClass="alerta-menu" spacing="14" alignment="CENTER_LEFT" visible="false" managed="false">
@@ -128,8 +120,8 @@
                 <!-- Grilla de Módulos del Sistema -->
                 <VBox spacing="12">
                     <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Módulos del Sistema" styleClass="card-title"/>
-                        <Label text="· Haz clic en una tarjeta para abrirla en su ventana" styleClass="hint-label"/>
+                        <Label text="Módulos" styleClass="card-title"/>
+
                     </HBox>
 
                     <GridPane hgap="16" vgap="16">
@@ -151,7 +143,7 @@
                                             <FontIcon iconLiteral="fas-th-large" iconSize="17"/>
                                         </StackPane>
                                         <Region HBox.hgrow="ALWAYS"/>
-                                        <FontIcon iconLiteral="fas-external-link-alt" iconSize="12"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
                                     </HBox>
                                     <Label text="Dashboard" styleClass="menu-card-title"/>
                                     <Label text="Alertas, métricas y estado del stock" styleClass="menu-card-subtitle" wrapText="true"/>
@@ -170,7 +162,7 @@
                                             <FontIcon iconLiteral="fas-shopping-bag" iconSize="17"/>
                                         </StackPane>
                                         <Region HBox.hgrow="ALWAYS"/>
-                                        <FontIcon iconLiteral="fas-external-link-alt" iconSize="12"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
                                     </HBox>
                                     <Label text="Ventas" styleClass="menu-card-title"/>
                                     <Label text="Caja, carrito y descuento FEFO" styleClass="menu-card-subtitle" wrapText="true"/>
@@ -189,7 +181,7 @@
                                             <FontIcon iconLiteral="fas-users" iconSize="17"/>
                                         </StackPane>
                                         <Region HBox.hgrow="ALWAYS"/>
-                                        <FontIcon iconLiteral="fas-external-link-alt" iconSize="12"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
                                     </HBox>
                                     <Label text="Clientes" styleClass="menu-card-title"/>
                                     <Label text="Directorio y fichas de contacto" styleClass="menu-card-subtitle" wrapText="true"/>
@@ -208,7 +200,7 @@
                                             <FontIcon iconLiteral="fas-box-open" iconSize="17"/>
                                         </StackPane>
                                         <Region HBox.hgrow="ALWAYS"/>
-                                        <FontIcon iconLiteral="fas-external-link-alt" iconSize="12"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
                                     </HBox>
                                     <Label text="Productos" styleClass="menu-card-title"/>
                                     <Label text="Catálogo, marcas y precios" styleClass="menu-card-subtitle" wrapText="true"/>
@@ -227,7 +219,7 @@
                                             <FontIcon iconLiteral="far-clock" iconSize="17"/>
                                         </StackPane>
                                         <Region HBox.hgrow="ALWAYS"/>
-                                        <FontIcon iconLiteral="fas-external-link-alt" iconSize="12"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
                                     </HBox>
                                     <Label text="Lotes" styleClass="menu-card-title"/>
                                     <Label text="Existencias y fechas de caducidad" styleClass="menu-card-subtitle" wrapText="true"/>
@@ -246,7 +238,7 @@
                                             <FontIcon iconLiteral="far-calendar-alt" iconSize="17"/>
                                         </StackPane>
                                         <Region HBox.hgrow="ALWAYS"/>
-                                        <FontIcon iconLiteral="fas-external-link-alt" iconSize="12"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
                                     </HBox>
                                     <Label text="Agenda de citas" styleClass="menu-card-title"/>
                                     <Label text="Servicios y citas de maquillaje" styleClass="menu-card-subtitle" wrapText="true"/>
@@ -265,7 +257,7 @@
                                             <FontIcon iconLiteral="far-file-alt" iconSize="17"/>
                                         </StackPane>
                                         <Region HBox.hgrow="ALWAYS"/>
-                                        <FontIcon iconLiteral="fas-external-link-alt" iconSize="12"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
                                     </HBox>
                                     <Label text="Reportes" styleClass="menu-card-title"/>
                                     <Label text="Filtros y exportación a CSV" styleClass="menu-card-subtitle" wrapText="true"/>
@@ -277,7 +269,7 @@
 
                 <!-- Pie de página -->
                 <HBox alignment="CENTER_LEFT" spacing="12">
-                    <Label text="🟢 Conexión a PostgreSQL activa · Proyecto PAE · Universidad Americana" styleClass="hint-label"/>
+                    <Label text="Proyecto PAE · Universidad Americana" styleClass="hint-label"/>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button text="Cerrar sesión" onAction="#cerrarSesion" styleClass="btn-secondary">
                         <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="15"/></graphic>

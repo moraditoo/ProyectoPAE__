@@ -37,10 +37,16 @@
                     <TextField fx:id="txtCantidad" promptText="Unidades (entero)" onKeyPressed="#handleEnterGuardar"/>
 
                     <HBox spacing="8">
-                        <Button fx:id="btnGuardar" text="Guardar" onAction="#handleGuardarLote" styleClass="btn-primary"/>
-                        <Button text="Nuevo" onAction="#handleLimpiar" styleClass="btn-secondary"/>
+                        <Button fx:id="btnGuardar" text="Guardar" onAction="#handleGuardarLote" styleClass="btn-primary">
+                            <graphic><FontIcon iconLiteral="far-save" iconSize="14"/></graphic>
+                        </Button>
+                        <Button text="Nuevo" onAction="#handleLimpiar" styleClass="btn-secondary">
+                            <graphic><FontIcon iconLiteral="fas-plus" iconSize="14"/></graphic>
+                        </Button>
                     </HBox>
-                    <Button text="Eliminar" onAction="#handleEliminarLote" styleClass="btn-danger"/>
+                    <Button text="Eliminar" onAction="#handleEliminarLote" styleClass="btn-danger">
+                        <graphic><FontIcon iconLiteral="far-trash-alt" iconSize="14"/></graphic>
+                    </Button>
                 </VBox>
 
                 <!-- Listado -->

@@ -15,20 +15,18 @@ import java.util.Optional;
  */
 public final class Alertas {
 
-    private static final String CSS = "/ni/edu/uam/proyectopae/css/styles.css";
-
     private Alertas() {}
 
     public static void info(String titulo, String mensaje) {
-        crear(Alert.AlertType.INFORMATION, titulo, mensaje, "fas-check-circle", "#059669").showAndWait();
+        crear(Alert.AlertType.INFORMATION, titulo, mensaje, "fas-check-circle", "-pae-positivo").showAndWait();
     }
 
     public static void error(String titulo, String mensaje) {
-        crear(Alert.AlertType.ERROR, titulo, mensaje, "fas-times-circle", "#dc2626").showAndWait();
+        crear(Alert.AlertType.ERROR, titulo, mensaje, "fas-times-circle", "-pae-negativo").showAndWait();
     }
 
     public static void advertencia(String titulo, String mensaje) {
-        crear(Alert.AlertType.WARNING, titulo, mensaje, "fas-exclamation-triangle", "#d97706").showAndWait();
+        crear(Alert.AlertType.WARNING, titulo, mensaje, "fas-exclamation-triangle", "-pae-aviso-tinta").showAndWait();
     }
 
     /** Validaciones de formulario: mismo estilo que advertencia, titulo fijo. */
@@ -38,12 +36,12 @@ public final class Alertas {
 
     /** Muestra un dialogo de confirmacion Si/No. Devuelve true si el usuario acepta. */
     public static boolean confirmar(String titulo, String mensaje) {
-        return preguntar(titulo, mensaje, "fas-question-circle", "#2563eb");
+        return preguntar(titulo, mensaje, "fas-question-circle", "-pae-info");
     }
 
     /** Advertencia con pregunta Si/No (por ejemplo, alertas de inventario al iniciar sesion). */
     public static boolean advertenciaConPregunta(String titulo, String mensaje) {
-        return preguntar(titulo, mensaje, "fas-exclamation-triangle", "#d97706");
+        return preguntar(titulo, mensaje, "fas-exclamation-triangle", "-pae-aviso-tinta");
     }
 
     private static boolean preguntar(String titulo, String mensaje, String icono, String color) {
@@ -68,10 +66,10 @@ public final class Alertas {
 
         FontIcon fi = new FontIcon(icono);
         fi.setIconSize(36);
-        fi.setIconColor(javafx.scene.paint.Color.web(color));
+        fi.setStyle("-fx-icon-color: " + color + ";");
         alert.setGraphic(fi);
 
-        alert.getDialogPane().getStylesheets().add(Alertas.class.getResource(CSS).toExternalForm());
+        TemaPAE.aplicarPaleta(alert.getDialogPane());
 
         Window activa = VentanaManager.ventanaActiva();
         if (activa != null) alert.initOwner(activa);

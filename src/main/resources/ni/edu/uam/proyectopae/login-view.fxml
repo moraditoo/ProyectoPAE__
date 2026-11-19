@@ -19,31 +19,9 @@
                     </HBox>
                 </top>
                 <left>
-                    <VBox alignment="CENTER_LEFT" spacing="22" fillWidth="false" translateY="-30">
-                        <VBox spacing="8">
-                            <Label text="Tienda de&#10;maquillaje" styleClass="titulo-marca-acceso" wrapText="true" maxWidth="385"/>
-                            <Label text="Ventas, inventario y citas en un solo lugar." styleClass="bienvenida-subtitulo" wrapText="true" maxWidth="320"/>
-                        </VBox>
-
-                        <!-- Chips de características del sistema -->
-                        <VBox spacing="10">
-                            <HBox spacing="8" alignment="CENTER_LEFT">
-                                <FontIcon iconLiteral="fas-check-circle" iconSize="14" style="-fx-icon-color: #6EE7B7;"/>
-                                <Label text="Facturación ágil con descuento FEFO" styleClass="bienvenida-meta"/>
-                            </HBox>
-                            <HBox spacing="8" alignment="CENTER_LEFT">
-                                <FontIcon iconLiteral="fas-check-circle" iconSize="14" style="-fx-icon-color: #6EE7B7;"/>
-                                <Label text="Alertas de caducidad y stock mínimo" styleClass="bienvenida-meta"/>
-                            </HBox>
-                            <HBox spacing="8" alignment="CENTER_LEFT">
-                                <FontIcon iconLiteral="fas-check-circle" iconSize="14" style="-fx-icon-color: #6EE7B7;"/>
-                                <Label text="Agenda de servicios y citas de maquillaje" styleClass="bienvenida-meta"/>
-                            </HBox>
-                            <HBox spacing="8" alignment="CENTER_LEFT">
-                                <FontIcon iconLiteral="fas-check-circle" iconSize="14" style="-fx-icon-color: #6EE7B7;"/>
-                                <Label text="Exportación de reportes a formato CSV" styleClass="bienvenida-meta"/>
-                            </HBox>
-                        </VBox>
+                    <VBox alignment="CENTER_LEFT" spacing="8" fillWidth="false" translateY="-40">
+                        <Label text="Tienda de&#10;maquillaje" styleClass="titulo-marca-acceso" wrapText="true" maxWidth="385"/>
+                        <Label text="Ventas, inventario y citas en un solo lugar." styleClass="bienvenida-subtitulo" wrapText="true" maxWidth="320"/>
                     </VBox>
                 </left>
                 <bottom>
@@ -53,44 +31,59 @@
         </StackPane>
 
         <!-- Panel Derecho: Formulario de Acceso y Selector de Tema -->
-        <StackPane prefWidth="744" minWidth="450" styleClass="pae-ui" HBox.hgrow="ALWAYS">
+        <BorderPane prefWidth="744" minWidth="450" styleClass="pae-ui" HBox.hgrow="ALWAYS">
             <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
 
             <!-- Botón de Modo Oscuro en la esquina superior derecha -->
-            <HBox alignment="TOP_RIGHT" pickOnBounds="false">
-                <Button fx:id="btnTema" onAction="#handleAlternarTema" styleClass="btn-tema"/>
-            </HBox>
-
-            <!-- Tarjeta Central de Login -->
-            <VBox styleClass="login-card" spacing="16" prefWidth="440" maxWidth="440" maxHeight="-Infinity" alignment="CENTER_LEFT">
-                <StackPane styleClass="marca-acceso" minWidth="46" minHeight="46" maxWidth="46" maxHeight="46"/>
-                <VBox spacing="4">
-                    <Label text="Iniciar sesión" styleClass="login-title"/>
-                    <Label text="Ingresa tus credenciales para acceder al sistema." styleClass="hint-label" wrapText="true"/>
-                </VBox>
-
-                <VBox spacing="6">
-                    <Label text="Usuario" styleClass="form-label"/>
-                    <TextField fx:id="txtUsuario" promptText="Tu usuario (ej. admin)"/>
-                </VBox>
-
-                <VBox spacing="6">
-                    <Label text="Contraseña" styleClass="form-label"/>
-                    <PasswordField fx:id="txtPassword" promptText="Tu contraseña"/>
-                </VBox>
-
-                <Button text="Iniciar sesión" onAction="#handleLogin" defaultButton="true"
-                        maxWidth="Infinity" styleClass="btn-primary">
-                    <graphic><FontIcon iconLiteral="fas-sign-in-alt" iconSize="14"/></graphic>
-                </Button>
-
-                <HBox spacing="6" alignment="CENTER_LEFT">
-                    <FontIcon iconLiteral="fas-info-circle" iconSize="13"/>
-                    <Label text="Usuario demo: admin · Clave: admin123" styleClass="hint-label"/>
+            <top>
+                <HBox alignment="TOP_RIGHT">
+                    <Button fx:id="btnTema" onAction="#handleAlternarTema" styleClass="btn-tema"/>
                 </HBox>
+            </top>
 
-                <Label fx:id="lblMensaje" wrapText="true" styleClass="login-error"/>
-            </VBox>
-        </StackPane>
+            <center>
+                <VBox styleClass="login-card" spacing="16" prefWidth="440" maxWidth="440" maxHeight="-Infinity" alignment="CENTER_LEFT">
+                    <StackPane styleClass="chip-lila" minWidth="42" minHeight="42" maxWidth="42" maxHeight="42">
+                        <FontIcon iconLiteral="fas-key" iconSize="17"/>
+                    </StackPane>
+                    <VBox spacing="4">
+                        <Label text="Iniciar sesión" styleClass="login-title"/>
+                        <Label text="Ingresa tus credenciales para acceder al sistema." styleClass="hint-label" wrapText="true"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <Label text="Usuario" styleClass="form-label"/>
+                        <TextField fx:id="txtUsuario" accessibleText="Usuario" promptText="Nombre de usuario" onAction="#handleLogin"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <Label text="Contraseña" styleClass="form-label"/>
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <StackPane HBox.hgrow="ALWAYS">
+                                <PasswordField fx:id="txtPassword" accessibleText="Contraseña" promptText="Tu contraseña" onAction="#handleLogin"/>
+                                <TextField fx:id="txtPasswordVisible" accessibleText="Contraseña visible" promptText="Tu contraseña"
+                                           visible="false" managed="false" onAction="#handleLogin"/>
+                            </StackPane>
+                            <Button fx:id="btnVerClave" onAction="#alternarVisibilidadClave" styleClass="btn-secondary" accessibleText="Mostrar contraseña">
+                                <graphic><FontIcon fx:id="iconoClave" iconLiteral="far-eye" iconSize="16"/></graphic>
+                                <tooltip><Tooltip text="Mostrar contraseña"/></tooltip>
+                            </Button>
+                        </HBox>
+                    </VBox>
+
+                    <Button text="Iniciar sesión" onAction="#handleLogin" defaultButton="true"
+                            maxWidth="Infinity" styleClass="btn-primary">
+                        <graphic><FontIcon iconLiteral="fas-sign-in-alt" iconSize="14"/></graphic>
+                    </Button>
+
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <FontIcon iconLiteral="fas-info-circle" iconSize="13"/>
+                        <Label text="Usuario demo: admin · Clave: admin123" styleClass="hint-label"/>
+                    </HBox>
+
+                    <Label fx:id="lblMensaje" wrapText="true" styleClass="login-error"/>
+                </VBox>
+            </center>
+        </BorderPane>
     </HBox>
 </ScrollPane>

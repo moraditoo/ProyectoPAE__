@@ -42,8 +42,12 @@
                         <CheckBox fx:id="chkEstado" text="Estado" selected="true"/>
                     </VBox>
                     <Button text="Generar reporte" onAction="#generarReporte" maxWidth="Infinity"
-                            defaultButton="true" styleClass="btn-primary"/>
-                    <Button text="Limpiar filtros" onAction="#limpiarFiltros" styleClass="btn-ghost"/>
+                            defaultButton="true" styleClass="btn-primary">
+                        <graphic><FontIcon iconLiteral="fas-file-alt" iconSize="14"/></graphic>
+                    </Button>
+                    <Button text="Limpiar filtros" onAction="#limpiarFiltros" styleClass="btn-ghost">
+                        <graphic><FontIcon iconLiteral="fas-undo" iconSize="14"/></graphic>
+                    </Button>
                 </VBox>
 
                 <VBox spacing="16" styleClass="card" HBox.hgrow="ALWAYS"

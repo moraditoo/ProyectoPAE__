@@ -38,14 +38,18 @@
                             <ComboBox fx:id="cmbHora" promptText="Hora..." maxWidth="Infinity"/>
                         </VBox>
                     </HBox>
-                    <Button text="Agendar cita" onAction="#handleAgendarCita" styleClass="btn-primary"/>
+                    <Button text="Agendar cita" onAction="#handleAgendarCita" styleClass="btn-primary">
+                        <graphic><FontIcon iconLiteral="far-calendar-plus" iconSize="14"/></graphic>
+                    </Button>
                 </VBox>
                 <VBox styleClass="card" spacing="14" HBox.hgrow="ALWAYS">
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <Label text="Citas registradas" styleClass="card-title"/>
                         <Region HBox.hgrow="ALWAYS"/>
                         <Button text="Ingresos proyectados" onAction="#handleGenerarResumenHQL"
-                                styleClass="btn-secondary"/>
+                                styleClass="btn-secondary">
+                            <graphic><FontIcon iconLiteral="fas-chart-line" iconSize="14"/></graphic>
+                        </Button>
                     </HBox>
                     <TableView fx:id="tblCitas" VBox.vgrow="ALWAYS">
                         <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
@@ -59,8 +63,12 @@
                         </columns>
                     </TableView>
                     <HBox spacing="8">
-                        <Button text="Completar cita" onAction="#handleCompletarCita" styleClass="btn-secondary"/>
-                        <Button text="Cancelar cita" onAction="#handleCancelarCita" styleClass="btn-danger"/>
+                        <Button text="Completar cita" onAction="#handleCompletarCita" styleClass="btn-secondary">
+                            <graphic><FontIcon iconLiteral="fas-check" iconSize="14"/></graphic>
+                        </Button>
+                        <Button text="Cancelar cita" onAction="#handleCancelarCita" styleClass="btn-danger">
+                            <graphic><FontIcon iconLiteral="fas-ban" iconSize="14"/></graphic>
+                        </Button>
                     </HBox>
                 </VBox>
             </HBox>

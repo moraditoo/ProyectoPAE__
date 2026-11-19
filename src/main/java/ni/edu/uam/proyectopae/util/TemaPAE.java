@@ -1,18 +1,27 @@
 package ni.edu.uam.proyectopae.util;
 
-import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.ComboBoxListViewSkin;
+import javafx.scene.control.skin.DatePickerSkin;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Ellipse;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.Arc;
+import javafx.scene.shape.ArcType;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Font;
@@ -29,11 +38,11 @@ public final class TemaPAE {
 
     // --- Paleta Dinámica según Modo Claro / Oscuro ---
     public static Color fondo() {
-        return modoOscuro ? Color.web("#17111A") : Color.web("#F6F3F6");
+        return modoOscuro ? Color.web("#17141C") : Color.web("#F8F6F7");
     }
 
     public static Color blanco() {
-        return modoOscuro ? Color.web("#241B26") : Color.WHITE;
+        return modoOscuro ? Color.web("#25212B") : Color.WHITE;
     }
 
     public static Color texto() {
@@ -41,19 +50,19 @@ public final class TemaPAE {
     }
 
     public static Color secundario() {
-        return modoOscuro ? Color.web("#BCAEC2") : Color.web("#615567");
+        return modoOscuro ? Color.web("#C3B9C8") : Color.web("#615567");
     }
 
     public static Color borde() {
-        return modoOscuro ? Color.web("#3E2D43") : Color.web("#E7DFE8");
+        return modoOscuro ? Color.web("#49404E") : Color.web("#DFD9E2");
     }
 
     public static Color ciruela() {
-        return modoOscuro ? Color.web("#C478D0") : Color.web("#5B2D62");
+        return modoOscuro ? Color.web("#E9A9CA") : Color.web("#87395F");
     }
 
     public static Color ciruelaOscuro() {
-        return modoOscuro ? Color.web("#D992E3") : Color.web("#321937");
+        return modoOscuro ? Color.web("#F4C6DC") : Color.web("#321937");
     }
 
     public static Color bannerFondo() {
@@ -61,11 +70,11 @@ public final class TemaPAE {
     }
 
     public static Color lila() {
-        return modoOscuro ? Color.web("#38233C") : Color.web("#F2E6F3");
+        return modoOscuro ? Color.web("#482C40") : Color.web("#F7E8EE");
     }
 
     public static Color lilaBorde() {
-        return modoOscuro ? Color.web("#523559") : Color.web("#D9BADB");
+        return modoOscuro ? Color.web("#966783") : Color.web("#DCB5C8");
     }
 
     public static Color rosa() {
@@ -132,6 +141,7 @@ public final class TemaPAE {
     }
 
     public static void setModoOscuro(boolean oscuro) {
+        if (modoOscuro == oscuro) return;
         modoOscuro = oscuro;
         VentanaManager.actualizarTemaGlobal();
     }
@@ -157,7 +167,7 @@ public final class TemaPAE {
         Region divisor = new Region();
         divisor.setMinSize(1, 23);
         divisor.setMaxSize(1, 23);
-        fondo(divisor, borde(), 0);
+        divisor.getStyleClass().add("separador");
 
         Label nombre = new Label("ProyectoPAE");
         nombre.getStyleClass().add("marca-texto");
@@ -172,7 +182,7 @@ public final class TemaPAE {
 
         Button menu = new Button("Menú principal");
         menu.getStyleClass().add("btn-secondary");
-        menu.setGraphic(icono("M14 5 L7 12 L14 19 M7 12 H21", ciruela(), 16));
+        menu.setGraphic(new FontIcon("fas-arrow-left"));
         menu.setOnAction(evento -> volver.run());
 
         barra.getChildren().setAll(new HBox(11, marca, nombre), divisor, seccion, espacio, btnTema, menu);
@@ -186,64 +196,119 @@ public final class TemaPAE {
     public static Button crearBotonTema() {
         Button btn = new Button();
         btn.getStyleClass().add("btn-tema");
-        actualizarBotonTema(btn);
         btn.setOnAction(e -> alternarModoOscuro());
         return btn;
     }
 
     public static void actualizarBotonTema(Button btn) {
+        String destino = modoOscuro ? "modo claro" : "modo oscuro";
         FontIcon icono = new FontIcon(modoOscuro ? "fas-sun" : "fas-moon");
         icono.setIconSize(14);
-        icono.setIconColor(modoOscuro ? Color.web("#FCD34D") : ciruela());
         btn.setGraphic(icono);
         btn.setText(modoOscuro ? "Modo claro" : "Modo oscuro");
-        btn.setTooltip(new Tooltip(modoOscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"));
-        letra(btn, 12, FontWeight.BOLD, modoOscuro ? Color.web("#FCD34D") : ciruela());
-        fondo(btn, modoOscuro ? Color.web("#38233C") : Color.web("#F2E6F3"), 18);
-        borde(btn, modoOscuro ? Color.web("#5E3E66") : Color.web("#D9BADB"), 18);
-        btn.setPadding(new Insets(5, 12, 5, 12));
-        btn.setCursor(Cursor.HAND);
+        btn.setTooltip(new Tooltip("Cambiar a " + destino));
+        btn.setAccessibleText("Cambiar a " + destino);
+    }
+
+    // Modena resuelve estos colores también en editores, celdas virtuales y calendarios.
+    static void aplicarPaleta(Parent raiz) {
+        Color seleccion = modoOscuro ? Color.web("#604056") : Color.web("#EBD4E1");
+        raiz.setStyle("""
+                -fx-font-family: '%s'; -fx-font-size: 13px;
+                -fx-base: %s; -fx-background: %s; -fx-control-inner-background: %s;
+                -fx-control-inner-background-alt: %s; -fx-text-inner-color: %s;
+                -fx-text-base-color: -fx-text-inner-color; -fx-text-background-color: -fx-text-inner-color;
+                -pae-secundario: %s; -fx-focus-color: %s; -fx-faint-focus-color: transparent;
+                -fx-accent: %s; -fx-selection-bar: -fx-accent; -fx-selection-bar-non-focused: -fx-accent;
+                -fx-selection-bar-text: -fx-text-inner-color; -fx-cell-hover-color: -fx-accent;
+                -fx-mark-color: -pae-secundario; -fx-mark-highlight-color: transparent;
+                -fx-box-border: %s; -fx-text-box-border: -fx-box-border;
+                -pae-peligro: %s; -pae-aviso: %s; -pae-aviso-tinta: %s;
+                -pae-negativo: %s; -pae-positivo: %s; -pae-info: %s;
+                """.formatted(FUENTE, hex(neutro()), hex(fondo()), hex(blanco()), hex(filaAlterna()),
+                hex(texto()), hex(secundario()), hex(ciruela()), hex(seleccion), hex(borde()),
+                hex(rosa()), hex(ambar()), hex(ambarTexto()), hex(rosaTexto()), hex(verdeTexto()), hex(azulTexto())));
+    }
+
+    private static String hex(Color color) {
+        return "#" + color.toString().substring(2, 8);
     }
 
     public static void aplicar(Parent raiz) {
+        aplicarPaleta(raiz);
         pintar(raiz);
     }
 
+    private static final String SUPERFICIE_ENTRADA =
+            "-fx-background-color: -fx-control-inner-background; -fx-background-insets: 0; -fx-background-radius: 9;";
+
+    private static final String TINTA_ENTRADA = """
+            -fx-prompt-text-fill: -pae-secundario; -fx-text-fill: -fx-text-inner-color;
+            -fx-highlight-fill: -fx-accent; -fx-highlight-text-fill: -fx-text-inner-color;
+            """;
+
     private static void pintar(Node nodo) {
-        if (nodo instanceof Region region) {
-            pintarRegion(region);
-        }
+        if (nodo == null) return;
+        if (nodo instanceof Region region) pintarRegion(region);
         if (nodo instanceof Label etiqueta) {
             pintarEtiqueta(etiqueta);
-            if (etiqueta.getGraphic() != null) pintar(etiqueta.getGraphic());
+            pintar(etiqueta.getGraphic());
         } else if (nodo instanceof Button boton) {
             pintarBoton(boton);
         } else if (nodo instanceof CheckBox casilla) {
-            pintarCasilla(casilla);
+            letra(casilla, 14, FontWeight.NORMAL, texto());
+            casilla.setCursor(Cursor.HAND);
         } else if (nodo instanceof TextInputControl entrada) {
+            entrada.setStyle(SUPERFICIE_ENTRADA + TINTA_ENTRADA + (entrada instanceof TextArea ? "-fx-padding: 3;" : ""));
             entrada.setFont(fuente(FontWeight.NORMAL, 13));
             if (entrada instanceof TextField campo) campo.setPrefHeight(42);
             enfocable(entrada);
         } else if (nodo instanceof ComboBoxBase<?> selector) {
             selector.setPrefHeight(42);
+            selector.setStyle(SUPERFICIE_ENTRADA + "-fx-padding: 1;");
             enfocable(selector);
+            if (selector instanceof DatePicker fecha) {
+                fecha.getEditor().setStyle(TINTA_ENTRADA + "-fx-background-color: transparent;");
+            }
+            if (selector instanceof ComboBox<?> combo && combo.isEditable()) combo.getEditor().setStyle(TINTA_ENTRADA);
+            if (selector.getProperties().putIfAbsent("pae-popup", true) == null) {
+                selector.showingProperty().addListener((o, antes, abierto) -> {
+                    if (abierto) pintarOpciones(selector);
+                });
+            }
+            if (selector.isShowing()) pintarOpciones(selector);
         } else if (nodo instanceof TableView<?> tabla) {
             pintarTabla(tabla);
         } else if (nodo instanceof FontIcon icono) {
-            if (!tiene(icono.getParent(), "btn-tema")) {
-                icono.setIconColor(ciruela());
-            }
+            Node chip = icono.getParent();
+            Color tinta = ciruela();
+            if (tiene(chip, "chip-verde")) tinta = verdeTexto();
+            else if (tiene(chip, "chip-ambar", "alerta-menu")) tinta = ambarTexto();
+            else if (tiene(chip, "chip-turquesa")) tinta = turquesaTexto();
+            else if (tiene(chip, "chip-rosa")) tinta = rosaTexto();
+            icono.setIconColor(tinta);
         }
 
-        // Las pieles de los controles y sus nodos internos se crean al mostrar la escena.
-        if (nodo instanceof ScrollPane scroll && scroll.getContent() != null) {
+        if (nodo instanceof ScrollPane scroll) {
             fondo(scroll, fondo(), 0);
-            scroll.skinProperty().addListener((o, antes, ahora) -> Platform.runLater(() -> {
-                if (scroll.lookup(".viewport") instanceof Region viewport) fondo(viewport, fondo(), 0);
-            }));
             pintar(scroll.getContent());
-        } else if (nodo instanceof Parent padre && !(nodo instanceof Control)) {
-            for (Node hijo : padre.getChildrenUnmodifiable()) pintar(hijo);
+        } else if (nodo instanceof Pane panel) {
+            for (Node hijo : panel.getChildren()) pintar(hijo);
+        }
+    }
+
+    private static void pintarOpciones(ComboBoxBase<?> selector) {
+        if (selector.getSkin() instanceof ComboBoxListViewSkin<?> combo) {
+            if (combo.getPopupContent() instanceof Parent lista) aplicarPaleta(lista);
+        } else if (selector.getSkin() instanceof DatePickerSkin fecha) {
+            if (fecha.getPopupContent() instanceof Parent calendario) {
+                aplicarPaleta(calendario);
+                for (String flecha : new String[]{".left-arrow", ".right-arrow"}) {
+                    for (Node nodo : calendario.lookupAll(flecha)) {
+                        nodo.setStyle("-fx-background-color: -pae-secundario;");
+                    }
+                }
+            }
         }
     }
 
@@ -271,13 +336,15 @@ public final class TemaPAE {
             r.setEffect(new DropShadow(10, 0, 3, modoOscuro ? Color.rgb(0, 0, 0, 0.40) : Color.rgb(0, 0, 0, 0.05)));
         }
         if (tiene(r, "mini-kpi")) {
-            fondo(r, modoOscuro ? Color.web("#221626") : Color.web("#FFFFFF"), 14);
+            fondo(r, blanco(), 14);
             borde(r, borde(), 14);
             r.setPadding(new Insets(12, 16, 12, 16));
-            r.setEffect(new DropShadow(8, 0, 2, modoOscuro ? Color.rgb(0, 0, 0, 0.35) : Color.rgb(0, 0, 0, 0.04)));
         }
         if (tiene(r, "panel-acceso", "bienvenida")) {
-            fondo(r, bannerFondo(), tiene(r, "bienvenida") ? 16 : 0);
+            LinearGradient gradiente = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                    new Stop(0, bannerFondo()), new Stop(1, Color.web(modoOscuro ? "#543247" : "#82455F")));
+            r.setBackground(new Background(new BackgroundFill(gradiente,
+                    new CornerRadii(tiene(r, "bienvenida") ? 16 : 0), Insets.EMPTY)));
             if (tiene(r, "bienvenida")) {
                 borde(r, modoOscuro ? Color.web("#3E2445") : Color.TRANSPARENT, 16);
                 r.setEffect(new DropShadow(14, 0, 4, modoOscuro ? Color.rgb(0, 0, 0, 0.50) : Color.rgb(50, 25, 55, 0.18)));
@@ -358,143 +425,91 @@ public final class TemaPAE {
     }
 
     private static void pintarBoton(Button boton) {
-        if (tiene(boton, "btn-tema")) {
-            actualizarBotonTema(boton);
-            return;
-        }
-
+        if (tiene(boton, "btn-tema")) actualizarBotonTema(boton);
+        boton.setCursor(Cursor.HAND);
         if (tiene(boton, "tarjeta-menu")) {
             boton.setAlignment(Pos.CENTER_LEFT);
+            boton.setMinWidth(0);
             boton.setPadding(new Insets(12, 15, 12, 15));
-            boton.setCursor(Cursor.HAND);
             if (boton.getGraphic() instanceof Region contenido) {
-                boton.setMinWidth(0);
-                contenido.prefWidthProperty().bind(Bindings.max(115, boton.widthProperty().subtract(32)));
+                if (!contenido.prefWidthProperty().isBound()) {
+                    contenido.prefWidthProperty().bind(Bindings.max(100, boton.widthProperty().subtract(32)));
+                }
+                pintar(contenido);
             }
-            actualizarTarjeta(boton);
-            boton.hoverProperty().addListener((o, antes, ahora) -> actualizarTarjeta(boton));
-            boton.focusedProperty().addListener((o, antes, ahora) -> actualizarTarjeta(boton));
-            pintar(boton.getGraphic());
-            return;
+        } else {
+            boton.setMinHeight(tiene(boton, "btn-tema") ? 34 : 40);
+            boton.setPadding(new Insets(0, 13, 0, 13));
         }
+        alInteractuar(boton, () -> actualizarBoton(boton));
+    }
 
-        if (tiene(boton, "quick-action-btn")) {
-            boton.setCursor(Cursor.HAND);
-            boton.setPadding(new Insets(8, 14, 8, 14));
-            letra(boton, 13, FontWeight.SEMI_BOLD, texto());
-            Runnable pintarQuick = () -> {
-                boolean hover = boton.isHover();
-                fondo(boton, hover ? lila() : blanco(), 20);
-                borde(boton, hover ? ciruela() : borde(), 20);
-                boton.setEffect(new DropShadow(hover ? 8 : 4, 0, 2, modoOscuro ? Color.rgb(0, 0, 0, 0.3) : Color.rgb(0, 0, 0, 0.05)));
-            };
-            pintarQuick.run();
-            boton.hoverProperty().addListener((o, a, b) -> pintarQuick.run());
-            if (boton.getGraphic() instanceof FontIcon fi) fi.setIconColor(ciruela());
-            return;
+    private static void actualizarBoton(Button b) {
+        boolean principal = tiene(b, "btn-primary");
+        boolean peligro = tiene(b, "btn-danger");
+        boolean tarjeta = tiene(b, "tarjeta-menu");
+        boolean tema = tiene(b, "btn-tema");
+        boolean activo = b.isHover() || b.isArmed();
+        int radio = tarjeta ? 14 : tema || tiene(b, "quick-action-btn") ? 20 : 9;
+        Color tinta = principal ? (modoOscuro ? bannerFondo() : Color.WHITE) : peligro ? rosaTexto() : ciruela();
+        Color superficie = blanco();
+        if (principal) superficie = activo ? ciruelaOscuro() : ciruela();
+        else if (activo || tema) superficie = peligro ? rosa() : lila();
+        else if (tiene(b, "btn-ghost")) superficie = Color.TRANSPARENT;
+        b.setStyle("-fx-background-color: " + (superficie == Color.TRANSPARENT ? "transparent" : hex(superficie))
+                + "; -fx-background-insets: 0; -fx-background-radius: " + radio + "; -fx-text-fill: " + hex(tinta)
+                + "; -fx-font-weight: bold; -fx-font-size: " + (tema ? 12 : 13) + "px;");
+        Color contorno = b.isFocused() || activo ? ciruela() : borde();
+        if (!b.isFocused() && (principal || tiene(b, "btn-ghost"))) contorno = Color.TRANSPARENT;
+        bordeControl(b, contorno, radio);
+        if (b.getGraphic() instanceof FontIcon icono) icono.setIconColor(tinta);
+        b.setTranslateY(b.isArmed() ? 1 : tarjeta && b.isHover() ? -2 : 0);
+    }
+
+    private static void alInteractuar(Control control, Runnable actualizar) {
+        if (control.getProperties().putIfAbsent("pae-interaccion", true) == null) {
+            InvalidationListener cambio = o -> actualizar.run();
+            control.focusedProperty().addListener(cambio);
+            control.hoverProperty().addListener(cambio);
+            if (control instanceof Button boton) boton.armedProperty().addListener(cambio);
+            if (control instanceof ComboBoxBase<?> combo) combo.showingProperty().addListener(cambio);
         }
-
-        boolean principal = tiene(boton, "btn-primary");
-        boolean peligro = tiene(boton, "btn-danger");
-        boolean discreto = tiene(boton, "btn-ghost");
-        Color tinta = principal ? (modoOscuro ? Color.web("#140A16") : Color.WHITE) : peligro ? rosaTexto() : ciruela();
-        letra(boton, 13, FontWeight.BOLD, tinta);
-        if (boton.getGraphic() instanceof FontIcon icono) icono.setIconColor(tinta);
-        boton.setMinHeight(40);
-        boton.setPadding(new Insets(0, 14, 0, 14));
-        boton.setCursor(Cursor.HAND);
-
-        Runnable actualizar = () -> {
-            Color color = principal
-                    ? (boton.isHover() ? ciruelaOscuro() : ciruela())
-                    : boton.isHover() ? (peligro ? rosa() : lila()) : discreto ? Color.TRANSPARENT : blanco();
-            fondo(boton, color, 9);
-            Color contorno = boton.isFocused() ? (principal ? lilaBorde() : ciruela())
-                    : principal || discreto ? Color.TRANSPARENT : borde();
-            borde(boton, contorno, 9);
-            boton.setEffect(new DropShadow(boton.isHover() ? 8 : 0, 0, 2,
-                    modoOscuro ? Color.rgb(0, 0, 0, 0.4) : Color.rgb(91, 45, 98, 0.15)));
-        };
         actualizar.run();
-        boton.hoverProperty().addListener((o, antes, ahora) -> actualizar.run());
-        boton.focusedProperty().addListener((o, antes, ahora) -> actualizar.run());
     }
 
-    private static void actualizarTarjeta(Button b) {
-        fondo(b, b.isHover() ? lila() : blanco(), 16);
-        borde(b, b.isFocused() || b.isHover() ? ciruela() : borde(), 16);
-        b.setEffect(new DropShadow(b.isHover() ? 12 : 5, 0, b.isHover() ? 4 : 2,
-                modoOscuro ? Color.rgb(0, 0, 0, 0.45) : (b.isHover() ? Color.rgb(91, 45, 98, 0.18) : Color.rgb(0, 0, 0, 0.04))));
-    }
-
-    private static void enfocable(Region control) {
-        fondo(control, blanco(), 9);
-        borde(control, borde(), 9);
-        control.focusedProperty().addListener((o, antes, ahora) -> borde(control, ahora ? ciruela() : borde(), 9));
-    }
-
-    private static void pintarCasilla(CheckBox control) {
-        letra(control, 14, FontWeight.NORMAL, texto());
-        Runnable pintar = () -> {
-            if (control.lookup(".box") instanceof Region caja) {
-                fondo(caja, control.isSelected() ? ciruela() : blanco(), 4);
-                borde(caja, control.isFocused() || control.isSelected() ? ciruela() : secundario(), 4);
-            }
-            if (control.lookup(".mark") instanceof Region marca) {
-                fondo(marca, control.isSelected() ? (modoOscuro ? Color.web("#140A16") : Color.WHITE) : Color.TRANSPARENT, 0);
-            }
-        };
-        control.skinProperty().addListener((o, antes, ahora) -> Platform.runLater(pintar));
-        control.selectedProperty().addListener((o, antes, ahora) -> pintar.run());
-        control.focusedProperty().addListener((o, antes, ahora) -> pintar.run());
+    private static void enfocable(Control control) {
+        alInteractuar(control, () -> {
+            boolean abierto = control instanceof ComboBoxBase<?> combo && combo.isShowing();
+            fondo(control, blanco(), 9);
+            bordeControl(control, control.isFocused() || abierto ? ciruela() : control.isHover() ? secundario() : lilaBorde(), 9);
+        });
     }
 
     private static <T> void pintarTabla(TableView<T> tabla) {
-        fondo(tabla, blanco(), 10);
-        borde(tabla, borde(), 10);
-        tabla.setFixedCellSize(47);
-        if (tabla.getPlaceholder() != null) pintar(tabla.getPlaceholder());
+        tabla.setStyle(SUPERFICIE_ENTRADA + "-fx-padding: 2;");
+        borde(tabla, borde(), 9);
+        tabla.setFixedCellSize(44);
+        pintar(tabla.getPlaceholder());
 
-        var factory = tabla.getRowFactory();
+        // Las fábricas del módulo conservan su lógica de caducidad y stock mínimo.
+        var fabrica = tabla.getRowFactory();
+        if (fabrica == null || tabla.getProperties().putIfAbsent("pae-filas", true) != null) return;
         tabla.setRowFactory(t -> {
-            TableRow<T> fila = factory == null ? new TableRow<>() : factory.call(t);
-            Runnable colorFila = () -> {
-                Color color = fila.isEmpty() ? blanco()
-                        : fila.isSelected() ? ciruela()
-                        : tiene(fila, "fila-peligro") ? rosa()
-                        : tiene(fila, "fila-advertencia") ? ambar()
-                        : fila.getIndex() % 2 == 0 ? blanco() : filaAlterna();
-                fondo(fila, color, 0);
+            TableRow<T> fila = fabrica.call(t);
+            Runnable actualizar = () -> {
+                String color = tiene(fila, "fila-peligro") ? "-pae-peligro"
+                        : tiene(fila, "fila-advertencia") ? "-pae-aviso" : null;
+                fila.setStyle(color == null ? "" : "-fx-control-inner-background: " + color
+                        + "; -fx-control-inner-background-alt: " + color + ";");
             };
-            fila.indexProperty().addListener((o, a, b) -> colorFila.run());
-            fila.emptyProperty().addListener((o, a, b) -> colorFila.run());
-            fila.selectedProperty().addListener((o, a, b) -> colorFila.run());
-            fila.getStyleClass().addListener((ListChangeListener<String>) cambio -> colorFila.run());
-            colorFila.run();
+            fila.getStyleClass().addListener((ListChangeListener<String>) cambio -> actualizar.run());
+            actualizar.run();
             return fila;
         });
-
-        Runnable encabezado = () -> {
-            for (String selector : new String[]{".column-header-background", ".column-header", ".filler"}) {
-                for (Node nodo : tabla.lookupAll(selector)) {
-                    if (nodo instanceof Region region) fondo(region, neutro(), 0);
-                    if (nodo instanceof Region region && selector.equals(".column-header")) {
-                        region.setPrefHeight(39);
-                        if (region.lookup(".label") instanceof Label titulo) {
-                            letra(titulo, 12, FontWeight.BOLD, secundario());
-                            titulo.setAlignment(Pos.CENTER_LEFT);
-                            titulo.setPadding(new Insets(0, 0, 0, 8));
-                        }
-                    }
-                }
-            }
-        };
-        tabla.skinProperty().addListener((o, antes, ahora) -> Platform.runLater(encabezado));
-        tabla.getVisibleLeafColumns().addListener((ListChangeListener<TableColumn<T, ?>>) c ->
-                Platform.runLater(encabezado));
     }
 
     private static void decorar(Pane panel, boolean acceso) {
+        if (!panel.getChildren().isEmpty()) return;
         panel.setMouseTransparent(true);
         Rectangle recorte = new Rectangle();
         recorte.widthProperty().bind(panel.widthProperty());
@@ -502,40 +517,39 @@ public final class TemaPAE {
         recorte.setArcWidth(acceso ? 0 : 32);
         recorte.setArcHeight(acceso ? 0 : 32);
         panel.setClip(recorte);
-        panel.getChildren().clear();
 
-        if (acceso) {
-            agregarElipse(panel, 0.80, 0.11, 271, null, modoOscuro ? 0.20 : 0.35);
-            agregarElipse(panel, 0.80, 0.11, 230, null, modoOscuro ? 0.15 : 0.23);
-            agregarElipse(panel, 0.93, 0.80, 211, ciruela(), modoOscuro ? 0.40 : 0.62);
-            agregarElipse(panel, 0.89, 0.79, 174, null, modoOscuro ? 0.30 : 0.52);
-            agregarElipse(panel, 0.89, 0.79, 154, null, modoOscuro ? 0.18 : 0.30);
-            agregarEstrella(panel, 0.77, 0.76, 104, Color.web("#F1A5CC"));
-            agregarEstrella(panel, 0.89, 0.67, 30, claro());
-            agregarEstrella(panel, 0.62, 0.86, 22, claro());
-        } else {
-            agregarElipse(panel, 0.93, 0.36, 228, null, modoOscuro ? 0.22 : 0.35);
-            agregarElipse(panel, 0.93, 0.40, 194, null, modoOscuro ? 0.16 : 0.26);
-            agregarEstrella(panel, 0.925, 0.52, 88, Color.web("#F1A5CC"));
+        // Polvera abierta. La ilustración queda anclada al borde, lejos del formulario.
+        Group paleta = new Group();
+        Color metal = Color.web("#E5BCC6");
+        Circle espejo = new Circle(45, 43, 39, Color.web("#B78D9E"));
+        espejo.setStroke(metal);
+        espejo.setStrokeWidth(3);
+        Line reflejo = new Line(26, 52, 51, 24);
+        Line brillo = new Line(32, 57, 47, 40);
+        for (Line trazo : new Line[]{reflejo, brillo}) {
+            trazo.setStroke(Color.web("#F1DCE2"));
+            trazo.setStrokeWidth(2);
         }
-    }
-
-    private static void agregarElipse(Pane panel, double x, double y, double radio, Color color, double opacidad) {
-        Ellipse elipse = new Ellipse(radio, radio);
-        elipse.setFill(color == null ? Color.TRANSPARENT : color);
-        if (color == null) elipse.setStroke(lilaBorde());
-        elipse.setOpacity(opacidad);
-        elipse.centerXProperty().bind(panel.widthProperty().multiply(x));
-        elipse.centerYProperty().bind(panel.heightProperty().multiply(y));
-        panel.getChildren().add(elipse);
-    }
-
-    private static void agregarEstrella(Pane panel, double x, double y, double tamano, Color color) {
-        Node estrella = icono(ESTRELLA, color, tamano);
-        estrella.setManaged(false);
-        estrella.layoutXProperty().bind(panel.widthProperty().multiply(x));
-        estrella.layoutYProperty().bind(panel.heightProperty().multiply(y));
-        panel.getChildren().add(estrella);
+        Circle estuche = new Circle(94, 82, 46, Color.web("#483140"));
+        estuche.setStroke(metal);
+        estuche.setStrokeWidth(3);
+        paleta.getChildren().addAll(espejo, reflejo, brillo, estuche);
+        String[] tonos = {"#CF91A3", "#F1CAB9", "#AC7286", "#98654F"};
+        for (int i = 0; i < tonos.length; i++) {
+            Arc sombra = new Arc(94, 82, 38, 38, 90 * i + 2, 86);
+            sombra.setType(ArcType.ROUND);
+            sombra.setFill(Color.web(tonos[i]));
+            paleta.getChildren().add(sombra);
+        }
+        paleta.setManaged(false);
+        double escala = acceso ? 1.28 : 0.83;
+        paleta.setScaleX(escala);
+        paleta.setScaleY(escala);
+        paleta.setRotate(-14);
+        paleta.layoutXProperty().bind(panel.widthProperty().subtract(acceso ? 185 : 175));
+        paleta.layoutYProperty().bind(acceso ? panel.heightProperty().subtract(210)
+                : panel.heightProperty().subtract(128).divide(2));
+        panel.getChildren().add(paleta);
     }
 
     private static SVGPath icono(String camino, Color tinta, double tamano) {
@@ -558,7 +572,9 @@ public final class TemaPAE {
 
     private static void letra(Labeled etiqueta, double tamano, FontWeight grosor, Color tinta) {
         etiqueta.setFont(fuente(grosor, tamano));
-        etiqueta.setTextFill(tinta);
+        if (etiqueta.getStyle().isEmpty() || etiqueta.getStyle().startsWith("-fx-text-background-color:")) {
+            etiqueta.setStyle("-fx-text-background-color: " + hex(tinta) + "; -fx-text-fill: -fx-text-background-color;");
+        }
     }
 
     private static void fondo(Region region, Color color, double radio) {
@@ -569,7 +585,19 @@ public final class TemaPAE {
         region.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, new CornerRadii(radio), BorderWidths.DEFAULT)));
     }
 
+    private static void bordeControl(Control control, Color contorno, int radio) {
+        BorderStroke base = new BorderStroke(contorno, BorderStrokeStyle.SOLID, new CornerRadii(radio), BorderWidths.DEFAULT);
+        if (control.isFocused()) {
+            BorderStroke foco = new BorderStroke(ciruela(), BorderStrokeStyle.SOLID, new CornerRadii(radio + 3),
+                    new BorderWidths(2), new Insets(-3));
+            control.setBorder(new Border(base, foco));
+        } else {
+            control.setBorder(new Border(base));
+        }
+    }
+
     private static boolean tiene(Node nodo, String... clases) {
+        if (nodo == null || nodo.getStyleClass() == null) return false;
         for (String clase : clases) if (nodo.getStyleClass().contains(clase)) return true;
         return false;
     }
