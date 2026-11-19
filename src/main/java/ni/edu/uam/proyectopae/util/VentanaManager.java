@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-import java.net.URL;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,7 +33,6 @@ import java.util.Map;
 public final class VentanaManager {
 
     private static final String BASE = "/ni/edu/uam/proyectopae/";
-    private static final String CSS = BASE + "css/styles.css";
 
     private static Stage principal;
     private static final Map<String, Stage> ventanas = new LinkedHashMap<>();
@@ -183,7 +182,15 @@ public final class VentanaManager {
         fi.setIconSize(36);
         fi.setIconColor(Color.WHITE);
         StackPane fondo = new StackPane(fi);
-        fondo.setStyle("-fx-background-color: " + colorHex + "; -fx-background-radius: 12;");
+        fondo.setBackground(
+                new javafx.scene.layout.Background(
+                        new javafx.scene.layout.BackgroundFill(
+                                Color.web(colorHex),
+                                new javafx.scene.layout.CornerRadii(12),
+                                javafx.geometry.Insets.EMPTY
+                        )
+                )
+        );
         fondo.setPrefSize(56, 56);
         new Scene(fondo);
         fondo.applyCss();
