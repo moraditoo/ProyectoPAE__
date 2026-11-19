@@ -4,6 +4,7 @@ import ni.edu.uam.proyectopae.models.Lote;
 import ni.edu.uam.proyectopae.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import ni.edu.uam.proyectopae.util.Transacciones;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,42 +12,21 @@ import java.util.List;
 public class LoteDAO {
 
     public void guardar(Lote lote) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            session.persist(lote);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        Transacciones.escribir(session -> session.persist(lote));
     }
 
     public void actualizar(Lote lote) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            session.merge(lote);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        Transacciones.escribir(session -> session.merge(lote));
     }
 
     public void eliminar(Integer idLote) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
+        Transacciones.escribir(session -> {
             Lote lote = session.get(Lote.class, idLote);
+
             if (lote != null) {
                 session.remove(lote);
             }
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        });
     }
 
     public List<Lote> listarConProducto() {
