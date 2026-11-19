@@ -16,7 +16,7 @@ public class Marca {
     @Column(name = "nombre_marca", nullable = false, length = 50)
     private String nombreMarca;
 
-    @OneToMany(mappedBy = "marca", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "marca", fetch = FetchType.LAZY)
     private List<Producto> productos = new ArrayList<>();
 
     public Marca() {}

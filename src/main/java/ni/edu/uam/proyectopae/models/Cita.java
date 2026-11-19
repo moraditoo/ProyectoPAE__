@@ -28,7 +28,7 @@ public class Cita {
     @Column(name = "estado", nullable = false, length = 25)
     private String estado = "PROGRAMADA";
 
-    @OneToMany(mappedBy = "cita", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cita", fetch = FetchType.LAZY)
     private List<ConsumoInsumo> consumos = new ArrayList<>();
 
     public Cita() {}

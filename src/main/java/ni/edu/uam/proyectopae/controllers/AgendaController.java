@@ -9,9 +9,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.kordamp.ikonli.javafx.FontIcon;
 import ni.edu.uam.proyectopae.dao.CitaDAO;
 import ni.edu.uam.proyectopae.dao.ClienteDAO;
+import ni.edu.uam.proyectopae.dao.ProductoDAO;
 import ni.edu.uam.proyectopae.dao.ServicioDAO;
 import ni.edu.uam.proyectopae.models.Cita;
 import ni.edu.uam.proyectopae.models.Cliente;
+import ni.edu.uam.proyectopae.models.Producto;
 import ni.edu.uam.proyectopae.models.Servicio;
 import ni.edu.uam.proyectopae.util.Alertas;
 import ni.edu.uam.proyectopae.util.Formato;
@@ -248,6 +250,109 @@ public class AgendaController implements Refrescable {
                     + " el " + Formato.fecha(fecha) + " a las " + horaSeleccionada + ".");
         } catch (Exception e) {
             Alertas.error("Error al agendar", VentanaManager.causaRaiz(e));
+        }
+    }
+
+    @FXML
+    private void handleConfigurarProductos() {
+        Servicio seleccionado = cmbServicio.getValue();
+
+        if (seleccionado == null) {
+            Alertas.validacion("Selecciona un servicio.");
+            return;
+        }
+
+        try {
+            Servicio servicio = servicioDAO.buscarConProductos(
+                    seleccionado.getIdServicio()
+            );
+
+            if (servicio == null) {
+                Alertas.validacion("El servicio ya no existe.");
+                return;
+            }
+
+            ListView<Producto> lista = new ListView<>();
+
+            lista.getSelectionModel().setSelectionMode(
+                    SelectionMode.MULTIPLE
+            );
+
+            lista.getItems().setAll(
+                    new ProductoDAO().listarConRelaciones()
+            );
+
+            for (int i = 0; i < lista.getItems().size(); i++) {
+                Integer id = lista.getItems().get(i).getIdProducto();
+
+                boolean asociado = servicio.getProductos().stream()
+                        .anyMatch(producto ->
+                                producto.getIdProducto().equals(id)
+                        );
+
+                if (asociado) {
+                    lista.getSelectionModel().select(i);
+                }
+            }
+
+            lista.setPrefSize(450, 300);
+
+            ButtonType guardar = new ButtonType(
+                    "Guardar",
+                    ButtonBar.ButtonData.OK_DONE
+            );
+
+            Dialog<ButtonType> dialogo = new Dialog<>();
+
+            dialogo.setTitle("Productos del servicio");
+
+            dialogo.setHeaderText(
+                    servicio.getNombreServicio()
+                            + "\nUsa Ctrl para seleccionar varios productos."
+            );
+
+            var ventana = VentanaManager.ventanaActiva();
+
+            if (ventana != null) {
+                dialogo.initOwner(ventana);
+            }
+
+            dialogo.getDialogPane().setContent(lista);
+
+            dialogo.getDialogPane().getButtonTypes().addAll(
+                    guardar,
+                    ButtonType.CANCEL
+            );
+
+            var respuesta = dialogo.showAndWait();
+
+            if (respuesta.isPresent()
+                    && respuesta.get() == guardar) {
+
+                List<Integer> ids = lista.getSelectionModel()
+                        .getSelectedItems()
+                        .stream()
+                        .map(Producto::getIdProducto)
+                        .toList();
+
+                servicioDAO.actualizarProductos(
+                        servicio.getIdServicio(),
+                        ids
+                );
+
+                Alertas.info(
+                        "Productos actualizados",
+                        "Se guardó la configuración del servicio."
+                );
+
+                VentanaManager.notificarCambios(this);
+            }
+
+        } catch (Exception error) {
+            Alertas.error(
+                    "No se pudieron configurar los productos",
+                    VentanaManager.causaRaiz(error)
+            );
         }
     }
 
