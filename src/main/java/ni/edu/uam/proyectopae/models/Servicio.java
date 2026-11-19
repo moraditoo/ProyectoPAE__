@@ -23,7 +23,7 @@ public class Servicio {
     @Column(name = "tarifa_base", nullable = false, precision = 10, scale = 2)
     private BigDecimal tarifaBase;
 
-    @OneToMany(mappedBy = "servicio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "servicio", fetch = FetchType.LAZY)
     private List<Cita> citas = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)

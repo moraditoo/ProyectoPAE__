@@ -19,7 +19,7 @@ public class Categoria {
     @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
 
-    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "categoria", fetch = FetchType.LAZY)
     private List<Producto> productos = new ArrayList<>();
 
     public Categoria() {}
