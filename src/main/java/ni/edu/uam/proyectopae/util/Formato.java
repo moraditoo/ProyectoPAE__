@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import javafx.geometry.Pos;
 
 /** Utilidades de formato (moneda en cordobas, porcentajes y fechas) para tablas y etiquetas. */
 public final class Formato {
@@ -47,7 +48,7 @@ public final class Formato {
             protected void updateItem(BigDecimal item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? null : moneda(item));
-                setStyle("-fx-alignment: CENTER-RIGHT;");
+                setAlignment(Pos.CENTER_RIGHT);
             }
         });
     }
@@ -58,7 +59,7 @@ public final class Formato {
             protected void updateItem(BigDecimal item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? null : porcentaje(item));
-                setStyle("-fx-alignment: CENTER-RIGHT;");
+                setAlignment(Pos.CENTER_RIGHT);
             }
         });
     }
