@@ -28,15 +28,46 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-        txtPasswordVisible.textProperty().bindBidirectional(txtPassword.textProperty());
-        lblMensaje.visibleProperty().bind(lblMensaje.textProperty().isNotEmpty());
-        lblMensaje.managedProperty().bind(lblMensaje.visibleProperty());
+        txtPasswordVisible.textProperty()
+                .bindBidirectional(txtPassword.textProperty());
+
+        lblMensaje.visibleProperty()
+                .bind(lblMensaje.textProperty().isNotEmpty());
+
+        lblMensaje.managedProperty()
+                .bind(lblMensaje.visibleProperty());
+
         try {
             if (usuarioDAO.listarTodos().isEmpty()) {
-                usuarioDAO.guardar(new Usuario("admin", "admin123", "ADMINISTRADOR"));
+                String usuarioInicial =
+                        System.getenv("PAE_ADMIN_USER");
+
+                String claveInicial =
+                        System.getenv("PAE_ADMIN_PASSWORD");
+
+                if (usuarioInicial == null
+                        || usuarioInicial.isBlank()
+                        || claveInicial == null
+                        || claveInicial.isBlank()) {
+
+                    throw new IllegalStateException(
+                            "La primera ejecución requiere "
+                                    + "PAE_ADMIN_USER y PAE_ADMIN_PASSWORD."
+                    );
+                }
+
+                usuarioDAO.guardar(
+                        new Usuario(
+                                usuarioInicial,
+                                claveInicial,
+                                "ADMINISTRADOR"
+                        )
+                );
             }
         } catch (Throwable e) {
-            lblMensaje.setText("Aviso: Verifique la conexión a PostgreSQL.");
+            lblMensaje.setText(
+                    VentanaManager.causaRaiz(e)
+            );
         }
     }
 
