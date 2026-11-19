@@ -28,6 +28,9 @@
                     <Label fx:id="lblClienteSeleccionado" text="Ningún cliente seleccionado" styleClass="modo-label" wrapText="true"/>
                     <Label text="Servicio *" styleClass="form-label"/>
                     <ComboBox fx:id="cmbServicio" promptText="Seleccionar servicio..." maxWidth="Infinity"/>
+                    <Button text="Configurar productos del servicio"
+                            onAction="#handleConfigurarProductos"
+                            styleClass="btn-secondary"/>
                     <HBox spacing="10">
                         <VBox spacing="6" HBox.hgrow="ALWAYS" minWidth="0">
                             <Label text="Fecha *" styleClass="form-label"/>
