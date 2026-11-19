@@ -26,6 +26,18 @@ public class Servicio {
     @OneToMany(mappedBy = "servicio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Cita> citas = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "servicio_productos",
+            joinColumns = @JoinColumn(name = "id_servicio"),
+            inverseJoinColumns = @JoinColumn(name = "id_producto"),
+            uniqueConstraints = @UniqueConstraint(
+                    name = "uk_servicio_producto",
+                    columnNames = {"id_servicio", "id_producto"}
+            )
+    )
+    private List<Producto> productos = new ArrayList<>();
+
     public Servicio() {}
 
     public Servicio(String nombreServicio, Integer duracionMinutos, BigDecimal tarifaBase) {
@@ -48,6 +60,26 @@ public class Servicio {
 
     public List<Cita> getCitas() { return citas; }
     public void setCitas(List<Cita> citas) { this.citas = citas; }
+
+    public List<Producto> getProductos() {
+        return productos;
+    }
+
+    public void agregarProducto(Producto producto) {
+        if (producto == null) {
+            throw new IllegalArgumentException(
+                    "El producto es obligatorio."
+            );
+        }
+
+        if (!productos.contains(producto)) {
+            productos.add(producto);
+        }
+    }
+
+    public void quitarProducto(Producto producto) {
+        productos.remove(producto);
+    }
 
     @Override
     public String toString() {
