@@ -1,78 +1,141 @@
 package ni.edu.uam.proyectopae.util;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.stage.Window;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-import java.util.Optional;
-
-/**
- * Centraliza los dialogos (Alert) de la aplicacion para que todos
- * tengan el mismo estilo, icono y comportamiento.
- */
 public final class Alertas {
 
-    private Alertas() {}
+    private Alertas() {
+    }
 
     public static void info(String titulo, String mensaje) {
-        crear(Alert.AlertType.INFORMATION, titulo, mensaje, "fas-check-circle", "-pae-positivo").showAndWait();
+        crear(
+                Alert.AlertType.INFORMATION,
+                titulo,
+                mensaje,
+                "fas-check-circle",
+                Color.web("#267349")
+        ).showAndWait();
     }
 
     public static void error(String titulo, String mensaje) {
-        crear(Alert.AlertType.ERROR, titulo, mensaje, "fas-times-circle", "-pae-negativo").showAndWait();
+        crear(
+                Alert.AlertType.ERROR,
+                titulo,
+                mensaje,
+                "fas-times-circle",
+                Color.web("#B42335")
+        ).showAndWait();
     }
 
-    public static void advertencia(String titulo, String mensaje) {
-        crear(Alert.AlertType.WARNING, titulo, mensaje, "fas-exclamation-triangle", "-pae-aviso-tinta").showAndWait();
+    public static void advertencia(
+            String titulo,
+            String mensaje
+    ) {
+        crear(
+                Alert.AlertType.WARNING,
+                titulo,
+                mensaje,
+                "fas-exclamation-triangle",
+                Color.web("#946000")
+        ).showAndWait();
     }
 
-    /** Validaciones de formulario: mismo estilo que advertencia, titulo fijo. */
     public static void validacion(String mensaje) {
         advertencia("Validación", mensaje);
     }
 
-    /** Muestra un dialogo de confirmacion Si/No. Devuelve true si el usuario acepta. */
-    public static boolean confirmar(String titulo, String mensaje) {
-        return preguntar(titulo, mensaje, "fas-question-circle", "-pae-info");
+    public static boolean confirmar(
+            String titulo,
+            String mensaje
+    ) {
+        return preguntar(
+                titulo,
+                mensaje,
+                "fas-question-circle",
+                Color.web("#2457A7")
+        );
     }
 
-    /** Advertencia con pregunta Si/No (por ejemplo, alertas de inventario al iniciar sesion). */
-    public static boolean advertenciaConPregunta(String titulo, String mensaje) {
-        return preguntar(titulo, mensaje, "fas-exclamation-triangle", "-pae-aviso-tinta");
+    public static boolean advertenciaConPregunta(
+            String titulo,
+            String mensaje
+    ) {
+        return preguntar(
+                titulo,
+                mensaje,
+                "fas-exclamation-triangle",
+                Color.web("#946000")
+        );
     }
 
-    private static boolean preguntar(String titulo, String mensaje, String icono, String color) {
-        Alert alert = crear(Alert.AlertType.CONFIRMATION, titulo, mensaje, icono, color);
-        ButtonType si = new ButtonType("Sí", ButtonBar.ButtonData.YES);
-        ButtonType no = new ButtonType("No", ButtonBar.ButtonData.NO);
-        alert.getButtonTypes().setAll(si, no);
-        Optional<ButtonType> r = alert.showAndWait();
-        return r.isPresent() && r.get() == si;
+    private static boolean preguntar(
+            String titulo,
+            String mensaje,
+            String icono,
+            Color color
+    ) {
+        Alert alerta = crear(
+                Alert.AlertType.CONFIRMATION,
+                titulo,
+                mensaje,
+                icono,
+                color
+        );
+
+        ButtonType si = new ButtonType(
+                "Sí",
+                ButtonBar.ButtonData.YES
+        );
+
+        ButtonType no = new ButtonType(
+                "No",
+                ButtonBar.ButtonData.NO
+        );
+
+        alerta.getButtonTypes().setAll(si, no);
+
+        return alerta.showAndWait()
+                .map(respuesta -> respuesta == si)
+                .orElse(false);
     }
 
-    private static Alert crear(Alert.AlertType tipo, String titulo, String mensaje, String icono, String color) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setHeaderText(titulo);
+    private static Alert crear(
+            Alert.AlertType tipo,
+            String titulo,
+            String mensaje,
+            String icono,
+            Color color
+    ) {
+        Alert alerta = new Alert(tipo);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(titulo);
 
         Label contenido = new Label(mensaje);
         contenido.setWrapText(true);
         contenido.setMaxWidth(460);
-        contenido.setStyle("-fx-font-size: 13px; -fx-padding: 6 4 6 4;");
-        alert.getDialogPane().setContent(contenido);
+        contenido.setFont(Font.font("Segoe UI", 13));
+        contenido.setPadding(new Insets(6, 4, 6, 4));
 
-        FontIcon fi = new FontIcon(icono);
-        fi.setIconSize(36);
-        fi.setStyle("-fx-icon-color: " + color + ";");
-        alert.setGraphic(fi);
+        FontIcon imagen = new FontIcon(icono);
+        imagen.setIconSize(36);
+        imagen.setIconColor(color);
 
-        TemaPAE.aplicarPaleta(alert.getDialogPane());
+        alerta.setGraphic(imagen);
+        alerta.getDialogPane().setContent(contenido);
 
-        Window activa = VentanaManager.ventanaActiva();
-        if (activa != null) alert.initOwner(activa);
-        return alert;
+        var ventana = VentanaManager.ventanaActiva();
+
+        if (ventana != null) {
+            alerta.initOwner(ventana);
+        }
+
+        return alerta;
     }
 }
