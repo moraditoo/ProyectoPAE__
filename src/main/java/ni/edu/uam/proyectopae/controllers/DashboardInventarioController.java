@@ -194,7 +194,7 @@ public class DashboardInventarioController implements Refrescable {
         if (porVencer > 0) { datos.add(new PieChart.Data("Por vencer (" + porVencer + ")", porVencer)); colores.add("#d97706"); }
         if (vencidos > 0) { datos.add(new PieChart.Data("Vencidos (" + vencidos + ")", vencidos)); colores.add("#dc2626"); }
         chartEstadoLotes.setData(datos);
-        
+
     }
 }
 

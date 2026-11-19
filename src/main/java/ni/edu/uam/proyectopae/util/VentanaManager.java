@@ -47,17 +47,15 @@ public final class VentanaManager {
     public static Stage getPrincipal() { return principal; }
 
     /** Aplica la presentación correspondiente a la vista cargada. */
-    public static Scene crearEscena(Parent root, double ancho, double alto) {
+    public static Scene crearEscena(
+            Parent root,
+            double ancho,
+            double alto
+    ) {
         Scene scene = new Scene(root, ancho, alto);
-        if (TemaPAE.usaTema(root)) {
-            TemaPAE.aplicar(root);
-            return scene;
-        }
-        TemaPAE.aplicarPaleta(root);
-        URL stylesheet = VentanaManager.class.getResource(CSS);
-        if (stylesheet != null) {
-            scene.getStylesheets().add(stylesheet.toExternalForm());
-        }
+
+        TemaPAE.aplicar(root);
+
         return scene;
     }
 
