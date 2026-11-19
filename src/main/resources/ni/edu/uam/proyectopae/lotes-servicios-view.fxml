@@ -1,45 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox spacing="10.0" prefWidth="750.0" prefHeight="480.0"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ni.edu.uam.proyectopae.controllers.LotesServiciosController">
-    <padding>
-        <Insets top="15" right="15" bottom="15" left="15"/>
-    </padding>
+<BorderPane styleClass="pae-ui" prefWidth="1200.0" prefHeight="720.0"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ni.edu.uam.proyectopae.controllers.LotesServiciosController">
 
-    <Label text="Control de Lotes y Caducidad de Cosméticos" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+    <top>
+        <HBox styleClass="encabezado-modulo" spacing="16" alignment="CENTER_LEFT">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Lotes y caducidad" styleClass="header-title"/>
+                <Label text="Controla las unidades disponibles y los vencimientos por lote." styleClass="header-subtitle" wrapText="true"/>
+            </VBox>
+        </HBox>
+    </top>
 
-    <GridPane hgap="10" vgap="10">
-        <Label text="Producto:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="cmbProducto" prefWidth="200" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true">
+            <HBox styleClass="content-area" spacing="18" minWidth="826" minHeight="535" alignment="TOP_LEFT">
+                <!-- Formulario -->
+                <VBox styleClass="card" prefWidth="365" minWidth="340" spacing="8" maxHeight="-Infinity">
+                    <Label fx:id="lblModo" text="Nuevo lote" styleClass="card-title"/>
 
-        <Label text="Código de Lote:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtCodigoLote" promptText="LOTE-2026-001" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                    <Label text="Producto *" styleClass="form-label"/>
+                    <ComboBox fx:id="cmbProducto" promptText="Seleccionar producto..." maxWidth="Infinity"/>
 
-        <Label text="Fecha Vencimiento:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <DatePicker fx:id="dpFechaCaducidad" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <Label text="Código de lote *" styleClass="form-label"/>
+                    <TextField fx:id="txtCodigoLote" promptText="Ej: LOT-2026-A1" onKeyPressed="#handleEnterGuardar"/>
 
-        <Label text="Stock Disponible:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtCantidad" promptText="Unidades" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
-    </GridPane>
+                    <Label text="Fecha de caducidad *" styleClass="form-label"/>
+                    <DatePicker fx:id="dpFechaCaducidad" promptText="Seleccionar fecha..." maxWidth="Infinity"/>
 
-    <HBox spacing="10">
-        <Button text="Ingresar Lote" onAction="#handleGuardarLote" style="-fx-background-color: #0078d7; -fx-text-fill: white;"/>
-        <Button text="Eliminar Lote" onAction="#handleEliminarLote" style="-fx-background-color: #d83b01; -fx-text-fill: white;"/>
-        <Label fx:id="lblEstado" textFill="#004e8c" wrapText="true"/>
-    </HBox>
+                    <Label text="Cantidad disponible *" styleClass="form-label"/>
+                    <TextField fx:id="txtCantidad" promptText="Unidades (entero)" onKeyPressed="#handleEnterGuardar"/>
 
-    <TableView fx:id="tblLotes" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="colProducto" text="Producto" prefWidth="250"/>
-            <TableColumn fx:id="colCodigo" text="Código Lote" prefWidth="150"/>
-            <TableColumn fx:id="colCaducidad" text="Fecha Caducidad" prefWidth="140"/>
-            <TableColumn fx:id="colCantidad" text="Cantidad Stock" prefWidth="120"/>
-        </columns>
-    </TableView>
-</VBox>
+                    <HBox spacing="8">
+                        <Button fx:id="btnGuardar" text="Guardar" onAction="#handleGuardarLote" styleClass="btn-primary">
+                            <graphic><FontIcon iconLiteral="far-save" iconSize="14"/></graphic>
+                        </Button>
+                        <Button text="Nuevo" onAction="#handleLimpiar" styleClass="btn-secondary">
+                            <graphic><FontIcon iconLiteral="fas-plus" iconSize="14"/></graphic>
+                        </Button>
+                    </HBox>
+                    <Button text="Eliminar" onAction="#handleEliminarLote" styleClass="btn-danger">
+                        <graphic><FontIcon iconLiteral="far-trash-alt" iconSize="14"/></graphic>
+                    </Button>
+                </VBox>
+
+                <!-- Listado -->
+                <VBox styleClass="card" spacing="14" HBox.hgrow="ALWAYS">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Lotes registrados" styleClass="card-title">
+                            <graphic><FontIcon iconLiteral="fas-list" iconSize="16"/></graphic>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <FontIcon iconLiteral="fas-filter" iconSize="15"/>
+                        <ComboBox fx:id="cmbFiltro" prefWidth="190"/>
+                    </HBox>
+
+                    <TableView fx:id="tblLotes" VBox.vgrow="ALWAYS">
+                        <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+                        <placeholder><Label text="No hay lotes registrados"/></placeholder>
+                        <columns>
+                            <TableColumn fx:id="colId" text="ID" prefWidth="50" minWidth="45" maxWidth="70"/>
+                            <TableColumn fx:id="colProducto" text="Producto" prefWidth="230"/>
+                            <TableColumn fx:id="colCodigo" text="Código de lote" prefWidth="140"/>
+                            <TableColumn fx:id="colCaducidad" text="Caducidad" prefWidth="110"/>
+                            <TableColumn fx:id="colDias" text="Días restantes" prefWidth="110"/>
+                            <TableColumn fx:id="colCantidad" text="Stock" prefWidth="80"/>
+                            <TableColumn fx:id="colEstado" text="Estado" prefWidth="110"/>
+                        </columns>
+                    </TableView>
+                    <HBox spacing="16" alignment="CENTER_LEFT">
+                        <Label text="Vencido" styleClass="hint-label">
+                            <graphic><Region styleClass="fila-peligro" prefWidth="14" prefHeight="14"/></graphic>
+                        </Label>
+                        <Label fx:id="lblLeyendaPorVencer" text="Por vencer" styleClass="hint-label">
+                            <graphic><Region styleClass="fila-advertencia" prefWidth="14" prefHeight="14"/></graphic>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblTotal" styleClass="hint-label"/>
+                    </HBox>
+                </VBox>
+            </HBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

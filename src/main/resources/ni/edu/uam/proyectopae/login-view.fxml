@@ -1,14 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="ni.edu.uam.proyectopae.controllers.LoginController"
-            prefHeight="400.0" prefWidth="600.0">
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ni.edu.uam.proyectopae.controllers.LoginController" styleClass="pae-ui" fitToWidth="true" fitToHeight="true">
+    <HBox minWidth="760" minHeight="530">
+        <!-- Panel Izquierdo: Branding y Decoración Gráfica -->
+        <StackPane styleClass="panel-acceso" prefWidth="536" minWidth="310" HBox.hgrow="ALWAYS">
+            <Pane styleClass="decoracion-acceso" minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity"/>
+            <BorderPane pickOnBounds="false">
+                <padding><Insets top="44" right="30" bottom="36" left="44"/></padding>
+                <top>
+                    <HBox alignment="CENTER_LEFT" spacing="11">
+                        <StackPane styleClass="marca-clara" minWidth="38" minHeight="38" maxWidth="38" maxHeight="38"/>
+                        <Label text="ProyectoPAE" styleClass="marca-invertida"/>
+                    </HBox>
+                </top>
+                <left>
+                    <VBox alignment="CENTER_LEFT" spacing="8" fillWidth="false" translateY="-40">
+                        <Label text="Tienda de&#10;maquillaje" styleClass="titulo-marca-acceso" wrapText="true" maxWidth="385"/>
+                        <Label text="Ventas, inventario y citas en un solo lugar." styleClass="bienvenida-subtitulo" wrapText="true" maxWidth="320"/>
+                    </VBox>
+                </left>
+                <bottom>
+                    <Label text="Universidad Americana · Proyecto PAE · 2026" styleClass="bienvenida-meta"/>
+                </bottom>
+            </BorderPane>
+        </StackPane>
 
-</AnchorPane>
+        <!-- Panel Derecho: Formulario de Acceso y Selector de Tema -->
+        <BorderPane prefWidth="744" minWidth="450" styleClass="pae-ui" HBox.hgrow="ALWAYS">
+            <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+
+            <!-- Botón de Modo Oscuro en la esquina superior derecha -->
+            <top>
+                <HBox alignment="TOP_RIGHT">
+                    <Button fx:id="btnTema" onAction="#handleAlternarTema" styleClass="btn-tema"/>
+                </HBox>
+            </top>
+
+            <center>
+                <VBox styleClass="login-card" spacing="16" prefWidth="440" maxWidth="440" maxHeight="-Infinity" alignment="CENTER_LEFT">
+                    <StackPane styleClass="chip-lila" minWidth="42" minHeight="42" maxWidth="42" maxHeight="42">
+                        <FontIcon iconLiteral="fas-key" iconSize="17"/>
+                    </StackPane>
+                    <VBox spacing="4">
+                        <Label text="Iniciar sesión" styleClass="login-title"/>
+                        <Label text="Ingresa tus credenciales para acceder al sistema." styleClass="hint-label" wrapText="true"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <Label text="Usuario" styleClass="form-label"/>
+                        <TextField fx:id="txtUsuario" accessibleText="Usuario" promptText="Nombre de usuario" onAction="#handleLogin"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <Label text="Contraseña" styleClass="form-label"/>
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <StackPane HBox.hgrow="ALWAYS">
+                                <PasswordField fx:id="txtPassword" accessibleText="Contraseña" promptText="Tu contraseña" onAction="#handleLogin"/>
+                                <TextField fx:id="txtPasswordVisible" accessibleText="Contraseña visible" promptText="Tu contraseña"
+                                           visible="false" managed="false" onAction="#handleLogin"/>
+                            </StackPane>
+                            <Button fx:id="btnVerClave" onAction="#alternarVisibilidadClave" styleClass="btn-secondary" accessibleText="Mostrar contraseña">
+                                <graphic><FontIcon fx:id="iconoClave" iconLiteral="far-eye" iconSize="16"/></graphic>
+                                <tooltip><Tooltip text="Mostrar contraseña"/></tooltip>
+                            </Button>
+                        </HBox>
+                    </VBox>
+
+                    <Button text="Iniciar sesión" onAction="#handleLogin" defaultButton="true"
+                            maxWidth="Infinity" styleClass="btn-primary">
+                        <graphic><FontIcon iconLiteral="fas-sign-in-alt" iconSize="14"/></graphic>
+                    </Button>
+
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <FontIcon iconLiteral="fas-info-circle" iconSize="13"/>
+                        <Label text="Usuario demo: admin · Clave: admin123" styleClass="hint-label"/>
+                    </HBox>
+
+                    <Label fx:id="lblMensaje" wrapText="true" styleClass="login-error"/>
+                </VBox>
+            </center>
+        </BorderPane>
+    </HBox>
+</ScrollPane>

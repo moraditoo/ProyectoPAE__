@@ -9,6 +9,9 @@ import java.util.List;
 @Table(name = "lotes")
 public class Lote {
 
+    /** Dias de anticipacion con los que un lote se considera "por vencer". */
+    public static final int DIAS_ALERTA_VENCIMIENTO = 30;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_lote")
@@ -42,29 +45,85 @@ public class Lote {
         this.producto = producto;
     }
 
-    public Integer getIdLote() { return idLote; }
-    public void setIdLote(Integer idLote) { this.idLote = idLote; }
+    public Integer getIdLote() {
+        return idLote;
+    }
 
-    public String getCodigoLote() { return codigoLote; }
-    public void setCodigoLote(String codigoLote) { this.codigoLote = codigoLote; }
+    public void setIdLote(Integer idLote) {
+        this.idLote = idLote;
+    }
 
-    public LocalDate getFechaIngreso() { return fechaIngreso; }
-    public void setFechaIngreso(LocalDate fechaIngreso) { this.fechaIngreso = fechaIngreso; }
+    public String getCodigoLote() {
+        return codigoLote;
+    }
 
-    public LocalDate getFechaCaducidad() { return fechaCaducidad; }
-    public void setFechaCaducidad(LocalDate fechaCaducidad) { this.fechaCaducidad = fechaCaducidad; }
+    public void setCodigoLote(String codigoLote) {
+        this.codigoLote = codigoLote;
+    }
 
-    public Integer getCantidadDisponible() { return cantidadDisponible; }
-    public void setCantidadDisponible(Integer cantidadDisponible) { this.cantidadDisponible = cantidadDisponible; }
+    public LocalDate getFechaIngreso() {
+        return fechaIngreso;
+    }
 
-    public Producto getProducto() { return producto; }
-    public void setProducto(Producto producto) { this.producto = producto; }
+    public void setFechaIngreso(LocalDate fechaIngreso) {
+        this.fechaIngreso = fechaIngreso;
+    }
 
-    public List<ConsumoInsumo> getConsumos() { return consumos; }
-    public void setConsumos(List<ConsumoInsumo> consumos) { this.consumos = consumos; }
+    public LocalDate getFechaCaducidad() {
+        return fechaCaducidad;
+    }
+
+    public void setFechaCaducidad(LocalDate fechaCaducidad) {
+        this.fechaCaducidad = fechaCaducidad;
+    }
+
+    public Integer getCantidadDisponible() {
+        return cantidadDisponible;
+    }
+
+    public void setCantidadDisponible(Integer cantidadDisponible) {
+        this.cantidadDisponible = cantidadDisponible;
+    }
+
+    public Producto getProducto() {
+        return producto;
+    }
+
+    public void setProducto(Producto producto) {
+        this.producto = producto;
+    }
+
+    public List<ConsumoInsumo> getConsumos() {
+        return consumos;
+    }
+
+    public void setConsumos(List<ConsumoInsumo> consumos) {
+        this.consumos = consumos;
+    }
 
     public String getNombreProducto() {
         return producto != null ? producto.getNombreProducto() : "";
+    }
+
+    /** Dias que faltan para la caducidad (negativo si ya vencio). */
+    public long getDiasParaVencer() {
+        if (fechaCaducidad == null) return 0;
+        return java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), fechaCaducidad);
+    }
+
+    public boolean isVencido() {
+        return fechaCaducidad != null && fechaCaducidad.isBefore(LocalDate.now());
+    }
+
+    public boolean isPorVencer() {
+        long dias = getDiasParaVencer();
+        return !isVencido() && dias <= DIAS_ALERTA_VENCIMIENTO;
+    }
+
+    public String getEstadoCaducidad() {
+        if (isVencido()) return "VENCIDO";
+        if (isPorVencer()) return "POR VENCER";
+        return "VIGENTE";
     }
 
     @Override

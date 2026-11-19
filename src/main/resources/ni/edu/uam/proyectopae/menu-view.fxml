@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ni.edu.uam.proyectopae.controllers.MenuController" styleClass="pae-ui">
+    <top>
+        <HBox styleClass="barra-aplicacion" spacing="20">
+            <HBox spacing="11" alignment="CENTER_LEFT">
+                <StackPane styleClass="marca" minWidth="38" minHeight="38" maxWidth="38" maxHeight="38"/>
+                <Label text="ProyectoPAE" styleClass="marca-texto"/>
+            </HBox>
+            <Region styleClass="separador" minWidth="1" maxWidth="1" minHeight="23" maxHeight="23"/>
+            <Label text="Menú principal" styleClass="barra-seccion"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <HBox spacing="14" alignment="CENTER_RIGHT">
+                <Button fx:id="btnTema" onAction="#handleAlternarTema" styleClass="btn-tema"/>
+                <Region styleClass="separador" minWidth="1" maxWidth="1" minHeight="23" maxHeight="23"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <StackPane styleClass="avatar" minWidth="34" minHeight="34" maxWidth="34" maxHeight="34">
+                        <Label fx:id="lblIniciales" styleClass="modo-label"/>
+                    </StackPane>
+                    <Label fx:id="lblUsuario" styleClass="usuario-menu"/>
+                </HBox>
+            </HBox>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true">
+            <VBox styleClass="content-area" spacing="22" maxWidth="Infinity">
+
+                <StackPane styleClass="bienvenida" minHeight="142">
+                    <Pane styleClass="decoracion-menu" minWidth="0" minHeight="0"/>
+                    <VBox spacing="5" alignment="CENTER_LEFT">
+                        <padding><Insets top="18" right="30" bottom="18" left="28"/></padding>
+                        <Label fx:id="lblFecha" styleClass="bienvenida-meta"/>
+                        <Label fx:id="lblBienvenida" styleClass="bienvenida-titulo"/>
+                        <Label text="Ventas, inventario y servicios de belleza." styleClass="bienvenida-subtitulo"/>
+                    </VBox>
+                </StackPane>
+
+                <HBox spacing="14" alignment="CENTER_LEFT">
+                    <HBox styleClass="mini-kpi" spacing="10" alignment="CENTER_LEFT" prefWidth="180" HBox.hgrow="ALWAYS">
+                        <StackPane styleClass="chip-verde" minWidth="32" minHeight="32">
+                            <FontIcon iconLiteral="fas-cash-register" iconSize="15"/>
+                        </StackPane>
+                        <VBox spacing="1">
+                            <Label text="Ventas hoy" styleClass="kpi-titulo-mini"/>
+                            <Label fx:id="lblKpiVentasHoy" text="Cargando..." styleClass="kpi-valor-mini"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox styleClass="mini-kpi" spacing="10" alignment="CENTER_LEFT" prefWidth="180" HBox.hgrow="ALWAYS">
+                        <StackPane styleClass="chip-turquesa" minWidth="32" minHeight="32">
+                            <FontIcon iconLiteral="fas-box-open" iconSize="15"/>
+                        </StackPane>
+                        <VBox spacing="1">
+                            <Label text="En catálogo" styleClass="kpi-titulo-mini"/>
+                            <Label fx:id="lblKpiProductos" text="Cargando..." styleClass="kpi-valor-mini"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox styleClass="mini-kpi" spacing="10" alignment="CENTER_LEFT" prefWidth="180" HBox.hgrow="ALWAYS">
+                        <StackPane styleClass="chip-rosa" minWidth="32" minHeight="32">
+                            <FontIcon iconLiteral="fas-users" iconSize="15"/>
+                        </StackPane>
+                        <VBox spacing="1">
+                            <Label text="Clientes" styleClass="kpi-titulo-mini"/>
+                            <Label fx:id="lblKpiClientes" text="Cargando..." styleClass="kpi-valor-mini"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox styleClass="mini-kpi" spacing="10" alignment="CENTER_LEFT" prefWidth="180" HBox.hgrow="ALWAYS">
+                        <StackPane styleClass="chip-ambar" minWidth="32" minHeight="32">
+                            <FontIcon iconLiteral="far-calendar-alt" iconSize="15"/>
+                        </StackPane>
+                        <VBox spacing="1">
+                            <Label text="Citas registradas" styleClass="kpi-titulo-mini"/>
+                            <Label fx:id="lblKpiCitas" text="Cargando..." styleClass="kpi-valor-mini"/>
+                        </VBox>
+                    </HBox>
+                </HBox>
+
+                <!-- Barra de Acciones Rápidas -->
+                <FlowPane hgap="10" vgap="6" alignment="CENTER_LEFT">
+                    <Label text="Acciones rápidas" styleClass="form-label">
+                        <graphic><FontIcon iconLiteral="fas-bolt" iconSize="15"/></graphic>
+                    </Label>
+                    <Button text="Nueva venta" onAction="#abrirVentas" styleClass="quick-action-btn">
+                        <graphic><FontIcon iconLiteral="fas-cart-plus" iconSize="14"/></graphic>
+                    </Button>
+                    <Button text="Nuevo cliente" onAction="#abrirClientes" styleClass="quick-action-btn">
+                        <graphic><FontIcon iconLiteral="fas-user-plus" iconSize="14"/></graphic>
+                    </Button>
+                    <Button text="Agendar cita" onAction="#abrirAgenda" styleClass="quick-action-btn">
+                        <graphic><FontIcon iconLiteral="far-calendar-plus" iconSize="14"/></graphic>
+                    </Button>
+                    <Button text="Reportes" onAction="#abrirReportes" styleClass="quick-action-btn">
+                        <graphic><FontIcon iconLiteral="far-file-alt" iconSize="14"/></graphic>
+                    </Button>
+                    <Button text="Actualizar métricas" onAction="#refrescarMetricas" styleClass="btn-ghost">
+                        <graphic><FontIcon iconLiteral="fas-sync-alt" iconSize="13"/></graphic>
+                    </Button>
+                </FlowPane>
+
+                <!-- Alerta de inventario destacada -->
+                <HBox fx:id="alertaInventario" styleClass="alerta-menu" spacing="14" alignment="CENTER_LEFT" visible="false" managed="false">
+                    <FontIcon iconLiteral="fas-exclamation-triangle" iconSize="22"/>
+                    <VBox spacing="3" HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblBadgeInventario" styleClass="alerta-titulo"/>
+                        <Label fx:id="lblDetalleInventario" styleClass="alerta-texto" wrapText="true"/>
+                    </VBox>
+                    <Button text="Revisar en Dashboard" onAction="#abrirDashboardInventario" styleClass="btn-secondary">
+                        <graphic><FontIcon iconLiteral="fas-arrow-right" iconSize="13"/></graphic>
+                    </Button>
+                </HBox>
+
+                <!-- Grilla de Módulos del Sistema -->
+                <VBox spacing="12">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Módulos" styleClass="card-title"/>
+
+                    </HBox>
+
+                    <GridPane hgap="16" vgap="16">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
+                            <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
+                            <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
+                            <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
+                        </columnConstraints>
+
+                        <!-- Tarjeta 1: Dashboard -->
+                        <Button accessibleText="Dashboard" onAction="#abrirDashboardInventario" styleClass="tarjeta-menu"
+                                contentDisplay="GRAPHIC_ONLY" maxWidth="Infinity" minHeight="115" prefHeight="115"
+                                GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <graphic>
+                                <VBox spacing="4">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <StackPane styleClass="chip-lila" minWidth="36" minHeight="36">
+                                            <FontIcon iconLiteral="fas-th-large" iconSize="17"/>
+                                        </StackPane>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
+                                    </HBox>
+                                    <Label text="Dashboard" styleClass="menu-card-title"/>
+                                    <Label text="Alertas, métricas y estado del stock" styleClass="menu-card-subtitle" wrapText="true"/>
+                                </VBox>
+                            </graphic>
+                        </Button>
+
+                        <!-- Tarjeta 2: Ventas -->
+                        <Button accessibleText="Ventas" onAction="#abrirVentas" styleClass="tarjeta-menu"
+                                contentDisplay="GRAPHIC_ONLY" maxWidth="Infinity" minHeight="115" prefHeight="115"
+                                GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <graphic>
+                                <VBox spacing="4">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <StackPane styleClass="chip-verde" minWidth="36" minHeight="36">
+                                            <FontIcon iconLiteral="fas-shopping-bag" iconSize="17"/>
+                                        </StackPane>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
+                                    </HBox>
+                                    <Label text="Ventas" styleClass="menu-card-title"/>
+                                    <Label text="Caja, carrito y descuento FEFO" styleClass="menu-card-subtitle" wrapText="true"/>
+                                </VBox>
+                            </graphic>
+                        </Button>
+
+                        <!-- Tarjeta 3: Clientes -->
+                        <Button accessibleText="Clientes" onAction="#abrirClientes" styleClass="tarjeta-menu"
+                                contentDisplay="GRAPHIC_ONLY" maxWidth="Infinity" minHeight="115" prefHeight="115"
+                                GridPane.columnIndex="2" GridPane.rowIndex="0">
+                            <graphic>
+                                <VBox spacing="4">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <StackPane styleClass="chip-rosa" minWidth="36" minHeight="36">
+                                            <FontIcon iconLiteral="fas-users" iconSize="17"/>
+                                        </StackPane>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
+                                    </HBox>
+                                    <Label text="Clientes" styleClass="menu-card-title"/>
+                                    <Label text="Directorio y fichas de contacto" styleClass="menu-card-subtitle" wrapText="true"/>
+                                </VBox>
+                            </graphic>
+                        </Button>
+
+                        <!-- Tarjeta 4: Productos -->
+                        <Button accessibleText="Productos" onAction="#abrirProductos" styleClass="tarjeta-menu"
+                                contentDisplay="GRAPHIC_ONLY" maxWidth="Infinity" minHeight="115" prefHeight="115"
+                                GridPane.columnIndex="3" GridPane.rowIndex="0">
+                            <graphic>
+                                <VBox spacing="4">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <StackPane styleClass="chip-turquesa" minWidth="36" minHeight="36">
+                                            <FontIcon iconLiteral="fas-box-open" iconSize="17"/>
+                                        </StackPane>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
+                                    </HBox>
+                                    <Label text="Productos" styleClass="menu-card-title"/>
+                                    <Label text="Catálogo, marcas y precios" styleClass="menu-card-subtitle" wrapText="true"/>
+                                </VBox>
+                            </graphic>
+                        </Button>
+
+                        <!-- Tarjeta 5: Lotes -->
+                        <Button accessibleText="Lotes" onAction="#abrirLotes" styleClass="tarjeta-menu"
+                                contentDisplay="GRAPHIC_ONLY" maxWidth="Infinity" minHeight="115" prefHeight="115"
+                                GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <graphic>
+                                <VBox spacing="4">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <StackPane styleClass="chip-ambar" minWidth="36" minHeight="36">
+                                            <FontIcon iconLiteral="far-clock" iconSize="17"/>
+                                        </StackPane>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
+                                    </HBox>
+                                    <Label text="Lotes" styleClass="menu-card-title"/>
+                                    <Label text="Existencias y fechas de caducidad" styleClass="menu-card-subtitle" wrapText="true"/>
+                                </VBox>
+                            </graphic>
+                        </Button>
+
+                        <!-- Tarjeta 6: Agenda -->
+                        <Button accessibleText="Agenda de citas" onAction="#abrirAgenda" styleClass="tarjeta-menu"
+                                contentDisplay="GRAPHIC_ONLY" maxWidth="Infinity" minHeight="115" prefHeight="115"
+                                GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <graphic>
+                                <VBox spacing="4">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <StackPane styleClass="chip-rosa" minWidth="36" minHeight="36">
+                                            <FontIcon iconLiteral="far-calendar-alt" iconSize="17"/>
+                                        </StackPane>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
+                                    </HBox>
+                                    <Label text="Agenda de citas" styleClass="menu-card-title"/>
+                                    <Label text="Servicios y citas de maquillaje" styleClass="menu-card-subtitle" wrapText="true"/>
+                                </VBox>
+                            </graphic>
+                        </Button>
+
+                        <!-- Tarjeta 7: Reportes -->
+                        <Button accessibleText="Reportes" onAction="#abrirReportes" styleClass="tarjeta-menu"
+                                contentDisplay="GRAPHIC_ONLY" maxWidth="Infinity" minHeight="115" prefHeight="115"
+                                GridPane.columnIndex="2" GridPane.rowIndex="1">
+                            <graphic>
+                                <VBox spacing="4">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <StackPane styleClass="chip-lila" minWidth="36" minHeight="36">
+                                            <FontIcon iconLiteral="far-file-alt" iconSize="17"/>
+                                        </StackPane>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
+                                    </HBox>
+                                    <Label text="Reportes" styleClass="menu-card-title"/>
+                                    <Label text="Filtros y exportación a CSV" styleClass="menu-card-subtitle" wrapText="true"/>
+                                </VBox>
+                            </graphic>
+                        </Button>
+                    </GridPane>
+                </VBox>
+
+                <!-- Pie de página -->
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <Label text="Proyecto PAE · Universidad Americana" styleClass="hint-label"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Cerrar sesión" onAction="#cerrarSesion" styleClass="btn-secondary">
+                        <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="15"/></graphic>
+                    </Button>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

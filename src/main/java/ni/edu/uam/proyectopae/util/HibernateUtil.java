@@ -4,21 +4,22 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 public class HibernateUtil {
-    private HibernateUtil() {}
+    private static final SessionFactory sessionFactory = buildSessionFactory();
 
-    private static class Holder {
-        private static final SessionFactory SESSION_FACTORY = new Configuration()
-                .configure()
-                .setProperty("hibernate.connection.url", System.getProperty(
-                        "proyectopae.jdbc.url", "jdbc:h2:./data/proyectopae"))
-                .buildSessionFactory();
+    private static SessionFactory buildSessionFactory() {
+        try {
+            return new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+        } catch (Throwable ex) {
+            System.err.println("Error critico al inicializar SessionFactory: " + ex.getMessage());
+            throw new ExceptionInInitializerError(ex);
+        }
     }
 
     public static SessionFactory getSessionFactory() {
-        return Holder.SESSION_FACTORY;
+        return sessionFactory;
     }
 
     public static void shutdown() {
-        if (!Holder.SESSION_FACTORY.isClosed()) Holder.SESSION_FACTORY.close();
+        getSessionFactory().close();
     }
 }

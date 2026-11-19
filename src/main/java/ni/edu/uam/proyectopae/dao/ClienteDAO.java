@@ -1,4 +1,80 @@
 package ni.edu.uam.proyectopae.dao;
 
+import ni.edu.uam.proyectopae.models.Cliente;
+import ni.edu.uam.proyectopae.util.HibernateUtil;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+import java.util.List;
+
 public class ClienteDAO {
+
+    public void guardar(Cliente cliente) {
+        Transaction tx = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            session.persist(cliente);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            throw e;
+        }
+    }
+
+    public void actualizar(Cliente cliente) {
+        Transaction tx = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            session.merge(cliente);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            throw e;
+        }
+    }
+
+    public void eliminar(Integer idCliente) {
+        Transaction tx = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            Cliente c = session.get(Cliente.class, idCliente);
+            if (c != null) session.remove(c);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            throw e;
+        }
+    }
+
+    public List<Cliente> listarTodos() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM Cliente ORDER BY nombres ASC", Cliente.class).list();
+        }
+    }
+
+    public List<Cliente> buscarPorFiltro(String criterio) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery(
+                    "FROM Cliente c WHERE LOWER(c.nombres) LIKE :crit " +
+                            "OR LOWER(c.apellidos) LIKE :crit " +
+                            "OR c.telefono LIKE :crit " +
+                            "OR LOWER(c.correo) LIKE :crit ORDER BY c.nombres ASC",
+                    Cliente.class
+            ).setParameter("crit", "%" + criterio.toLowerCase().trim() + "%").list();
+        }
+    }
+
+    /** Verifica que el correo no este registrado por otro cliente (idExcluir = cliente en edicion). */
+    public boolean existeCorreo(String correo, Integer idExcluir) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Long total = session.createQuery(
+                            "SELECT COUNT(c) FROM Cliente c WHERE LOWER(c.correo) = :correo " +
+                                    "AND c.idCliente <> :idExcluir",
+                            Long.class
+                    ).setParameter("correo", correo.toLowerCase().trim())
+                    .setParameter("idExcluir", idExcluir == null ? -1 : idExcluir)
+                    .uniqueResult();
+            return total != null && total > 0;
+        }
+    }
 }
