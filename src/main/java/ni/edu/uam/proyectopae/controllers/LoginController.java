@@ -26,6 +26,10 @@ public class LoginController {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
+    private static String valorOPorDefecto(String valor, String porDefecto) {
+        return valor == null || valor.isBlank() ? porDefecto : valor;
+    }
+
     @FXML
     public void initialize() {
         txtPasswordVisible.textProperty()
@@ -39,22 +43,11 @@ public class LoginController {
 
         try {
             if (usuarioDAO.listarTodos().isEmpty()) {
-                String usuarioInicial =
-                        System.getenv("PAE_ADMIN_USER");
+                String usuarioInicial = valorOPorDefecto(
+                        System.getenv("PAE_ADMIN_USER"), "admin");
 
-                String claveInicial =
-                        System.getenv("PAE_ADMIN_PASSWORD");
-
-                if (usuarioInicial == null
-                        || usuarioInicial.isBlank()
-                        || claveInicial == null
-                        || claveInicial.isBlank()) {
-
-                    throw new IllegalStateException(
-                            "La primera ejecución requiere "
-                                    + "PAE_ADMIN_USER y PAE_ADMIN_PASSWORD."
-                    );
-                }
+                String claveInicial = valorOPorDefecto(
+                        System.getenv("PAE_ADMIN_PASSWORD"), "admin123");
 
                 usuarioDAO.guardar(
                         new Usuario(

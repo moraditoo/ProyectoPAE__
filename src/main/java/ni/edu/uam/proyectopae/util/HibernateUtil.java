@@ -16,20 +16,14 @@ public final class HibernateUtil {
             Configuration configuracion = new Configuration()
                     .configure("hibernate.cfg.xml");
 
-            configuracion.setProperty(
-                    "hibernate.connection.url",
-                    variableObligatoria("PAE_DB_URL")
-            );
+            sobrescribirSiExiste(configuracion,
+                    "hibernate.connection.url", "PAE_DB_URL");
 
-            configuracion.setProperty(
-                    "hibernate.connection.username",
-                    variableObligatoria("PAE_DB_USER")
-            );
+            sobrescribirSiExiste(configuracion,
+                    "hibernate.connection.username", "PAE_DB_USER");
 
-            configuracion.setProperty(
-                    "hibernate.connection.password",
-                    variableObligatoria("PAE_DB_PASSWORD")
-            );
+            sobrescribirSiExiste(configuracion,
+                    "hibernate.connection.password", "PAE_DB_PASSWORD");
 
             return configuracion.buildSessionFactory();
 
@@ -38,16 +32,13 @@ public final class HibernateUtil {
         }
     }
 
-    private static String variableObligatoria(String nombre) {
-        String valor = System.getenv(nombre);
-
-        if (valor == null || valor.isBlank()) {
-            throw new IllegalStateException(
-                    "Falta configurar la variable " + nombre
-            );
+    /** Usa la variable de entorno si existe; si no, conserva el valor de hibernate.cfg.xml. */
+    private static void sobrescribirSiExiste(Configuration configuracion,
+                                             String propiedad, String variable) {
+        String valor = System.getenv(variable);
+        if (valor != null && !valor.isBlank()) {
+            configuracion.setProperty(propiedad, valor);
         }
-
-        return valor;
     }
 
     public static SessionFactory getSessionFactory() {
