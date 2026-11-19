@@ -2,6 +2,7 @@ package ni.edu.uam.proyectopae.dao;
 
 import ni.edu.uam.proyectopae.models.Categoria;
 import ni.edu.uam.proyectopae.util.HibernateUtil;
+import ni.edu.uam.proyectopae.util.Transacciones;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -10,15 +11,7 @@ import java.util.List;
 public class CategoriaDAO {
 
     public void guardar(Categoria categoria) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            session.persist(categoria);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        Transacciones.escribir(session -> session.persist(categoria));
     }
 
     public List<Categoria> listarTodas() {

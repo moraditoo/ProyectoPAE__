@@ -2,6 +2,7 @@ package ni.edu.uam.proyectopae.dao;
 
 import ni.edu.uam.proyectopae.models.Usuario;
 import ni.edu.uam.proyectopae.util.HibernateUtil;
+import ni.edu.uam.proyectopae.util.Transacciones;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -11,15 +12,7 @@ import java.util.List;
 public class UsuarioDAO {
 
     public void guardar(Usuario usuario) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            session.persist(usuario);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        Transacciones.escribir(session -> session.persist(usuario));
     }
 
     public Usuario autenticar(String username, String password) {
