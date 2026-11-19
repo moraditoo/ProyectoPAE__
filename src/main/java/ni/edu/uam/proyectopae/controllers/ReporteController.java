@@ -61,6 +61,11 @@ public class ReporteController {
     @FXML private Label lblEstado;
     @FXML private Button btnExportar;
 
+    @FXML private Label lblTotalCitas;
+    @FXML private Label lblCitasProgramadas;
+    @FXML private Label lblCitasCompletadas;
+    @FXML private Label lblCitasCanceladas;
+
     private final ReporteDAO reporteDAO = new ReporteDAO();
     private final ServicioDAO servicioDAO = new ServicioDAO();
     private final Servicio todosLosServicios = new Servicio();
@@ -140,6 +145,16 @@ public class ReporteController {
         ejecutar(() -> reporteDAO.buscarCitas(desde, hasta, idServicio), citas -> {
             tabla.getItems().setAll(citas);
             tabla.sort();
+
+            long prog = citas.stream().filter(c -> "PROGRAMADA".equalsIgnoreCase(c.getEstado())).count();
+            long comp = citas.stream().filter(c -> "COMPLETADA".equalsIgnoreCase(c.getEstado())).count();
+            long canc = citas.stream().filter(c -> "CANCELADA".equalsIgnoreCase(c.getEstado())).count();
+
+            if (lblTotalCitas != null) lblTotalCitas.setText(citas.size() + " citas");
+            if (lblCitasProgramadas != null) lblCitasProgramadas.setText(prog + " programadas");
+            if (lblCitasCompletadas != null) lblCitasCompletadas.setText(comp + " completadas");
+            if (lblCitasCanceladas != null) lblCitasCanceladas.setText(canc + " canceladas");
+
             lblEstado.setText(citas.isEmpty()
                     ? "No se encontraron citas con esos filtros."
                     : "Citas en la vista previa: " + citas.size());
@@ -156,6 +171,10 @@ public class ReporteController {
 
     private void invalidarVistaPrevia() {
         tabla.getItems().clear();
+        if (lblTotalCitas != null) lblTotalCitas.setText("0 citas");
+        if (lblCitasProgramadas != null) lblCitasProgramadas.setText("0 programadas");
+        if (lblCitasCompletadas != null) lblCitasCompletadas.setText("0 completadas");
+        if (lblCitasCanceladas != null) lblCitasCanceladas.setText("0 canceladas");
         lblEstado.setText("Pulsa Generar reporte para actualizar la vista previa.");
     }
 

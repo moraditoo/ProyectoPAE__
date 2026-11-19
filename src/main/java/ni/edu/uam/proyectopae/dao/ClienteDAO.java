@@ -4,46 +4,28 @@ import ni.edu.uam.proyectopae.models.Cliente;
 import ni.edu.uam.proyectopae.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import ni.edu.uam.proyectopae.util.Transacciones;
 
 import java.util.List;
 
 public class ClienteDAO {
 
     public void guardar(Cliente cliente) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            session.persist(cliente);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        Transacciones.escribir(session -> session.persist(cliente));
     }
 
     public void actualizar(Cliente cliente) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            session.merge(cliente);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        Transacciones.escribir(session -> session.merge(cliente));
     }
 
     public void eliminar(Integer idCliente) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            Cliente c = session.get(Cliente.class, idCliente);
-            if (c != null) session.remove(c);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        Transacciones.escribir(session -> {
+            Cliente cliente = session.get(Cliente.class, idCliente);
+
+            if (cliente != null) {
+                session.remove(cliente);
+            }
+        });
     }
 
     public List<Cliente> listarTodos() {

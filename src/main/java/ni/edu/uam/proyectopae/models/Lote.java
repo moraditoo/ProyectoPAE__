@@ -33,7 +33,7 @@ public class Lote {
     @JoinColumn(name = "id_producto", nullable = false)
     private Producto producto;
 
-    @OneToMany(mappedBy = "lote", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "lote", fetch = FetchType.LAZY)
     private List<ConsumoInsumo> consumos = new ArrayList<>();
 
     public Lote() {}

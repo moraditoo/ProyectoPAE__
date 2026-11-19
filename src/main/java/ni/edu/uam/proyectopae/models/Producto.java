@@ -36,7 +36,7 @@ public class Producto {
     @JoinColumn(name = "id_marca", nullable = false)
     private Marca marca;
 
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY)
     private List<Lote> lotes = new ArrayList<>();
 
     // Existencias vigentes (lotes no vencidos). Se calcula en ProductoDAO, no se guarda en la BD.

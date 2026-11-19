@@ -32,7 +32,7 @@ public class Cliente {
     @Column(name = "alergias_piel", columnDefinition = "TEXT")
     private String alergiasPiel;
 
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY)
     private List<Cita> citas = new ArrayList<>();
 
     public Cliente() {}

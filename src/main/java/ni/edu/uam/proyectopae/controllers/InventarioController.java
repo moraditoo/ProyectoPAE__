@@ -206,8 +206,8 @@ public class InventarioController implements Refrescable {
         String margen = venta.signum() == 0 ? "0" :
                 ganancia.multiply(BigDecimal.valueOf(100)).divide(venta, 1, RoundingMode.HALF_UP).toPlainString();
         lblGanancia.setText("Ganancia por unidad: " + Formato.moneda(ganancia) + "  (" + margen + " %)");
-        lblGanancia.setStyle(ganancia.signum() < 0 ? "-fx-text-fill: #dc2626; -fx-font-weight: bold;"
-                : "-fx-text-fill: #059669; -fx-font-weight: bold;");
+        lblGanancia.setStyle(ganancia.signum() < 0 ? "-fx-text-fill: -pae-negativo; -fx-font-weight: bold;"
+                : "-fx-text-fill: -pae-positivo; -fx-font-weight: bold;");
     }
 
     /** Un solo boton: registra si es nuevo o actualiza el producto seleccionado. */

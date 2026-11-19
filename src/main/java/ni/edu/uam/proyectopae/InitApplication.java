@@ -1,7 +1,6 @@
 package ni.edu.uam.proyectopae;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import ni.edu.uam.proyectopae.util.HibernateUtil;
 import ni.edu.uam.proyectopae.util.VentanaManager;
@@ -13,10 +12,8 @@ public class InitApplication extends Application {
     public void start(Stage stage) throws IOException {
         VentanaManager.setPrincipal(stage);
 
-        FXMLLoader fxmlLoader = VentanaManager.loader("login-view.fxml");
-        stage.setScene(VentanaManager.crearEscena(fxmlLoader.load(), 440, 560));
-        stage.setTitle("Control de Acceso - Tienda de Maquillaje");
-        stage.getIcons().add(VentanaManager.iconoVentana("fas-spa", "#7c3aed"));
+        VentanaManager.mostrarAcceso(stage);
+        stage.getIcons().add(VentanaManager.iconoVentana("fas-spa", "#5B2D62"));
         stage.show();
     }
 

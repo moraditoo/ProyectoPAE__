@@ -4,6 +4,7 @@ import ni.edu.uam.proyectopae.models.DetalleVenta;
 import ni.edu.uam.proyectopae.models.Lote;
 import ni.edu.uam.proyectopae.models.Venta;
 import ni.edu.uam.proyectopae.util.HibernateUtil;
+import ni.edu.uam.proyectopae.util.Transacciones;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -18,41 +19,67 @@ public class VentaDAO {
      * Todo ocurre en una sola transaccion: si falta stock no se guarda nada.
      */
     public void registrar(Venta venta) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
+        if (venta.getDetalles().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Agrega al menos un producto a la venta."
+            );
+        }
 
-            for (DetalleVenta d : venta.getDetalles()) {
-                int pendiente = d.getCantidad();
-                List<Lote> lotes = session.createQuery(
-                                "SELECT l FROM Lote l WHERE l.producto.idProducto = :idProd " +
-                                        "AND l.cantidadDisponible > 0 AND l.fechaCaducidad >= :hoy " +
-                                        "ORDER BY l.fechaCaducidad ASC",
-                                Lote.class
-                        ).setParameter("idProd", d.getProducto().getIdProducto())
+        Transacciones.escribir(session -> {
+            for (DetalleVenta detalle : venta.getDetalles()) {
+                if (detalle.getCantidad() == null
+                        || detalle.getCantidad() <= 0) {
+
+                    throw new IllegalArgumentException(
+                            "La cantidad debe ser mayor que cero."
+                    );
+                }
+
+                int pendiente = detalle.getCantidad();
+
+                List<Lote> lotes = session.createQuery("""
+                    SELECT l
+                    FROM Lote l
+                    WHERE l.producto.idProducto = :producto
+                      AND l.cantidadDisponible > 0
+                      AND l.fechaCaducidad >= :hoy
+                    ORDER BY l.fechaCaducidad, l.idLote
+                    """, Lote.class)
+                        .setParameter(
+                                "producto",
+                                detalle.getProducto().getIdProducto()
+                        )
                         .setParameter("hoy", LocalDate.now())
                         .list();
 
                 for (Lote lote : lotes) {
-                    if (pendiente == 0) break;
-                    int usar = Math.min(pendiente, lote.getCantidadDisponible());
-                    lote.setCantidadDisponible(lote.getCantidadDisponible() - usar);
-                    pendiente -= usar;
+                    if (pendiente == 0) {
+                        break;
+                    }
+
+                    int cantidad = Math.min(
+                            pendiente,
+                            lote.getCantidadDisponible()
+                    );
+
+                    lote.setCantidadDisponible(
+                            lote.getCantidadDisponible() - cantidad
+                    );
+
+                    pendiente -= cantidad;
                 }
 
                 if (pendiente > 0) {
-                    throw new IllegalStateException("Stock insuficiente para \"" + d.getNombreProducto()
-                            + "\" (faltan " + pendiente + " unidades en lotes vigentes).");
+                    throw new IllegalStateException(
+                            "Stock insuficiente para "
+                                    + detalle.getNombreProducto()
+                    );
                 }
             }
 
             venta.recalcularTotales();
             session.persist(venta);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        });
     }
 
     public List<Venta> listarConCliente() {

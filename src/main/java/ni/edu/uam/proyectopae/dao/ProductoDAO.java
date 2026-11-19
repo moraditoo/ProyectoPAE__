@@ -4,6 +4,7 @@ import ni.edu.uam.proyectopae.models.Producto;
 import ni.edu.uam.proyectopae.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import ni.edu.uam.proyectopae.util.Transacciones;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -13,40 +14,21 @@ import java.util.Map;
 public class ProductoDAO {
 
     public void guardar(Producto producto) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            session.persist(producto);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        Transacciones.escribir(session -> session.persist(producto));
     }
 
     public void actualizar(Producto producto) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            session.merge(producto);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        Transacciones.escribir(session -> session.merge(producto));
     }
 
     public void eliminar(Integer idProducto) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            Producto p = session.get(Producto.class, idProducto);
-            if (p != null) session.remove(p);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        Transacciones.escribir(session -> {
+            Producto producto = session.get(Producto.class, idProducto);
+
+            if (producto != null) {
+                session.remove(producto);
+            }
+        });
     }
 
     // Consulta HQL 1 Requerida: Recupera informacion relacionada entre Producto, Categoria y Marca con JOIN FETCH
