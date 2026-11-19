@@ -4,94 +4,87 @@
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane prefWidth="1200.0" prefHeight="720.0"
+<BorderPane styleClass="pae-ui" prefWidth="1200.0" prefHeight="720.0"
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ni.edu.uam.proyectopae.controllers.LotesServiciosController">
 
     <top>
-        <HBox styleClass="header-bar, bg-rosa">
-            <FontIcon iconLiteral="fas-boxes" iconSize="32"/>
-            <VBox spacing="2">
-                <Label text="Lotes y Caducidad" styleClass="header-title"/>
-                <Label text="Existencias por lote y monitoreo de fechas de vencimiento" styleClass="header-subtitle"/>
+        <HBox styleClass="encabezado-modulo" spacing="16" alignment="CENTER_LEFT">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Lotes y caducidad" styleClass="header-title"/>
+                <Label text="Controla las unidades disponibles y los vencimientos por lote." styleClass="header-subtitle" wrapText="true"/>
             </VBox>
         </HBox>
     </top>
 
     <center>
-        <HBox styleClass="content-area">
-            <!-- Formulario -->
-            <VBox styleClass="card" prefWidth="350" minWidth="320">
-                <Label text="Registro de Lote" styleClass="card-title">
-                    <graphic><FontIcon iconLiteral="fas-dolly" iconSize="18"/></graphic>
-                </Label>
-                <Label fx:id="lblModo" text="Nuevo lote" styleClass="modo-label"/>
+        <ScrollPane fitToWidth="true" fitToHeight="true">
+            <HBox styleClass="content-area" spacing="18" minWidth="826" minHeight="535" alignment="TOP_LEFT">
+                <!-- Formulario -->
+                <VBox styleClass="card" prefWidth="365" minWidth="340" spacing="8" maxHeight="-Infinity">
+                    <Label fx:id="lblModo" text="Nuevo lote" styleClass="card-title"/>
 
-                <Label text="Producto *" styleClass="form-label"/>
-                <ComboBox fx:id="cmbProducto" promptText="Seleccionar producto..." maxWidth="Infinity"/>
+                    <Label text="Producto *" styleClass="form-label"/>
+                    <ComboBox fx:id="cmbProducto" promptText="Seleccionar producto..." maxWidth="Infinity"/>
 
-                <Label text="Código de lote *" styleClass="form-label"/>
-                <TextField fx:id="txtCodigoLote" promptText="Ej: LOT-2026-A1" onKeyPressed="#handleEnterGuardar"/>
+                    <Label text="Código de lote *" styleClass="form-label"/>
+                    <TextField fx:id="txtCodigoLote" promptText="Ej: LOT-2026-A1" onKeyPressed="#handleEnterGuardar"/>
 
-                <Label text="Fecha de caducidad *" styleClass="form-label"/>
-                <DatePicker fx:id="dpFechaCaducidad" promptText="Seleccionar fecha..." maxWidth="Infinity"/>
+                    <Label text="Fecha de caducidad *" styleClass="form-label"/>
+                    <DatePicker fx:id="dpFechaCaducidad" promptText="Seleccionar fecha..." maxWidth="Infinity"/>
 
-                <Label text="Cantidad disponible *" styleClass="form-label"/>
-                <TextField fx:id="txtCantidad" promptText="Unidades (entero)" onKeyPressed="#handleEnterGuardar"/>
+                    <Label text="Cantidad disponible *" styleClass="form-label"/>
+                    <TextField fx:id="txtCantidad" promptText="Unidades (entero)" onKeyPressed="#handleEnterGuardar"/>
 
-                <Region VBox.vgrow="ALWAYS"/>
-
-                <Button fx:id="btnGuardar" text="Guardar" onAction="#handleGuardarLote"
-                        styleClass="btn-primary" maxWidth="Infinity">
-                    <graphic><FontIcon iconLiteral="fas-save" iconSize="16"/></graphic>
-                </Button>
-                <HBox spacing="10">
-                    <Button text="Nuevo" onAction="#handleLimpiar" styleClass="btn-secondary"
-                            maxWidth="Infinity" HBox.hgrow="ALWAYS">
-                        <graphic><FontIcon iconLiteral="fas-broom" iconSize="15"/></graphic>
+                    <HBox spacing="8">
+                        <Button fx:id="btnGuardar" text="Guardar" onAction="#handleGuardarLote" styleClass="btn-primary">
+                            <graphic><FontIcon iconLiteral="far-save" iconSize="14"/></graphic>
+                        </Button>
+                        <Button text="Nuevo" onAction="#handleLimpiar" styleClass="btn-secondary">
+                            <graphic><FontIcon iconLiteral="fas-plus" iconSize="14"/></graphic>
+                        </Button>
+                    </HBox>
+                    <Button text="Eliminar" onAction="#handleEliminarLote" styleClass="btn-danger">
+                        <graphic><FontIcon iconLiteral="far-trash-alt" iconSize="14"/></graphic>
                     </Button>
-                    <Button text="Eliminar" onAction="#handleEliminarLote" styleClass="btn-danger"
-                            maxWidth="Infinity" HBox.hgrow="ALWAYS">
-                        <graphic><FontIcon iconLiteral="fas-trash-alt" iconSize="15"/></graphic>
-                    </Button>
-                </HBox>
-            </VBox>
+                </VBox>
 
-            <!-- Listado -->
-            <VBox styleClass="card" HBox.hgrow="ALWAYS">
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Lotes registrados" styleClass="card-title">
-                        <graphic><FontIcon iconLiteral="fas-list" iconSize="16"/></graphic>
-                    </Label>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <FontIcon iconLiteral="fas-filter" iconSize="15"/>
-                    <ComboBox fx:id="cmbFiltro" prefWidth="190"/>
-                </HBox>
+                <!-- Listado -->
+                <VBox styleClass="card" spacing="14" HBox.hgrow="ALWAYS">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Lotes registrados" styleClass="card-title">
+                            <graphic><FontIcon iconLiteral="fas-list" iconSize="16"/></graphic>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <FontIcon iconLiteral="fas-filter" iconSize="15"/>
+                        <ComboBox fx:id="cmbFiltro" prefWidth="190"/>
+                    </HBox>
 
-                <TableView fx:id="tblLotes" VBox.vgrow="ALWAYS">
-                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
-                    <placeholder><Label text="No hay lotes registrados"/></placeholder>
-                    <columns>
-                        <TableColumn fx:id="colId" text="ID" prefWidth="50" minWidth="45" maxWidth="70"/>
-                        <TableColumn fx:id="colProducto" text="Producto" prefWidth="230"/>
-                        <TableColumn fx:id="colCodigo" text="Código de lote" prefWidth="140"/>
-                        <TableColumn fx:id="colCaducidad" text="Caducidad" prefWidth="110"/>
-                        <TableColumn fx:id="colDias" text="Días restantes" prefWidth="110"/>
-                        <TableColumn fx:id="colCantidad" text="Stock" prefWidth="80"/>
-                        <TableColumn fx:id="colEstado" text="Estado" prefWidth="110"/>
-                    </columns>
-                </TableView>
-                <HBox spacing="16" alignment="CENTER_LEFT">
-                    <Label text="Vencido" styleClass="hint-label">
-                        <graphic><Region styleClass="fila-peligro" prefWidth="14" prefHeight="14" style="-fx-border-color: #fca5a5;"/></graphic>
-                    </Label>
-                    <Label fx:id="lblLeyendaPorVencer" text="Por vencer" styleClass="hint-label">
-                        <graphic><Region styleClass="fila-advertencia" prefWidth="14" prefHeight="14" style="-fx-border-color: #fcd34d;"/></graphic>
-                    </Label>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Label fx:id="lblTotal" styleClass="hint-label"/>
-                </HBox>
-            </VBox>
-        </HBox>
+                    <TableView fx:id="tblLotes" VBox.vgrow="ALWAYS">
+                        <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+                        <placeholder><Label text="No hay lotes registrados"/></placeholder>
+                        <columns>
+                            <TableColumn fx:id="colId" text="ID" prefWidth="50" minWidth="45" maxWidth="70"/>
+                            <TableColumn fx:id="colProducto" text="Producto" prefWidth="230"/>
+                            <TableColumn fx:id="colCodigo" text="Código de lote" prefWidth="140"/>
+                            <TableColumn fx:id="colCaducidad" text="Caducidad" prefWidth="110"/>
+                            <TableColumn fx:id="colDias" text="Días restantes" prefWidth="110"/>
+                            <TableColumn fx:id="colCantidad" text="Stock" prefWidth="80"/>
+                            <TableColumn fx:id="colEstado" text="Estado" prefWidth="110"/>
+                        </columns>
+                    </TableView>
+                    <HBox spacing="16" alignment="CENTER_LEFT">
+                        <Label text="Vencido" styleClass="hint-label">
+                            <graphic><Region styleClass="fila-peligro" prefWidth="14" prefHeight="14"/></graphic>
+                        </Label>
+                        <Label fx:id="lblLeyendaPorVencer" text="Por vencer" styleClass="hint-label">
+                            <graphic><Region styleClass="fila-advertencia" prefWidth="14" prefHeight="14"/></graphic>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblTotal" styleClass="hint-label"/>
+                    </HBox>
+                </VBox>
+            </HBox>
+        </ScrollPane>
     </center>
 </BorderPane>

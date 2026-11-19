@@ -6,7 +6,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.paint.Color;
 import org.kordamp.ikonli.javafx.FontIcon;
 import ni.edu.uam.proyectopae.dao.CitaDAO;
 import ni.edu.uam.proyectopae.dao.ClienteDAO;
@@ -75,6 +74,7 @@ public class AgendaController implements Refrescable {
                 if (empty || estado == null) {
                     setText(null);
                     setGraphic(null);
+                    setStyle("");
                     return;
                 }
                 String icono = switch (estado) {
@@ -83,13 +83,13 @@ public class AgendaController implements Refrescable {
                     default -> "fas-clock";
                 };
                 String color = switch (estado) {
-                    case "COMPLETADA" -> "#059669";
-                    case "CANCELADA" -> "#dc2626";
-                    default -> "#2563eb";
+                    case "COMPLETADA" -> "-pae-positivo";
+                    case "CANCELADA" -> "-pae-negativo";
+                    default -> "-pae-info";
                 };
                 FontIcon fi = new FontIcon(icono);
                 fi.setIconSize(14);
-                fi.setIconColor(Color.web(color));
+                fi.setStyle("-fx-icon-color: " + color + ";");
                 setGraphic(fi);
                 setText(estado);
                 setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
@@ -115,10 +115,8 @@ public class AgendaController implements Refrescable {
             @Override
             public void updateItem(LocalDate date, boolean empty) {
                 super.updateItem(date, empty);
-                if (date != null && date.isBefore(LocalDate.now())) {
-                    setDisable(true);
-                    setStyle("-fx-background-color: #eeeeee; -fx-text-fill: #999999;");
-                }
+                setDisable(empty || date == null || date.isBefore(LocalDate.now()));
+                setStyle(isDisabled() ? "-fx-opacity: 0.45;" : "");
             }
         });
     }

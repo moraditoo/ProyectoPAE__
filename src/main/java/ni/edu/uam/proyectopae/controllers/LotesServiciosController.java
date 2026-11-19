@@ -83,10 +83,8 @@ public class LotesServiciosController implements Refrescable {
             @Override
             public void updateItem(LocalDate date, boolean empty) {
                 super.updateItem(date, empty);
-                if (date != null && date.isBefore(LocalDate.now())) {
-                    setDisable(true);
-                    setStyle("-fx-background-color: #f2f2f2; -fx-text-fill: #a0a0a0;");
-                }
+                setDisable(empty || date == null || date.isBefore(LocalDate.now()));
+                setStyle(isDisabled() ? "-fx-opacity: 0.45;" : "");
             }
         });
 
