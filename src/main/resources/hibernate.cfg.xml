@@ -13,6 +13,7 @@
         <property name="hibernate.show_sql">true</property>
         <property name="hibernate.format_sql">true</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.hbm2ddl.halt_on_error">true</property>
 
         <!-- Entidades Mapeadas -->
         <mapping class="ni.edu.uam.proyectopae.models.Usuario"/>

@@ -2,6 +2,7 @@ package ni.edu.uam.proyectopae.dao;
 
 import ni.edu.uam.proyectopae.models.Cita;
 import ni.edu.uam.proyectopae.util.HibernateUtil;
+import ni.edu.uam.proyectopae.util.Transacciones;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -10,15 +11,7 @@ import java.util.List;
 public class CitaDAO {
 
     public void agendar(Cita cita) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            session.persist(cita);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        Transacciones.escribir(session -> session.persist(cita));
     }
 
     public void cancelar(Integer idCita) {
@@ -31,19 +24,17 @@ public class CitaDAO {
     }
 
     private void cambiarEstado(Integer idCita, String estado) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            Cita c = session.get(Cita.class, idCita);
-            if (c != null) {
-                c.setEstado(estado);
-                session.merge(c);
+        Transacciones.escribir(session -> {
+            Cita cita = session.get(Cita.class, idCita);
+
+            if (cita == null) {
+                throw new IllegalArgumentException(
+                        "La cita no existe."
+                );
             }
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+
+            cita.setEstado(estado);
+        });
     }
 
     public List<Cita> listarCitasConRelaciones() {

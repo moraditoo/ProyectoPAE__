@@ -2,6 +2,7 @@ package ni.edu.uam.proyectopae.dao;
 
 import ni.edu.uam.proyectopae.models.Marca;
 import ni.edu.uam.proyectopae.util.HibernateUtil;
+import ni.edu.uam.proyectopae.util.Transacciones;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -10,15 +11,7 @@ import java.util.List;
 public class MarcaDAO {
 
     public void guardar(Marca marca) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            session.persist(marca);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        Transacciones.escribir(session -> session.persist(marca));
     }
 
     public List<Marca> listarTodas() {
