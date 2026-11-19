@@ -40,11 +40,36 @@ public class Venta {
         this.cliente = cliente;
     }
 
-    /** Agrega una linea y recalcula los totales. */
+    /** Agrega una linea, sincroniza ambos lados y recalcula los totales. */
     public void agregarDetalle(DetalleVenta detalle) {
+        if (detalle == null) {
+            throw new IllegalArgumentException(
+                    "El detalle es obligatorio."
+            );
+        }
+
+        if (detalle.getVenta() != null
+                && detalle.getVenta() != this) {
+
+            throw new IllegalArgumentException(
+                    "El detalle ya pertenece a otra venta."
+            );
+        }
+
+        if (!detalles.contains(detalle)) {
+            detalles.add(detalle);
+        }
+
         detalle.setVenta(this);
-        detalles.add(detalle);
         recalcularTotales();
+    }
+
+    /** Quita una linea, rompe el enlace en ambos lados y recalcula los totales. */
+    public void quitarDetalle(DetalleVenta detalle) {
+        if (detalles.remove(detalle)) {
+            detalle.setVenta(null);
+            recalcularTotales();
+        }
     }
 
     public void recalcularTotales() {
@@ -80,5 +105,18 @@ public class Venta {
     public void setCostoTotal(BigDecimal costoTotal) { this.costoTotal = costoTotal; }
 
     public List<DetalleVenta> getDetalles() { return detalles; }
-    public void setDetalles(List<DetalleVenta> detalles) { this.detalles = detalles; }
+
+    public void setDetalles(List<DetalleVenta> nuevosDetalles) {
+        List<DetalleVenta> copia = nuevosDetalles == null
+                ? List.of()
+                : new ArrayList<>(nuevosDetalles);
+
+        for (DetalleVenta detalle : new ArrayList<>(detalles)) {
+            quitarDetalle(detalle);
+        }
+
+        for (DetalleVenta detalle : copia) {
+            agregarDetalle(detalle);
+        }
+    }
 }
