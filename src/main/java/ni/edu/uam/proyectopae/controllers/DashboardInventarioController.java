@@ -15,6 +15,7 @@ import ni.edu.uam.proyectopae.dao.ProductoDAO;
 import ni.edu.uam.proyectopae.models.Lote;
 import ni.edu.uam.proyectopae.models.Producto;
 import ni.edu.uam.proyectopae.util.Alertas;
+import ni.edu.uam.proyectopae.util.Filas;
 import ni.edu.uam.proyectopae.util.Formato;
 import ni.edu.uam.proyectopae.util.Graficos;
 import ni.edu.uam.proyectopae.util.Refrescable;
@@ -28,14 +29,15 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Dashboard de inventario: lotes por vencer, lotes vencidos y productos por debajo
- * del stock minimo, con graficos y tablas resaltadas.
+ * Dashboard de inventario: lotes por vencer, lotes vencidos y productos
+ * por debajo del stock mínimo, con gráficos y tablas resaltadas.
  */
 public class DashboardInventarioController implements Refrescable {
 
     private static final int MAX_BARRAS = 10;
 
     @FXML private ComboBox<Integer> cmbDias;
+
     @FXML private Label lblKpiProductos;
     @FXML private Label lblKpiPorVencer;
     @FXML private Label lblKpiPorVencerTitulo;
@@ -66,50 +68,114 @@ public class DashboardInventarioController implements Refrescable {
 
     @FXML
     public void initialize() {
-        cmbDias.setItems(FXCollections.observableArrayList(7, 15, 30, 60, 90));
+        cmbDias.setItems(
+                FXCollections.observableArrayList(7, 15, 30, 60, 90)
+        );
+
         cmbDias.setValue(Lote.DIAS_ALERTA_VENCIMIENTO);
-        cmbDias.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(Integer d, boolean empty) {
-                super.updateItem(d, empty);
-                setText(empty || d == null ? null : d + " días");
-            }
-        });
-        cmbDias.setButtonCell(cmbDias.getCellFactory().call(null));
-        cmbDias.valueProperty().addListener((obs, a, b) -> refrescar());
 
-        colPvProducto.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getNombreProducto()));
-        colPvLote.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getCodigoLote()));
-        colPvFecha.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().getFechaCaducidad()));
-        colPvDias.setCellValueFactory(c -> new SimpleIntegerProperty((int) c.getValue().getDiasParaVencer()));
-        colPvCantidad.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getCantidadDisponible()));
-        colPvEstado.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEstadoCaducidad()));
-        Formato.columnaFecha(colPvFecha);
-        tblPorVencer.setRowFactory(tv -> new TableRow<>() {
-            @Override
-            protected void updateItem(Lote l, boolean empty) {
-                super.updateItem(l, empty);
-                getStyleClass().removeAll("fila-peligro", "fila-advertencia");
-                if (!empty && l != null) {
-                    // Vencido o vence en 7 dias o menos: rojo; resto: amarillo
-                    getStyleClass().add(l.isVencido() || l.getDiasParaVencer() <= 7 ? "fila-peligro" : "fila-advertencia");
+        cmbDias.setCellFactory(lv ->
+                new ListCell<>() {
+
+                    @Override
+                    protected void updateItem(Integer dias, boolean empty) {
+                        super.updateItem(dias, empty);
+
+                        setText(
+                                empty || dias == null
+                                        ? null
+                                        : dias + " días"
+                        );
+                    }
                 }
-            }
-        });
+        );
 
-        colBmProducto.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getNombreProducto()));
-        colBmStock.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getStockActual()));
-        colBmMinimo.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getStockMinimo()));
-        colBmFaltante.setCellValueFactory(c -> new SimpleIntegerProperty(
-                c.getValue().getStockMinimo() - c.getValue().getStockActual()));
-        tblBajoMinimo.setRowFactory(tv -> new TableRow<>() {
-            @Override
-            protected void updateItem(Producto p, boolean empty) {
-                super.updateItem(p, empty);
-                getStyleClass().remove("fila-peligro");
-                if (!empty && p != null && p.getStockActual() == 0) getStyleClass().add("fila-peligro");
-            }
-        });
+        cmbDias.setButtonCell(
+                cmbDias.getCellFactory().call(null)
+        );
+
+        cmbDias.valueProperty().addListener(
+                (obs, anterior, nuevo) -> refrescar()
+        );
+
+        colPvProducto.setCellValueFactory(
+                c -> new SimpleStringProperty(
+                        c.getValue().getNombreProducto()
+                )
+        );
+
+        colPvLote.setCellValueFactory(
+                c -> new SimpleStringProperty(
+                        c.getValue().getCodigoLote()
+                )
+        );
+
+        colPvFecha.setCellValueFactory(
+                c -> new SimpleObjectProperty<>(
+                        c.getValue().getFechaCaducidad()
+                )
+        );
+
+        colPvDias.setCellValueFactory(
+                c -> new SimpleIntegerProperty(
+                        (int) c.getValue().getDiasParaVencer()
+                )
+        );
+
+        colPvCantidad.setCellValueFactory(
+                c -> new SimpleIntegerProperty(
+                        c.getValue().getCantidadDisponible()
+                )
+        );
+
+        colPvEstado.setCellValueFactory(
+                c -> new SimpleStringProperty(
+                        c.getValue().getEstadoCaducidad()
+                )
+        );
+
+        Formato.columnaFecha(colPvFecha);
+
+        // Vencidos: rojo. Próximos a vencer: amarillo.
+        tblPorVencer.setRowFactory(
+                Filas.porEstado(
+                        lote -> lote.isVencido()
+                                || lote.getDiasParaVencer() <= 7,
+                        lote -> true
+                )
+        );
+
+        colBmProducto.setCellValueFactory(
+                c -> new SimpleStringProperty(
+                        c.getValue().getNombreProducto()
+                )
+        );
+
+        colBmStock.setCellValueFactory(
+                c -> new SimpleIntegerProperty(
+                        c.getValue().getStockActual()
+                )
+        );
+
+        colBmMinimo.setCellValueFactory(
+                c -> new SimpleIntegerProperty(
+                        c.getValue().getStockMinimo()
+                )
+        );
+
+        colBmFaltante.setCellValueFactory(
+                c -> new SimpleIntegerProperty(
+                        c.getValue().getStockMinimo()
+                                - c.getValue().getStockActual()
+                )
+        );
+
+        // Productos con existencias en cero: rojo.
+        tblBajoMinimo.setRowFactory(
+                Filas.peligro(
+                        producto -> producto.getStockActual() == 0
+                )
+        );
 
         refrescar();
     }
@@ -122,79 +188,214 @@ public class DashboardInventarioController implements Refrescable {
     @Override
     public void refrescar() {
         try {
-            int dias = cmbDias.getValue() != null ? cmbDias.getValue() : Lote.DIAS_ALERTA_VENCIMIENTO;
+            int dias = cmbDias.getValue() != null
+                    ? cmbDias.getValue()
+                    : Lote.DIAS_ALERTA_VENCIMIENTO;
 
-            List<Producto> productos = productoDAO.listarConStock();
-            List<Lote> porVencer = loteDAO.listarPorVencer(dias);
-            List<Lote> vencidos = loteDAO.listarVencidosConStock();
-            List<Lote> todos = loteDAO.listarConProducto();
+            List<Producto> productos =
+                    productoDAO.listarConStock();
+
+            List<Lote> porVencer =
+                    loteDAO.listarPorVencer(dias);
+
+            List<Lote> vencidos =
+                    loteDAO.listarVencidosConStock();
+
+            List<Lote> todos =
+                    loteDAO.listarConProducto();
+
             List<Producto> bajoMinimo = productos.stream()
                     .filter(Producto::isBajoStockMinimo)
-                    .sorted(Comparator.comparingInt(p -> p.getStockActual() - p.getStockMinimo()))
+                    .sorted(
+                            Comparator.comparingInt(
+                                    p -> p.getStockActual()
+                                            - p.getStockMinimo()
+                            )
+                    )
                     .toList();
 
-            // KPIs
-            lblKpiProductos.setText(String.valueOf(productos.size()));
-            lblKpiPorVencer.setText(String.valueOf(porVencer.size()));
-            lblKpiPorVencerTitulo.setText("Lotes que vencen en " + dias + " días");
-            lblKpiVencidos.setText(String.valueOf(vencidos.size()));
-            lblKpiBajoMinimo.setText(String.valueOf(bajoMinimo.size()));
-            lblTituloPorVencer.setText("Productos por vencer (próximos " + dias + " días) y vencidos");
+            // Indicadores principales.
+            lblKpiProductos.setText(
+                    String.valueOf(productos.size())
+            );
 
-            // Tabla: vencidos primero, luego por vencer
+            lblKpiPorVencer.setText(
+                    String.valueOf(porVencer.size())
+            );
+
+            lblKpiPorVencerTitulo.setText(
+                    "Lotes que vencen en " + dias + " días"
+            );
+
+            lblKpiVencidos.setText(
+                    String.valueOf(vencidos.size())
+            );
+
+            lblKpiBajoMinimo.setText(
+                    String.valueOf(bajoMinimo.size())
+            );
+
+            lblTituloPorVencer.setText(
+                    "Productos por vencer (próximos "
+                            + dias + " días) y vencidos"
+            );
+
+            // Los vencidos aparecen primero en la tabla.
             var filas = FXCollections.<Lote>observableArrayList(vencidos);
             filas.addAll(porVencer);
+
             tblPorVencer.setItems(filas);
-            tblBajoMinimo.setItems(FXCollections.observableArrayList(bajoMinimo));
+
+            tblBajoMinimo.setItems(
+                    FXCollections.observableArrayList(bajoMinimo)
+            );
 
             cargarGraficoStock(productos, bajoMinimo);
             cargarGraficoLotes(todos, dias);
+
         } catch (Exception e) {
-            Alertas.error("Error de conexión", "No se pudo cargar el dashboard:\n" + VentanaManager.causaRaiz(e));
+            Alertas.error(
+                    "Error de conexión",
+                    "No se pudo cargar el dashboard:\n"
+                            + VentanaManager.causaRaiz(e)
+            );
         }
     }
 
-    /** Barras: productos bajo el minimo (o los de menor stock si no hay ninguno). */
-    private void cargarGraficoStock(List<Producto> productos, List<Producto> bajoMinimo) {
-        List<Producto> mostrar = !bajoMinimo.isEmpty() ? bajoMinimo
-                : productos.stream().sorted(Comparator.comparingInt(Producto::getStockActual)).toList();
-        mostrar = mostrar.stream().limit(MAX_BARRAS).toList();
+    /**
+     * Barras: productos bajo el mínimo o los de menor stock
+     * si no hay productos por debajo del mínimo.
+     */
+    private void cargarGraficoStock(
+            List<Producto> productos,
+            List<Producto> bajoMinimo
+    ) {
+        List<Producto> mostrar = !bajoMinimo.isEmpty()
+                ? bajoMinimo
+                : productos.stream()
+                .sorted(
+                        Comparator.comparingInt(Producto::getStockActual)
+                )
+                .toList();
 
-        XYChart.Series<String, Number> actual = new XYChart.Series<>();
+        mostrar = mostrar.stream()
+                .limit(MAX_BARRAS)
+                .toList();
+
+        XYChart.Series<String, Number> actual =
+                new XYChart.Series<>();
+
         actual.setName("Stock actual");
-        XYChart.Series<String, Number> minimo = new XYChart.Series<>();
+
+        XYChart.Series<String, Number> minimo =
+                new XYChart.Series<>();
+
         minimo.setName("Stock mínimo");
+
         Set<String> usadas = new HashSet<>();
-        for (Producto p : mostrar) {
-            String nombre = Graficos.etiqueta(p.getNombreProducto(), usadas);
-            actual.getData().add(new XYChart.Data<>(nombre, p.getStockActual()));
-            minimo.getData().add(new XYChart.Data<>(nombre, p.getStockMinimo()));
+
+        for (Producto producto : mostrar) {
+            String nombre = Graficos.etiqueta(
+                    producto.getNombreProducto(),
+                    usadas
+            );
+
+            actual.getData().add(
+                    new XYChart.Data<>(
+                            nombre,
+                            producto.getStockActual()
+                    )
+            );
+
+            minimo.getData().add(
+                    new XYChart.Data<>(
+                            nombre,
+                            producto.getStockMinimo()
+                    )
+            );
         }
+
         chartStock.getData().clear();
         ejeProductos.getCategories().clear();
+
         chartStock.getData().add(actual);
         chartStock.getData().add(minimo);
-        chartStock.setTitle(bajoMinimo.isEmpty() ? "Productos con menor stock" : "Productos bajo el stock mínimo");
+
+        chartStock.setTitle(
+                bajoMinimo.isEmpty()
+                        ? "Productos con menor stock"
+                        : "Productos bajo el stock mínimo"
+        );
     }
 
-    /** Pastel: lotes con existencias segun su estado de caducidad. */
-    private void cargarGraficoLotes(List<Lote> lotes, int dias) {
-        long vigentes = 0, porVencer = 0, vencidos = 0;
-        LocalDate limite = LocalDate.now().plusDays(dias);
-        for (Lote l : lotes) {
-            if (l.getCantidadDisponible() == null || l.getCantidadDisponible() <= 0) continue;
-            if (l.isVencido()) vencidos++;
-            else if (!l.getFechaCaducidad().isAfter(limite)) porVencer++;
-            else vigentes++;
-        }
-        // Solo se muestran las porciones con datos; cada estado conserva su color
-        var datos = FXCollections.<PieChart.Data>observableArrayList();
-        List<String> colores = new ArrayList<>();
-        if (vigentes > 0) { datos.add(new PieChart.Data("Vigentes (" + vigentes + ")", vigentes)); colores.add("#059669"); }
-        if (porVencer > 0) { datos.add(new PieChart.Data("Por vencer (" + porVencer + ")", porVencer)); colores.add("#d97706"); }
-        if (vencidos > 0) { datos.add(new PieChart.Data("Vencidos (" + vencidos + ")", vencidos)); colores.add("#dc2626"); }
-        chartEstadoLotes.setData(datos);
+    /**
+     * Gráfico circular: lotes con existencias según su estado
+     * de caducidad.
+     */
+    private void cargarGraficoLotes(
+            List<Lote> lotes,
+            int dias
+    ) {
+        long vigentes = 0;
+        long porVencer = 0;
+        long vencidos = 0;
 
+        LocalDate limite = LocalDate.now().plusDays(dias);
+
+        for (Lote lote : lotes) {
+            if (lote.getCantidadDisponible() == null
+                    || lote.getCantidadDisponible() <= 0) {
+                continue;
+            }
+
+            if (lote.isVencido()) {
+                vencidos++;
+
+            } else if (!lote.getFechaCaducidad().isAfter(limite)) {
+                porVencer++;
+
+            } else {
+                vigentes++;
+            }
+        }
+
+        var datos = FXCollections.<PieChart.Data>observableArrayList();
+
+        List<String> colores = new ArrayList<>();
+
+        if (vigentes > 0) {
+            datos.add(
+                    new PieChart.Data(
+                            "Vigentes (" + vigentes + ")",
+                            vigentes
+                    )
+            );
+
+            colores.add("#059669");
+        }
+
+        if (porVencer > 0) {
+            datos.add(
+                    new PieChart.Data(
+                            "Por vencer (" + porVencer + ")",
+                            porVencer
+                    )
+            );
+
+            colores.add("#d97706");
+        }
+
+        if (vencidos > 0) {
+            datos.add(
+                    new PieChart.Data(
+                            "Vencidos (" + vencidos + ")",
+                            vencidos
+                    )
+            );
+
+            colores.add("#dc2626");
+        }
+
+        chartEstadoLotes.setData(datos);
     }
 }
-
