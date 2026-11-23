@@ -230,6 +230,10 @@ public final class TemaPAE {
         } else if (nodo instanceof CheckBox casilla) {
             letra(casilla, 14, FontWeight.NORMAL, texto());
             casilla.setCursor(Cursor.HAND);
+            TemaSelectores.aplicar(casilla);
+
+        } else if (nodo instanceof ListView<?> lista) {
+            TemaSelectores.aplicar(lista);
 
         } else if (nodo instanceof TextInputControl entrada) {
             entrada.setFont(fuente(FontWeight.NORMAL, 13));
@@ -238,32 +242,8 @@ public final class TemaPAE {
 
         } else if (nodo instanceof ComboBoxBase<?> selector) {
             selector.setPrefHeight(42);
-
-            fondo(selector, Color.WHITE, 9);
-            bordeControl(selector, lilaBorde(), 9);
-
-            alInteractuar(selector, () ->
-                    bordeControl(
-                            selector,
-                            selector.isFocused() || selector.isShowing()
-                                    ? ciruela()
-                                    : lilaBorde(),
-                            9
-                    )
-            );
-
-            if (selector instanceof DatePicker fecha) {
-                fecha.getEditor().setFont(
-                        fuente(FontWeight.NORMAL, 13)
-                );
-            }
-
-            if (selector instanceof ComboBox<?> combo
-                    && combo.isEditable()) {
-                combo.getEditor().setFont(
-                        fuente(FontWeight.NORMAL, 13)
-                );
-            }
+            enfocable(selector);
+            TemaSelectores.aplicar(selector);
 
         } else if (nodo instanceof TableView<?> tabla) {
             pintarTabla(tabla);
