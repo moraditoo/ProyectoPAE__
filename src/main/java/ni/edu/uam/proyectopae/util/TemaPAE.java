@@ -233,23 +233,8 @@ public final class TemaPAE {
 
         } else if (nodo instanceof TextInputControl entrada) {
             entrada.setFont(fuente(FontWeight.NORMAL, 13));
-
-            fondo(entrada, Color.WHITE, 9);
-            bordeControl(entrada, lilaBorde(), 9);
-
-            if (entrada instanceof TextField campo) {
-                campo.setPrefHeight(42);
-            }
-
-            alInteractuar(entrada, () ->
-                    bordeControl(
-                            entrada,
-                            entrada.isFocused()
-                                    ? ciruela()
-                                    : lilaBorde(),
-                            9
-                    )
-            );
+            TemaCampos.aplicar(entrada);
+            enfocable(entrada);
 
         } else if (nodo instanceof ComboBoxBase<?> selector) {
             selector.setPrefHeight(42);
