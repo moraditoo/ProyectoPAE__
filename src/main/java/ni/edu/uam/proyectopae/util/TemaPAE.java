@@ -2,7 +2,6 @@ package ni.edu.uam.proyectopae.util;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
-import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -10,8 +9,6 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.ComboBoxListViewSkin;
-import javafx.scene.control.skin.DatePickerSkin;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -210,41 +207,9 @@ public final class TemaPAE {
         btn.setAccessibleText("Cambiar a " + destino);
     }
 
-    // Modena resuelve estos colores también en editores, celdas virtuales y calendarios.
-    static void aplicarPaleta(Parent raiz) {
-        Color seleccion = modoOscuro ? Color.web("#604056") : Color.web("#EBD4E1");
-        raiz.setStyle("""
-                -fx-font-family: '%s'; -fx-font-size: 13px;
-                -fx-base: %s; -fx-background: %s; -fx-control-inner-background: %s;
-                -fx-control-inner-background-alt: %s; -fx-text-inner-color: %s;
-                -fx-text-base-color: -fx-text-inner-color; -fx-text-background-color: -fx-text-inner-color;
-                -pae-secundario: %s; -fx-focus-color: %s; -fx-faint-focus-color: transparent;
-                -fx-accent: %s; -fx-selection-bar: -fx-accent; -fx-selection-bar-non-focused: -fx-accent;
-                -fx-selection-bar-text: -fx-text-inner-color; -fx-cell-hover-color: -fx-accent;
-                -fx-mark-color: -pae-secundario; -fx-mark-highlight-color: transparent;
-                -fx-box-border: %s; -fx-text-box-border: -fx-box-border;
-                -pae-peligro: %s; -pae-aviso: %s; -pae-aviso-tinta: %s;
-                -pae-negativo: %s; -pae-positivo: %s; -pae-info: %s;
-                """.formatted(FUENTE, hex(neutro()), hex(fondo()), hex(blanco()), hex(filaAlterna()),
-                hex(texto()), hex(secundario()), hex(ciruela()), hex(seleccion), hex(borde()),
-                hex(rosa()), hex(ambar()), hex(ambarTexto()), hex(rosaTexto()), hex(verdeTexto()), hex(azulTexto())));
-    }
-
-    private static String hex(Color color) {
-        return "#" + color.toString().substring(2, 8);
-    }
-
     public static void aplicar(Parent raiz) {
         pintar(raiz);
     }
-
-    private static final String SUPERFICIE_ENTRADA =
-            "-fx-background-color: -fx-control-inner-background; -fx-background-insets: 0; -fx-background-radius: 9;";
-
-    private static final String TINTA_ENTRADA = """
-            -fx-prompt-text-fill: -pae-secundario; -fx-text-fill: -fx-text-inner-color;
-            -fx-highlight-fill: -fx-accent; -fx-highlight-text-fill: -fx-text-inner-color;
-            """;
 
     private static void pintar(Node nodo) {
         if (nodo == null) {
@@ -349,21 +314,6 @@ public final class TemaPAE {
         } else if (nodo instanceof Pane panel) {
             for (Node hijo : panel.getChildren()) {
                 pintar(hijo);
-            }
-        }
-    }
-
-    private static void pintarOpciones(ComboBoxBase<?> selector) {
-        if (selector.getSkin() instanceof ComboBoxListViewSkin<?> combo) {
-            if (combo.getPopupContent() instanceof Parent lista) aplicarPaleta(lista);
-        } else if (selector.getSkin() instanceof DatePickerSkin fecha) {
-            if (fecha.getPopupContent() instanceof Parent calendario) {
-                aplicarPaleta(calendario);
-                for (String flecha : new String[]{".left-arrow", ".right-arrow"}) {
-                    for (Node nodo : calendario.lookupAll(flecha)) {
-                        nodo.setStyle("-fx-background-color: -pae-secundario;");
-                    }
-                }
             }
         }
     }
@@ -548,15 +498,7 @@ public final class TemaPAE {
     }
 
     private static <T> void pintarTabla(TableView<T> tabla) {
-        fondo(tabla, Color.WHITE, 9);
-        borde(tabla, borde(), 9);
-
-        tabla.setPadding(new Insets(2));
-        tabla.setFixedCellSize(44);
-
-        pintar(tabla.getPlaceholder());
-
-        tabla.refresh();
+        TemaTablas.aplicar(tabla);
     }
 
     private static void decorar(Pane panel, boolean acceso) {

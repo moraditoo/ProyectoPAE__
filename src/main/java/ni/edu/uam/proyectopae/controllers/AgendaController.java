@@ -19,6 +19,7 @@ import ni.edu.uam.proyectopae.models.Servicio;
 import ni.edu.uam.proyectopae.util.Alertas;
 import ni.edu.uam.proyectopae.util.Formato;
 import ni.edu.uam.proyectopae.util.Refrescable;
+import ni.edu.uam.proyectopae.util.TemaPAE;
 import ni.edu.uam.proyectopae.util.VentanaManager;
 
 import java.math.BigDecimal;
@@ -82,11 +83,12 @@ public class AgendaController implements Refrescable {
             @Override
             protected void updateItem(String estado, boolean empty) {
                 super.updateItem(estado, empty);
+                getStyleClass().removeAll("estado-completada", "estado-cancelada", "estado-pendiente");
 
                 if (empty || estado == null) {
                     setText(null);
                     setGraphic(null);
-                    setTextFill(Color.BLACK);
+                    setTextFill(TemaPAE.texto());
                     setFont(null);
                     return;
                 }
@@ -97,15 +99,18 @@ public class AgendaController implements Refrescable {
                 switch (estado) {
                     case "COMPLETADA" -> {
                         icono = "fas-check-circle";
-                        color = Color.web("#059669");
+                        color = TemaPAE.verdeTexto();
+                        getStyleClass().add("estado-completada");
                     }
                     case "CANCELADA" -> {
                         icono = "fas-times-circle";
-                        color = Color.web("#dc2626");
+                        color = TemaPAE.rosaTexto();
+                        getStyleClass().add("estado-cancelada");
                     }
                     default -> {
                         icono = "fas-clock";
-                        color = Color.web("#2563eb");
+                        color = TemaPAE.azulTexto();
+                        getStyleClass().add("estado-pendiente");
                     }
                 }
 
@@ -116,7 +121,6 @@ public class AgendaController implements Refrescable {
                 setGraphic(iconoEstado);
                 setText(estado);
                 setTextFill(color);
-                setStyle(null);
             }
         });
     }
