@@ -18,12 +18,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
+import net.sf.jasperreports.engine.JasperPrint;
 import ni.edu.uam.proyectopae.dao.ReporteDAO;
 import ni.edu.uam.proyectopae.dao.ServicioDAO;
 import ni.edu.uam.proyectopae.models.Cita;
 import ni.edu.uam.proyectopae.models.Servicio;
 import ni.edu.uam.proyectopae.util.Alertas;
-import ni.edu.uam.proyectopae.util.ExportadorUtil;
+import ni.edu.uam.proyectopae.reportes.ColumnaCita;
+import ni.edu.uam.proyectopae.reportes.ReporteJasperService;
 import ni.edu.uam.proyectopae.util.Formato;
 import ni.edu.uam.proyectopae.util.VentanaManager;
 
@@ -32,7 +34,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -70,6 +71,11 @@ public class ReporteController {
     private final ServicioDAO servicioDAO = new ServicioDAO();
     private final Servicio todosLosServicios = new Servicio();
     private final BooleanProperty ocupado = new SimpleBooleanProperty(false);
+    private final ReporteJasperService jasper = new ReporteJasperService();
+    private JasperPrint reporteGenerado;
+    private LocalDate reporteDesde;
+    private LocalDate reporteHasta;
+    private String reporteServicio;
 
     @FXML
     private void initialize() {
@@ -78,6 +84,11 @@ public class ReporteController {
         colCliente.setCellValueFactory(new PropertyValueFactory<>("nombreCliente"));
         colServicio.setCellValueFactory(new PropertyValueFactory<>("nombreServicio"));
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
+        colId.setUserData(ColumnaCita.ID);
+        colFecha.setUserData(ColumnaCita.FECHA);
+        colCliente.setUserData(ColumnaCita.CLIENTE);
+        colServicio.setUserData(ColumnaCita.SERVICIO);
+        colEstado.setUserData(ColumnaCita.ESTADO);
 
         Formato.columnaFechaHora(colFecha);
         tabla.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
@@ -89,6 +100,7 @@ public class ReporteController {
         colEstado.visibleProperty().bind(chkEstado.selectedProperty());
 
         configuracion.disableProperty().bind(ocupado);
+        tabla.disableProperty().bind(ocupado);
         btnExportar.disableProperty().bind(
                 ocupado.or(Bindings.isEmpty(tabla.getItems())));
 
@@ -138,11 +150,21 @@ public class ReporteController {
 
         Servicio servicio = cmbServicio.getValue();
         Integer idServicio = servicio == null ? null : servicio.getIdServicio();
+        String nombreServicio = servicio == null ? "Todos los servicios" : servicio.getNombreServicio();
+        List<ColumnaCita> columnas = columnasSeleccionadas();
 
-        tabla.getItems().clear();
+        invalidarVistaPrevia();
         lblEstado.setText("Generando reporte…");
 
-        ejecutar(() -> reporteDAO.buscarCitas(desde, hasta, idServicio), citas -> {
+        ejecutar(() -> {
+            List<Cita> citas = reporteDAO.buscarCitas(desde, hasta, idServicio);
+            return new ResultadoReporte(citas, jasper.generar(citas, columnas, desde, hasta, nombreServicio));
+        }, resultado -> {
+            List<Cita> citas = resultado.citas();
+            reporteGenerado = resultado.reporte();
+            reporteDesde = desde;
+            reporteHasta = hasta;
+            reporteServicio = nombreServicio;
             tabla.getItems().setAll(citas);
             tabla.sort();
 
@@ -157,7 +179,7 @@ public class ReporteController {
 
             lblEstado.setText(citas.isEmpty()
                     ? "No se encontraron citas con esos filtros."
-                    : "Citas en la vista previa: " + citas.size());
+                    : "Reporte listo. Citas en la vista previa: " + citas.size());
         }, "No se pudo generar el reporte");
     }
 
@@ -170,6 +192,7 @@ public class ReporteController {
     }
 
     private void invalidarVistaPrevia() {
+        reporteGenerado = null;
         tabla.getItems().clear();
         if (lblTotalCitas != null) lblTotalCitas.setText("0 citas");
         if (lblCitasProgramadas != null) lblCitasProgramadas.setText("0 programadas");
@@ -179,49 +202,60 @@ public class ReporteController {
     }
 
     @FXML
-    private void exportarCsv() {
+    private void exportarReporte() {
+        if (reporteGenerado == null || tabla.getItems().isEmpty()) {
+            Alertas.validacion("Genera el reporte antes de exportarlo.");
+            return;
+        }
         FileChooser selector = new FileChooser();
         selector.setTitle("Guardar reporte de citas");
-        selector.setInitialFileName("reporte-citas.csv");
-        selector.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Archivo CSV", "*.csv"));
+        selector.setInitialFileName("reporte-citas.pdf");
+        FileChooser.ExtensionFilter pdf = new FileChooser.ExtensionFilter("Documento PDF", "*.pdf");
+        FileChooser.ExtensionFilter csv = new FileChooser.ExtensionFilter("Archivo CSV", "*.csv");
+        selector.getExtensionFilters().addAll(pdf, csv);
+        selector.setSelectedExtensionFilter(pdf);
 
         File archivo = selector.showSaveDialog(tabla.getScene().getWindow());
         if (archivo == null) {
             return;
         }
 
+        ReporteJasperService.Formato formato = selector.getSelectedExtensionFilter() == csv
+                ? ReporteJasperService.Formato.CSV : ReporteJasperService.Formato.PDF;
+        String extension = formato == ReporteJasperService.Formato.PDF ? ".pdf" : ".csv";
         Path destino = archivo.toPath();
-        if (!archivo.getName().toLowerCase(Locale.ROOT).endsWith(".csv")) {
-            destino = destino.resolveSibling(archivo.getName() + ".csv");
+        if (!archivo.getName().toLowerCase(Locale.ROOT).endsWith(extension)) {
+            String nombre = archivo.getName().replaceFirst("(?i)\\.(pdf|csv)$", "");
+            destino = destino.resolveSibling(nombre + extension);
             if (Files.exists(destino) && !Alertas.confirmar(
                     "Reemplazar archivo", "¿Deseas reemplazar " + destino.getFileName() + "?")) {
                 return;
             }
         }
 
-        List<TableColumn<Cita, ?>> columnas = List.copyOf(tabla.getVisibleLeafColumns());
-        List<String> encabezados = columnas.stream().map(TableColumn::getText).toList();
-        List<List<Object>> filas = new ArrayList<>();
-
-        for (Cita cita : tabla.getItems()) {
-            List<Object> fila = new ArrayList<>(columnas.size());
-            for (TableColumn<Cita, ?> columna : columnas) {
-                Object valor = columna.getCellData(cita);
-                fila.add(valor instanceof LocalDateTime fecha ? Formato.fechaHora(fecha) : valor);
-            }
-            filas.add(fila);
-        }
-
-        Path destinoCsv = destino;
+        List<ColumnaCita> columnas = columnasSeleccionadas();
+        List<Cita> citas = List.copyOf(tabla.getItems());
+        LocalDate desde = reporteDesde;
+        LocalDate hasta = reporteHasta;
+        String servicio = reporteServicio;
+        Path destinoFinal = destino;
         lblEstado.setText("Exportando reporte…");
 
         ejecutar(() -> {
-                    ExportadorUtil.exportarCsv(destinoCsv, encabezados, filas);
-                    return destinoCsv.getFileName().toString();
+                    // Regenerar respeta también el orden actual de filas y columnas de la tabla.
+                    JasperPrint reporte = jasper.generar(citas, columnas, desde, hasta, servicio);
+                    jasper.exportar(reporte, destinoFinal, formato);
+                    return destinoFinal.getFileName().toString();
                 }, nombre -> lblEstado.setText("Archivo guardado: " + nombre),
-                "No se pudo exportar el CSV");
+                "No se pudo exportar el reporte");
     }
+
+    private List<ColumnaCita> columnasSeleccionadas() {
+        return tabla.getVisibleLeafColumns().stream()
+                .map(columna -> (ColumnaCita) columna.getUserData()).toList();
+    }
+
+    private record ResultadoReporte(List<Cita> citas, JasperPrint reporte) { }
 
     private <T> void ejecutar(Callable<T> operacion, Consumer<T> completar, String mensajeError) {
         ocupado.set(true);

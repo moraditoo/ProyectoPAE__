@@ -9,7 +9,7 @@
     <top>
         <VBox styleClass="encabezado-modulo" spacing="5">
             <Label text="Reportes de citas" styleClass="header-title"/>
-            <Label text="Filtra las citas, selecciona las columnas y exporta los resultados."
+            <Label text="Filtra las citas, selecciona las columnas y exporta en PDF o CSV."
                    styleClass="header-subtitle" wrapText="true"/>
         </VBox>
     </top>
@@ -57,7 +57,7 @@
                             <Label text="Vista previa" styleClass="card-title"/>
                             <Label text="Los resultados aparecen al generar un reporte." styleClass="hint-label" wrapText="true"/>
                         </VBox>
-                        <Button fx:id="btnExportar" text="Exportar CSV" onAction="#exportarCsv" styleClass="btn-secondary">
+                        <Button fx:id="btnExportar" text="Exportar PDF / CSV" onAction="#exportarReporte" styleClass="btn-secondary">
                             <graphic><FontIcon iconLiteral="fas-download" iconSize="14"/></graphic>
                         </Button>
                     </HBox>
