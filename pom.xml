@@ -18,6 +18,13 @@
     </properties>
 
     <dependencies>
+        <!-- Solo para verificar las consultas de Hibernate en una base aislada en memoria. -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.3.232</version>
+            <scope>test</scope>
+        </dependency>
         <!-- La misma versión del motor, el exportador PDF, el compilador y las fuentes. -->
         <dependency>
             <groupId>net.sf.jasperreports</groupId>
