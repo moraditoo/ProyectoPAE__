@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport name="ReporteCitas" language="java" pageWidth="842" pageHeight="595"
+              orientation="Landscape" columnWidth="782" leftMargin="30" rightMargin="30"
+              topMargin="25" bottomMargin="25" whenNoDataType="AllSectionsNoDetail">
+    <!-- CSV: solo encabezado y datos; el encabezado se exporta una vez. -->
+    <property name="net.sf.jasperreports.export.csv.exclude.origin.band.1" value="title"/>
+    <property name="net.sf.jasperreports.export.csv.exclude.origin.band.2" value="pageFooter"/>
+    <property name="net.sf.jasperreports.export.csv.exclude.origin.band.3" value="summary"/>
+    <property name="net.sf.jasperreports.export.csv.exclude.origin.keep.first.band.1" value="columnHeader"/>
+    <style name="Base" default="true" fontName="DejaVu Sans" fontSize="10.0" forecolor="#302A35"/>
+    <style name="Cabecera" style="Base" mode="Opaque" backcolor="#5B2D62" forecolor="#FFFFFF"
+           bold="true" vTextAlign="Middle">
+        <box leftPadding="7" rightPadding="7"/>
+    </style>
+    <style name="Celda" style="Base" mode="Opaque" backcolor="#FAF7FB" vTextAlign="Top">
+        <box topPadding="6" leftPadding="7" bottomPadding="6" rightPadding="7">
+            <bottomPen lineWidth="0.5" lineColor="#E7DEEA"/>
+        </box>
+    </style>
+    <parameter name="FILTROS" class="java.lang.String"/>
+    <parameter name="GENERADO" class="java.lang.String"/>
+    <parameter name="RESUMEN" class="java.lang.String"/>
+    <field name="id" class="java.lang.String"/>
+    <field name="fecha" class="java.lang.String"/>
+    <field name="cliente" class="java.lang.String"/>
+    <field name="servicio" class="java.lang.String"/>
+    <field name="estado" class="java.lang.String"/>
+    <title height="116" splitType="Stretch">
+        <element kind="staticText" x="0" y="0" width="782" height="30" fontSize="22.0" bold="true" forecolor="#5B2D62">
+            <text><![CDATA[Reporte de citas]]></text>
+        </element>
+        <element kind="staticText" x="0" y="33" width="782" height="18" forecolor="#716578">
+            <text><![CDATA[Proyecto PAE · Tienda de maquillaje]]></text>
+        </element>
+        <element kind="textField" x="0" y="58" width="782" height="32" textAdjust="StretchHeight">
+            <expression><![CDATA[$P{FILTROS}]]></expression>
+        </element>
+        <element kind="textField" positionType="Float" x="0" y="94" width="782" height="16" fontSize="9.0" forecolor="#716578">
+            <expression><![CDATA[$P{GENERADO}]]></expression>
+        </element>
+    </title>
+    <columnHeader height="30">
+        <element kind="staticText" key="cabecera_id" x="0" y="0" width="74" height="30" style="Cabecera"><text><![CDATA[N.º de cita]]></text></element>
+        <element kind="staticText" key="cabecera_fecha" x="74" y="0" width="159" height="30" style="Cabecera"><text><![CDATA[Fecha y hora]]></text></element>
+        <element kind="staticText" key="cabecera_cliente" x="233" y="0" width="200" height="30" style="Cabecera"><text><![CDATA[Cliente]]></text></element>
+        <element kind="staticText" key="cabecera_servicio" x="433" y="0" width="222" height="30" style="Cabecera"><text><![CDATA[Servicio]]></text></element>
+        <element kind="staticText" key="cabecera_estado" x="655" y="0" width="127" height="30" style="Cabecera"><text><![CDATA[Estado]]></text></element>
+    </columnHeader>
+    <detail>
+        <band height="32" splitType="Stretch">
+            <element kind="textField" key="detalle_id" x="0" y="0" width="74" height="32" stretchType="ContainerHeight" textAdjust="StretchHeight" blankWhenNull="true" style="Celda"><expression><![CDATA[$F{id}]]></expression></element>
+            <element kind="textField" key="detalle_fecha" x="74" y="0" width="159" height="32" stretchType="ContainerHeight" textAdjust="StretchHeight" blankWhenNull="true" style="Celda"><expression><![CDATA[$F{fecha}]]></expression></element>
+            <element kind="textField" key="detalle_cliente" x="233" y="0" width="200" height="32" stretchType="ContainerHeight" textAdjust="StretchHeight" blankWhenNull="true" style="Celda"><expression><![CDATA[$F{cliente}]]></expression></element>
+            <element kind="textField" key="detalle_servicio" x="433" y="0" width="222" height="32" stretchType="ContainerHeight" textAdjust="StretchHeight" blankWhenNull="true" style="Celda"><expression><![CDATA[$F{servicio}]]></expression></element>
+            <element kind="textField" key="detalle_estado" x="655" y="0" width="127" height="32" stretchType="ContainerHeight" textAdjust="StretchHeight" blankWhenNull="true" style="Celda"><expression><![CDATA[$F{estado}]]></expression></element>
+        </band>
+    </detail>
+    <pageFooter height="22">
+        <element kind="textField" x="0" y="5" width="600" height="17" fontSize="8.0" forecolor="#716578"><expression><![CDATA["Proyecto PAE · Reporte de citas"]]></expression></element>
+        <element kind="textField" x="600" y="5" width="182" height="17" hTextAlign="Right" fontSize="8.0" forecolor="#716578"><expression><![CDATA["Página " + $V{PAGE_NUMBER}]]></expression></element>
+    </pageFooter>
+    <summary height="64" splitType="Stretch">
+        <element kind="textField" x="0" y="12" width="782" height="20" bold="true"><expression><![CDATA[$P{RESUMEN}]]></expression></element>
+        <element kind="textField" x="0" y="38" width="782" height="20" forecolor="#716578">
+            <printWhenExpression><![CDATA[$V{REPORT_COUNT} == 0]]></printWhenExpression>
+            <expression><![CDATA["No se encontraron citas con esos filtros."]]></expression>
+        </element>
+    </summary>
+</jasperReport>
