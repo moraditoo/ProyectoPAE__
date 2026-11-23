@@ -22,7 +22,6 @@ import ni.edu.uam.proyectopae.util.Refrescable;
 import ni.edu.uam.proyectopae.util.VentanaManager;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -361,8 +360,6 @@ public class DashboardInventarioController implements Refrescable {
 
         var datos = FXCollections.<PieChart.Data>observableArrayList();
 
-        List<String> colores = new ArrayList<>();
-
         if (vigentes > 0) {
             datos.add(
                     new PieChart.Data(
@@ -370,8 +367,6 @@ public class DashboardInventarioController implements Refrescable {
                             vigentes
                     )
             );
-
-            colores.add("#059669");
         }
 
         if (porVencer > 0) {
@@ -381,8 +376,6 @@ public class DashboardInventarioController implements Refrescable {
                             porVencer
                     )
             );
-
-            colores.add("#d97706");
         }
 
         if (vencidos > 0) {
@@ -392,8 +385,6 @@ public class DashboardInventarioController implements Refrescable {
                             vencidos
                     )
             );
-
-            colores.add("#dc2626");
         }
 
         chartEstadoLotes.setData(datos);

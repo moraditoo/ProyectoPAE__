@@ -8,9 +8,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import ni.edu.uam.proyectopae.dao.CategoriaDAO;
 import ni.edu.uam.proyectopae.dao.MarcaDAO;
 import ni.edu.uam.proyectopae.dao.ProductoDAO;
@@ -21,6 +18,7 @@ import ni.edu.uam.proyectopae.util.Alertas;
 import ni.edu.uam.proyectopae.util.Filas;
 import ni.edu.uam.proyectopae.util.Formato;
 import ni.edu.uam.proyectopae.util.Refrescable;
+import ni.edu.uam.proyectopae.util.TemaPAE;
 import ni.edu.uam.proyectopae.util.VentanaManager;
 
 import java.math.BigDecimal;
@@ -345,15 +343,13 @@ public class InventarioController implements Refrescable {
     private void actualizarGanancia() {
         String compraTexto = limpiarNumero(txtPrecioCompra.getText());
         String ventaTexto = limpiarNumero(txtPrecio.getText());
+        lblGanancia.getStyleClass().removeAll("ganancia-positiva", "ganancia-negativa");
 
         if (!compraTexto.matches(REGEX_PRECIO)
                 || !ventaTexto.matches(REGEX_PRECIO)) {
 
             lblGanancia.setText("Ganancia por unidad: -");
-            lblGanancia.setTextFill(Color.GRAY);
-            lblGanancia.setFont(
-                    Font.font("System", FontWeight.NORMAL, 13)
-            );
+            TemaPAE.aplicar(lblGanancia);
             return;
         }
 
@@ -374,15 +370,8 @@ public class InventarioController implements Refrescable {
                         + " (" + margen + " %)"
         );
 
-        lblGanancia.setTextFill(
-                ganancia.signum() < 0
-                        ? Color.web("#dc2626")
-                        : Color.web("#059669")
-        );
-
-        lblGanancia.setFont(
-                Font.font("System", FontWeight.BOLD, 13)
-        );
+        lblGanancia.getStyleClass().add(ganancia.signum() < 0 ? "ganancia-negativa" : "ganancia-positiva");
+        TemaPAE.aplicar(lblGanancia);
     }
 
     @FXML

@@ -8,6 +8,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.chart.Chart;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
@@ -211,10 +212,27 @@ public final class TemaPAE {
         pintar(raiz);
     }
 
+    public static void aplicarDialogo(Dialog<?> dialogo) {
+        DialogPane panel = dialogo.getDialogPane();
+        if (panel.getProperties().putIfAbsent("pae-dialogo-iniciado", true) == null) {
+            dialogo.showingProperty().addListener((observable, anterior, visible) -> {
+                if (visible) TemaDialogos.aplicar(dialogo.getDialogPane());
+            });
+        }
+        TemaDialogos.aplicar(panel);
+    }
+
     private static void pintar(Node nodo) {
         if (nodo == null) {
             return;
         }
+
+        if (nodo instanceof DialogPane dialogo) {
+            TemaDialogos.aplicar(dialogo);
+            return;
+        }
+
+        if (nodo instanceof Control control) TemaComplementos.prepararTooltip(control);
 
         if (nodo instanceof Region region) {
             pintarRegion(region);
@@ -248,11 +266,14 @@ public final class TemaPAE {
         } else if (nodo instanceof TableView<?> tabla) {
             pintarTabla(tabla);
 
+        } else if (nodo instanceof Chart grafico) {
+            TemaGraficos.aplicar(grafico);
+
         } else if (nodo instanceof FontIcon icono) {
             Node padre = icono.getParent();
             Color tinta = ciruela();
 
-            if (tiene(padre, "chip-verde")) {
+            if (tiene(padre, "chip-verde", "ganancia-positiva")) {
                 tinta = verdeTexto();
 
             } else if (tiene(
@@ -265,7 +286,7 @@ public final class TemaPAE {
             } else if (tiene(padre, "chip-turquesa")) {
                 tinta = turquesaTexto();
 
-            } else if (tiene(padre, "chip-rosa")) {
+            } else if (tiene(padre, "chip-rosa", "ganancia-negativa")) {
                 tinta = rosaTexto();
             }
 
@@ -273,7 +294,7 @@ public final class TemaPAE {
         }
 
         if (nodo instanceof ScrollPane scroll) {
-            fondo(scroll, fondo(), 0);
+            TemaComplementos.aplicar(scroll);
             pintar(scroll.getContent());
 
         } else if (nodo instanceof Pane panel) {
@@ -351,7 +372,9 @@ public final class TemaPAE {
     }
 
     private static void pintarEtiqueta(Label l) {
-        if (tiene(l, "marca-texto")) letra(l, 19, FontWeight.BOLD, texto());
+        if (tiene(l, "ganancia-positiva")) letra(l, 13, FontWeight.BOLD, verdeTexto());
+        else if (tiene(l, "ganancia-negativa")) letra(l, 13, FontWeight.BOLD, rosaTexto());
+        else if (tiene(l, "marca-texto")) letra(l, 19, FontWeight.BOLD, texto());
         else if (tiene(l, "marca-invertida")) letra(l, 19, FontWeight.BOLD, Color.WHITE);
         else if (tiene(l, "titulo-marca-acceso")) letra(l, 54, FontWeight.BOLD, Color.WHITE);
         else if (tiene(l, "bienvenida-titulo")) letra(l, 36, FontWeight.BOLD, Color.WHITE);

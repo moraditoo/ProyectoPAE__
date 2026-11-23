@@ -18,6 +18,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -145,15 +146,12 @@ public final class VentanaManager {
 
     /** Re-aplica el tema visual (modo claro u oscuro) a todas las ventanas abiertas. */
     public static void actualizarTemaGlobal() {
-        if (principal != null && principal.getScene() != null) {
-            Parent root = principal.getScene().getRoot();
-            if (TemaPAE.usaTema(root)) {
-                TemaPAE.aplicar(root);
-            }
-        }
-        for (Stage stage : new ArrayList<>(ventanas.values())) {
-            if (stage != null && stage.getScene() != null) {
-                Parent root = stage.getScene().getRoot();
+        var abiertas = new LinkedHashSet<Window>(Window.getWindows());
+        if (principal != null) abiertas.add(principal);
+        abiertas.addAll(ventanas.values());
+        for (Window ventana : abiertas) {
+            if (ventana != null && ventana.getScene() != null) {
+                Parent root = ventana.getScene().getRoot();
                 if (TemaPAE.usaTema(root)) {
                     TemaPAE.aplicar(root);
                 }

@@ -444,6 +444,7 @@ public class AgendaController implements Refrescable {
                     ButtonType.CANCEL
             );
 
+            TemaPAE.aplicarDialogo(dialogo);
             var respuesta = dialogo.showAndWait();
 
             if (respuesta.isPresent() && respuesta.get() == guardar) {

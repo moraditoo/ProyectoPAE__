@@ -20,7 +20,7 @@ public final class Alertas {
                 titulo,
                 mensaje,
                 "fas-check-circle",
-                Color.web("#267349")
+                TemaPAE.verdeTexto()
         ).showAndWait();
     }
 
@@ -30,7 +30,7 @@ public final class Alertas {
                 titulo,
                 mensaje,
                 "fas-times-circle",
-                Color.web("#B42335")
+                TemaPAE.rosaTexto()
         ).showAndWait();
     }
 
@@ -43,7 +43,7 @@ public final class Alertas {
                 titulo,
                 mensaje,
                 "fas-exclamation-triangle",
-                Color.web("#946000")
+                TemaPAE.ambarTexto()
         ).showAndWait();
     }
 
@@ -59,7 +59,7 @@ public final class Alertas {
                 titulo,
                 mensaje,
                 "fas-question-circle",
-                Color.web("#2457A7")
+                TemaPAE.azulTexto()
         );
     }
 
@@ -71,7 +71,7 @@ public final class Alertas {
                 titulo,
                 mensaje,
                 "fas-exclamation-triangle",
-                Color.web("#946000")
+                TemaPAE.ambarTexto()
         );
     }
 
@@ -126,6 +126,7 @@ public final class Alertas {
         FontIcon imagen = new FontIcon(icono);
         imagen.setIconSize(36);
         imagen.setIconColor(color);
+        imagen.getProperties().put("pae-alerta", true);
 
         alerta.setGraphic(imagen);
         alerta.getDialogPane().setContent(contenido);
@@ -135,6 +136,8 @@ public final class Alertas {
         if (ventana != null) {
             alerta.initOwner(ventana);
         }
+
+        TemaPAE.aplicarDialogo(alerta);
 
         return alerta;
     }
