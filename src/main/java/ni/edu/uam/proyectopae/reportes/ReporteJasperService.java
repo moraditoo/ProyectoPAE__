@@ -2,26 +2,18 @@ package ni.edu.uam.proyectopae.reportes;
 
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRMapCollectionDataSource;
 import net.sf.jasperreports.engine.design.JRDesignBand;
 import net.sf.jasperreports.engine.design.JRDesignElement;
 import net.sf.jasperreports.engine.design.JasperDesign;
-import net.sf.jasperreports.engine.export.JRCsvExporter;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
-import net.sf.jasperreports.export.SimpleCsvExporterConfiguration;
-import net.sf.jasperreports.export.SimpleExporterInput;
-import net.sf.jasperreports.export.SimpleWriterExporterOutput;
 import ni.edu.uam.proyectopae.models.Cita;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -112,49 +104,10 @@ public final class ReporteJasperService {
         }
     }
 
-    /** Escribe primero un temporal para conservar el archivo anterior si la exportación falla. */
+    /** Comparte los exportadores con los reportes de varios apartados. */
     public void exportar(JasperPrint reporte, Path destino, Formato formato) throws IOException, JRException {
-        Path archivo = destino.toAbsolutePath().normalize();
-        Path temporal = Files.createTempFile(archivo.getParent(), "reporte-", ".tmp");
-        try {
-            try (OutputStream salida = Files.newOutputStream(temporal)) {
-                if (formato == Formato.PDF) {
-                    JasperExportManager.exportReportToPdfStream(reporte, salida);
-                } else {
-                    JRCsvExporter exportador = new CsvSeguro();
-                    exportador.setExporterInput(new SimpleExporterInput(reporte));
-                    exportador.setExporterOutput(new SimpleWriterExporterOutput(salida, "UTF-8"));
-                    SimpleCsvExporterConfiguration configuracion = new SimpleCsvExporterConfiguration();
-                    configuracion.setWriteBOM(true);
-                    configuracion.setForceFieldEnclosure(true);
-                    configuracion.setRecordDelimiter("\r\n");
-                    exportador.setConfiguration(configuracion);
-                    exportador.exportReport();
-                }
-            }
-            Files.move(temporal, archivo, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException | JRException | RuntimeException error) {
-            try {
-                Files.deleteIfExists(temporal);
-            } catch (IOException limpieza) {
-                error.addSuppressed(limpieza);
-            }
-            throw error;
-        }
-    }
-
-    /** Conserva la protección de fórmulas, incluso tras espacios o caracteres de ancho completo. */
-    private static final class CsvSeguro extends JRCsvExporter {
-        @Override
-        protected String prepareText(String texto) {
-            if (texto != null) {
-                String inicio = texto.stripLeading();
-                if (texto.startsWith("\t") || texto.startsWith("\r") || texto.startsWith("\n")
-                        || (!inicio.isEmpty() && "=+-@＝＋－＠".indexOf(inicio.charAt(0)) >= 0)) {
-                    texto = "'" + texto;
-                }
-            }
-            return super.prepareText(texto);
-        }
+        java.util.Objects.requireNonNull(formato, "Selecciona el formato de exportación.");
+        if (formato == Formato.PDF) ExportadorJasper.pdf(List.of(reporte), destino);
+        else ExportadorJasper.csv(reporte, destino);
     }
 }

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport name="ReporteGeneral" language="java" pageWidth="842" pageHeight="595"
+              orientation="Landscape" columnWidth="782" leftMargin="30" rightMargin="30"
+              topMargin="25" bottomMargin="25" whenNoDataType="AllSectionsNoDetail">
+    <!-- El servicio añade los campos y las columnas según la selección del usuario. -->
+    <property name="net.sf.jasperreports.export.csv.exclude.origin.band.1" value="title"/>
+    <property name="net.sf.jasperreports.export.csv.exclude.origin.band.2" value="pageHeader"/>
+    <property name="net.sf.jasperreports.export.csv.exclude.origin.band.3" value="pageFooter"/>
+    <property name="net.sf.jasperreports.export.csv.exclude.origin.band.4" value="summary"/>
+    <property name="net.sf.jasperreports.export.csv.exclude.origin.keep.first.band.1" value="columnHeader"/>
+    <style name="Base" default="true" fontName="DejaVu Sans" fontSize="9.0" forecolor="#302A35"/>
+    <style name="Cabecera" style="Base" mode="Opaque" backcolor="#5B2D62" forecolor="#FFFFFF"
+           bold="true" vTextAlign="Middle">
+        <box leftPadding="6" rightPadding="6"/>
+    </style>
+    <style name="Celda" style="Base" mode="Opaque" backcolor="#FAF7FB" vTextAlign="Top">
+        <box topPadding="6" leftPadding="6" bottomPadding="6" rightPadding="6">
+            <bottomPen lineWidth="0.5" lineColor="#E7DEEA"/>
+        </box>
+    </style>
+    <parameter name="TITULO" class="java.lang.String"/>
+    <parameter name="ALCANCE" class="java.lang.String"/>
+    <parameter name="FILTROS" class="java.lang.String"/>
+    <parameter name="GENERADO" class="java.lang.String"/>
+    <parameter name="RESUMEN" class="java.lang.String"/>
+    <title height="144" splitType="Stretch">
+        <element kind="staticText" key="ancho_titulo" x="0" y="0" width="782" height="28" fontSize="20.0" bold="true" forecolor="#5B2D62">
+            <text><![CDATA[Reporte general]]></text>
+        </element>
+        <element kind="textField" key="ancho_apartado" x="0" y="32" width="782" height="24" fontSize="15.0" bold="true" textAdjust="StretchHeight">
+            <expression><![CDATA[$P{TITULO}]]></expression>
+        </element>
+        <element kind="textField" key="ancho_alcance" positionType="Float" x="0" y="61" width="782" height="28" textAdjust="StretchHeight" forecolor="#716578">
+            <expression><![CDATA[$P{ALCANCE}]]></expression>
+        </element>
+        <element kind="textField" key="ancho_filtros" positionType="Float" x="0" y="91" width="782" height="28" textAdjust="StretchHeight">
+            <expression><![CDATA[$P{FILTROS}]]></expression>
+        </element>
+        <element kind="textField" key="ancho_generado" positionType="Float" x="0" y="122" width="782" height="16" fontSize="8.0" forecolor="#716578">
+            <expression><![CDATA[$P{GENERADO}]]></expression>
+        </element>
+    </title>
+    <pageHeader height="24">
+        <printWhenExpression><![CDATA[$V{PAGE_NUMBER} > 1]]></printWhenExpression>
+        <element kind="textField" key="ancho_encabezado" x="0" y="2" width="782" height="18" bold="true" forecolor="#5B2D62">
+            <expression><![CDATA[$P{TITULO}]]></expression>
+        </element>
+    </pageHeader>
+    <columnHeader height="44"/>
+    <detail>
+        <band height="32" splitType="Prevent"/>
+    </detail>
+    <pageFooter height="24">
+        <element kind="line" key="ancho_linea" x="0" y="0" width="782" height="1" forecolor="#E7DEEA"/>
+        <element kind="staticText" x="0" y="7" width="350" height="16" fontSize="8.0" forecolor="#716578">
+            <text><![CDATA[Proyecto PAE · Tienda de maquillaje]]></text>
+        </element>
+        <element kind="textField" key="pagina" x="572" y="7" width="210" height="16" hTextAlign="Right" fontSize="8.0" forecolor="#716578">
+            <expression><![CDATA["Página del apartado: " + $V{PAGE_NUMBER}]]></expression>
+        </element>
+    </pageFooter>
+    <summary height="64" splitType="Stretch">
+        <element kind="textField" key="ancho_resumen" x="0" y="12" width="782" height="22" bold="true" textAdjust="StretchHeight">
+            <expression><![CDATA[$P{RESUMEN}]]></expression>
+        </element>
+        <element kind="textField" key="ancho_vacio" positionType="Float" x="0" y="38" width="782" height="20" forecolor="#716578">
+            <printWhenExpression><![CDATA[$V{REPORT_COUNT} == 0]]></printWhenExpression>
+            <expression><![CDATA["Sin registros con los filtros seleccionados."]]></expression>
+        </element>
+    </summary>
+</jasperReport>
