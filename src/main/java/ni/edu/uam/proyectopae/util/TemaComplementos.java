@@ -1,5 +1,6 @@
 package ni.edu.uam.proyectopae.util;
 
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
@@ -7,6 +8,8 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Control;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
@@ -21,6 +24,51 @@ final class TemaComplementos {
 
     static void aplicar(ScrollPane scroll) {
         observar(scroll, scroll);
+    }
+
+    static void aplicar(TitledPane panel) {
+        Runnable pintar = () -> {
+            fondo(panel, TemaPAE.blanco(), 6);
+            if (panel.lookup(".title") instanceof Region titulo) {
+                fondo(titulo, TemaPAE.lila(), 6);
+                titulo.setBorder(new Border(new BorderStroke(TemaPAE.borde(), BorderStrokeStyle.SOLID,
+                        new CornerRadii(6), BorderWidths.DEFAULT)));
+            }
+            if (panel.lookup(".content") instanceof Region contenido) fondo(contenido, TemaPAE.blanco(), 0);
+            if (panel.lookup(".arrow") instanceof Region flecha) fondo(flecha, TemaPAE.ciruela(), 0);
+        };
+        observarPanel(panel, pintar);
+        pintar.run();
+    }
+
+    static void aplicar(TabPane panel) {
+        Runnable pintar = () -> {
+            if (panel.lookup(".tab-header-background") instanceof Region cabecera) {
+                fondo(cabecera, TemaPAE.fondo(), 0);
+            }
+            for (Node nodo : panel.lookupAll(".tab")) {
+                if (nodo instanceof Region tab) {
+                    boolean seleccionado = tab.getPseudoClassStates().stream()
+                            .anyMatch(estado -> "selected".equals(estado.getPseudoClassName()));
+                    fondo(tab, seleccionado ? TemaPAE.lila() : TemaPAE.fondo(), 5);
+                }
+            }
+            for (Node nodo : panel.lookupAll(".tab-label")) {
+                if (nodo instanceof Labeled etiqueta) etiqueta.setTextFill(TemaPAE.texto());
+            }
+        };
+        observarPanel(panel, pintar);
+        if (panel.getProperties().putIfAbsent("pae-tema-tabs", true) == null) {
+            panel.getSelectionModel().selectedItemProperty().addListener(observable -> Platform.runLater(pintar));
+            panel.getTabs().addListener((javafx.beans.InvalidationListener) observable -> Platform.runLater(pintar));
+        }
+        pintar.run();
+    }
+
+    private static void observarPanel(Control panel, Runnable pintar) {
+        if (panel.getProperties().putIfAbsent("pae-tema-panel", true) == null) {
+            panel.skinProperty().addListener(observable -> Platform.runLater(pintar));
+        }
     }
 
     static void prepararTooltip(Control control) {

@@ -260,7 +260,7 @@
                                         <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
                                     </HBox>
                                     <Label text="Reportes" styleClass="menu-card-title"/>
-                                    <Label text="Filtros y reportes PDF / CSV" styleClass="menu-card-subtitle" wrapText="true"/>
+                                    <Label text="Apartados, campos y reportes PDF / CSV" styleClass="menu-card-subtitle" wrapText="true"/>
                                 </VBox>
                             </graphic>
                         </Button>

@@ -1,93 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ni.edu.uam.proyectopae.controllers.ReporteController" styleClass="pae-ui">
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ni.edu.uam.proyectopae.controllers.ReporteController" styleClass="pae-ui">
     <top>
         <VBox styleClass="encabezado-modulo" spacing="5">
-            <Label text="Reportes de citas" styleClass="header-title"/>
-            <Label text="Filtra las citas, selecciona las columnas y exporta en PDF o CSV."
-                   styleClass="header-subtitle" wrapText="true"/>
+            <Label text="Reportes generales" styleClass="header-title"/>
+            <Label text="Elegí los apartados y campos que querés incluir; revisalos y exportá en PDF o CSV."
+                   styleClass="header-subtitle" wrapText="true" minHeight="-Infinity"/>
         </VBox>
     </top>
     <center>
         <ScrollPane fitToWidth="true" fitToHeight="true">
-            <HBox styleClass="content-area" spacing="18" alignment="TOP_LEFT" minWidth="800">
-                <VBox fx:id="configuracion" spacing="14" styleClass="card" prefWidth="324" minWidth="300" maxHeight="-Infinity">
+            <HBox styleClass="content-area" spacing="18" alignment="TOP_LEFT" minWidth="820">
+                <VBox fx:id="configuracion" spacing="10" styleClass="card" prefWidth="350" minWidth="330" maxWidth="350">
                     <Label text="Filtros" styleClass="card-title"/>
                     <HBox spacing="10">
-                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <VBox spacing="5" HBox.hgrow="ALWAYS" minWidth="0">
                             <Label text="Desde" styleClass="form-label"/>
-                            <DatePicker fx:id="dpDesde" editable="false" promptText="dd/mm/aaaa" maxWidth="Infinity"/>
+                            <DatePicker fx:id="dpDesde" editable="false" promptText="Sin límite" maxWidth="Infinity"/>
                         </VBox>
-                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <VBox spacing="5" HBox.hgrow="ALWAYS" minWidth="0">
                             <Label text="Hasta" styleClass="form-label"/>
-                            <DatePicker fx:id="dpHasta" editable="false" promptText="dd/mm/aaaa" maxWidth="Infinity"/>
+                            <DatePicker fx:id="dpHasta" editable="false" promptText="Sin límite" maxWidth="Infinity"/>
                         </VBox>
                     </HBox>
-                    <VBox spacing="6">
-                        <Label text="Servicio" styleClass="form-label"/>
-                        <ComboBox fx:id="cmbServicio" maxWidth="Infinity"/>
-                    </VBox>
+                    <ComboBox fx:id="cmbServicio" maxWidth="Infinity" accessibleText="Filtrar por servicio"/>
+                    <Label text="Fechas: ventas, citas, consumos e ingreso de lotes. Servicio: servicios, citas, consumos y citas del resumen."
+                           styleClass="hint-label" wrapText="true" minHeight="-Infinity"/>
+                    <Button fx:id="btnLimpiar" text="Limpiar filtros" onAction="#limpiarFiltros" styleClass="btn-ghost"/>
                     <Region styleClass="separador" minHeight="1" maxHeight="1"/>
-                    <Label text="Columnas a incluir" styleClass="card-title"/>
-                    <VBox spacing="8">
-                        <CheckBox fx:id="chkId" text="N.º de cita" selected="true"/>
-                        <CheckBox fx:id="chkFecha" text="Fecha y hora" selected="true"/>
-                        <CheckBox fx:id="chkCliente" text="Cliente" selected="true"/>
-                        <CheckBox fx:id="chkServicio" text="Servicio" selected="true"/>
-                        <CheckBox fx:id="chkEstado" text="Estado" selected="true"/>
-                    </VBox>
-                    <Button text="Generar reporte" onAction="#generarReporte" maxWidth="Infinity"
+                    <Label text="Apartados y campos" styleClass="card-title"/>
+                    <Label text="Marcá los apartados. Desplegá cada uno con la flecha para elegir sus campos."
+                           styleClass="hint-label" wrapText="true" minHeight="-Infinity"/>
+                    <HBox spacing="8">
+                        <Button fx:id="btnTodos" text="Seleccionar todo" onAction="#seleccionarTodos" styleClass="btn-ghost"/>
+                        <Button fx:id="btnNinguno" text="Ninguno" onAction="#desmarcarTodos" styleClass="btn-ghost"/>
+                    </HBox>
+                    <Label fx:id="lblSeleccion" styleClass="hint-label" wrapText="true" minHeight="-Infinity"/>
+                    <ScrollPane fitToWidth="true" minHeight="170" prefHeight="315" VBox.vgrow="ALWAYS">
+                        <VBox fx:id="listaApartados" spacing="5"/>
+                    </ScrollPane>
+                    <Button fx:id="btnGenerar" text="Generar reporte" onAction="#generarReporte" maxWidth="Infinity"
                             defaultButton="true" styleClass="btn-primary">
                         <graphic><FontIcon iconLiteral="fas-file-alt" iconSize="14"/></graphic>
                     </Button>
-                    <Button text="Limpiar filtros" onAction="#limpiarFiltros" styleClass="btn-ghost">
-                        <graphic><FontIcon iconLiteral="fas-undo" iconSize="14"/></graphic>
-                    </Button>
                 </VBox>
-
-                <VBox spacing="16" styleClass="card" HBox.hgrow="ALWAYS"
-                      minHeight="490" prefHeight="532" maxHeight="-Infinity">
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <VBox spacing="4" HBox.hgrow="ALWAYS">
-                            <Label text="Vista previa" styleClass="card-title"/>
-                            <Label text="Los resultados aparecen al generar un reporte." styleClass="hint-label" wrapText="true"/>
-                        </VBox>
+                <VBox spacing="14" styleClass="card" HBox.hgrow="ALWAYS" minWidth="360" minHeight="560">
+                    <FlowPane hgap="10" vgap="10" alignment="CENTER_LEFT">
+                        <Label text="Vista previa" styleClass="card-title"/>
                         <Button fx:id="btnExportar" text="Exportar PDF / CSV" onAction="#exportarReporte" styleClass="btn-secondary">
                             <graphic><FontIcon iconLiteral="fas-download" iconSize="14"/></graphic>
                         </Button>
-                    </HBox>
-
-                    <!-- Resumen rápido de estados de citas -->
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label fx:id="lblTotalCitas" text="0 citas" styleClass="badge-lila"/>
-                        <Label fx:id="lblCitasProgramadas" text="0 programadas" styleClass="badge-ambar"/>
-                        <Label fx:id="lblCitasCompletadas" text="0 completadas" styleClass="badge-verde"/>
-                        <Label fx:id="lblCitasCanceladas" text="0 canceladas" styleClass="badge-rosa"/>
-                    </HBox>
-                    <TableView fx:id="tabla" VBox.vgrow="ALWAYS" minHeight="260">
-                        <placeholder>
-                            <VBox alignment="CENTER" spacing="8">
-                                <StackPane styleClass="chip-lila" minWidth="48" minHeight="48" maxWidth="48" maxHeight="48">
-                                    <FontIcon iconLiteral="far-file-alt" iconSize="22"/>
-                                </StackPane>
-                                <Label text="Aún no hay resultados" styleClass="card-title"/>
-                            </VBox>
-                        </placeholder>
-                        <columns>
-                            <TableColumn fx:id="colId" text="N.º de cita" prefWidth="85"/>
-                            <TableColumn fx:id="colFecha" text="Fecha y hora" prefWidth="180"/>
-                            <TableColumn fx:id="colCliente" text="Cliente" prefWidth="200"/>
-                            <TableColumn fx:id="colServicio" text="Servicio" prefWidth="245"/>
-                            <TableColumn fx:id="colEstado" text="Estado" prefWidth="135"/>
-                        </columns>
-                    </TableView>
+                        <ProgressIndicator fx:id="progreso" prefWidth="24" prefHeight="24" maxWidth="24" maxHeight="24"/>
+                    </FlowPane>
+                    <Label fx:id="lblResumen" text="Generá el reporte para consultar los apartados seleccionados."
+                           styleClass="hint-label" wrapText="true" minHeight="-Infinity" maxWidth="Infinity"/>
+                    <VBox fx:id="panelSinResultados" alignment="CENTER" spacing="12" VBox.vgrow="ALWAYS" minHeight="240">
+                        <FontIcon iconLiteral="far-file-alt" iconSize="30"/>
+                        <Label text="Prepará tu reporte" styleClass="card-title"/>
+                        <Label text="Seleccioná los apartados y pulsá Generar reporte. Cada apartado tendrá su propia pestaña."
+                               styleClass="hint-label" wrapText="true" minHeight="-Infinity" textAlignment="CENTER" maxWidth="360"/>
+                    </VBox>
+                    <TabPane fx:id="vistaPrevia" tabClosingPolicy="UNAVAILABLE" tabMinWidth="120" tabMaxWidth="260"
+                             minHeight="260" VBox.vgrow="ALWAYS"/>
+                    <Label text="PDF: una sección por apartado. CSV: columnas Apartado, Registro, Campo y Valor; una fila por campo seleccionado."
+                           styleClass="hint-label" wrapText="true" minHeight="-Infinity"/>
                     <Label fx:id="lblEstado" text="Pulsa Generar reporte para ver los resultados."
-                           styleClass="estado-reporte, modo-label" maxWidth="Infinity" wrapText="true"/>
+                           styleClass="estado-reporte, modo-label" maxWidth="Infinity" wrapText="true" minHeight="-Infinity"/>
                 </VBox>
             </HBox>
         </ScrollPane>

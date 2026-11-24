@@ -37,7 +37,7 @@ final class TemaTablas {
 
     static void aplicar(TableView<?> tabla) {
         tabla.setPadding(new Insets(2));
-        tabla.setFixedCellSize(44);
+        tabla.setFixedCellSize(tabla.getStyleClass().contains("filas-multilinea") ? -1 : 44);
         observar(tabla, tabla);
     }
 

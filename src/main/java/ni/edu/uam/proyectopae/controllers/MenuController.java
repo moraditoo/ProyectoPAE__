@@ -189,7 +189,7 @@ public class MenuController {
 
     @FXML
     public void abrirReportes() {
-        VentanaManager.abrir("reportes-view.fxml", "Reportes de citas", "fas-file-alt", "#7c3aed");
+        VentanaManager.abrir("reportes-view.fxml", "Reportes generales", "fas-file-alt", "#7c3aed");
     }
 
     @FXML

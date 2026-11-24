@@ -128,7 +128,7 @@ Resultados esperados:
   la cuenta inicial predeterminada es `admin` / `admin123`. Si la base ya tenía
   cuentas, usar una de esas cuentas.
 
-El diagnóstico escribe `citas-ejemplo.pdf` y `citas-ejemplo.csv` dentro de
+El diagnóstico escribe `reporte-general-ejemplo.pdf` y `reporte-general-ejemplo.csv` dentro de
 `target/diagnostico-reportes`. `verificar` limpia `target`, por lo que debe
 ejecutarse antes del diagnóstico si se quieren conservar los ejemplos para revisar.
 
@@ -170,7 +170,7 @@ JAR de Studio en los argumentos de la VM.
    una cuenta para descargar, completar ese acceso en el navegador.
 2. Abrir Studio y elegir un workspace personal, por ejemplo
    `C:\Users\TU_USUARIO\JaspersoftWorkspace`. Mantenerlo fuera de este repositorio.
-3. Abrir el archivo real `src/main/resources/reportes/citas.jrxml` con
+3. Abrir el archivo real `src/main/resources/reportes/general.jrxml` con
    **File → Open File**. Si se importa dentro de un proyecto de Studio, asegurarse
    de guardar los cambios en el JRXML del repositorio.
 4. Editar fuentes, colores, tamaños, títulos y bordes en la vista **Design**.
@@ -178,9 +178,10 @@ JAR de Studio en los argumentos de la VM.
 5. Para una vista previa del diseño en Studio, elegir el adaptador vacío
    **One Empty Record / Empty Data Adapter**. Los datos reales los entrega la
    aplicación; no es necesario configurar una conexión PostgreSQL en Studio.
-   En esa vista previa se pueden proporcionar los parámetros `FILTROS`, `GENERADO`
-   y `RESUMEN`. Para comprobar datos ficticios completos, ejecutar el diagnóstico
-   del proyecto y abrir su PDF.
+   En esa vista previa se pueden proporcionar los parámetros `TITULO`, `ALCANCE`,
+   `FILTROS`, `GENERADO` y `RESUMEN`. Las columnas se crean desde Java según el
+   checklist, por lo que Studio solo muestra la estructura del diseño. Para ver
+   las tablas completas, ejecutar el diagnóstico del proyecto y abrir su PDF.
 6. Guardar el JRXML, ejecutar `verificar` y después `diagnostico` desde el proyecto.
    Revisar el PDF antes de compartir el cambio.
 
@@ -191,13 +192,21 @@ Jaspersoft documenta la [compatibilidad entre Studio y el motor](https://communi
 
 ### Contrato de la plantilla
 
-Conservar los campos String `id`, `fecha`, `cliente`, `servicio` y `estado`, y los
-parámetros String `FILTROS`, `GENERADO` y `RESUMEN`. Las cabeceras se identifican
-por las claves `cabecera_id`, `cabecera_fecha`, etc.; las celdas, por
-`detalle_id`, `detalle_fecha`, etc. El servicio usa esas claves para quitar y
-redistribuir las columnas seleccionadas, incluidas las que cambian de orden.
-Conservar las propiedades `export.csv` para que el CSV no incluya títulos,
-totales, pies de página ni cabeceras repetidas.
+`general.jrxml` conserva los parámetros String `TITULO`, `ALCANCE`, `FILTROS`,
+`GENERADO` y `RESUMEN`, los estilos `Cabecera` y `Celda`, las bandas de cabecera y
+detalle, y las claves `ancho_*` y `pagina`. `ReporteGeneralJasperService` agrega
+los campos String y sus columnas a esas bandas. Las claves de las columnas
+generadas son `cabecera_<clave>` y `detalle_<clave>`. Conservar las propiedades
+`export.csv` para excluir títulos, totales, pies y cabeceras repetidas del CSV.
+
+El catálogo de opciones está en `ApartadoReporte`; la selección inmutable, en
+`SolicitudReporte`, y las consultas de solo lectura, en `ReporteGeneralDAO`.
+El PDF combina un documento por apartado y usa A3 horizontal al superar ocho
+campos. El CSV usa siempre Apartado, Registro, Campo y Valor para admitir varios
+apartados con campos distintos en un único archivo.
+
+`citas.jrxml` y `ReporteJasperService` conservan el motor anterior y sus pruebas;
+la pantalla de reportes utiliza el motor general.
 
 Las fuentes **DejaVu Sans** se distribuyen por Maven y se incrustan en el PDF,
 para conservar los acentos y el aspecto en los cuatro equipos.
@@ -208,12 +217,23 @@ para conservar los acentos y el aspecto en los cuatro equipos.
 2. Abrir **Agenda de citas**, que precarga los servicios básicos cuando no hay
    servicios registrados. Seleccionar cliente, servicio, fecha y hora, registrar
    una cita y después abrir **Reportes**.
-3. Elegir fechas que incluyan esa cita y pulsar **Generar reporte**.
-4. Confirmar los datos y los contadores de estados.
-5. Pulsar **Exportar PDF / CSV**, guardar un PDF y abrirlo.
-6. Elegir CSV en el mismo diálogo, guardarlo y comprobar las columnas.
-7. Desmarcar una columna, generar de nuevo y confirmar que ya no se exporta.
-8. Probar un intervalo sin citas: la tabla queda vacía y la exportación se desactiva.
+3. En Reportes, pulsar **Ninguno** junto a **Seleccionar todo** y marcar Clientes
+   y Agenda de citas. Desplegar cada apartado con su flecha y escoger campos.
+4. Elegir fechas que incluyan esa cita, pulsar **Generar reporte** y comprobar
+   ambas pestañas, los campos y los datos. La tabla permite desplazarse para ver
+   todas las columnas; el orden de la consulta se conserva en la exportación.
+5. Pulsar **Exportar PDF / CSV**, guardar un PDF y comprobar sus dos secciones.
+6. Elegir CSV en el mismo diálogo y comprobar sus columnas Apartado, Registro,
+   Campo y Valor. Un registro produce una fila por campo elegido.
+7. Desmarcar un campo: la vista previa se limpia y Exportar queda desactivado.
+   Generar de nuevo y comprobar que ese campo ya no aparece en ambos formatos.
+8. Dejar solo Agenda de citas y probar un intervalo sin citas. La tabla muestra
+   el aviso de ausencia de registros y permite exportar ese resultado.
+9. Pulsar **Seleccionar todo** y generar para comprobar los 12 apartados. Los
+   catálogos muestran datos actuales; las fechas afectan movimientos e ingreso
+   de lotes. Servicio afecta servicios, citas, consumos y citas del resumen.
+10. **Limpiar filtros** borra fechas y servicio, conservando apartados y campos.
+    No se puede generar sin apartados ni con un apartado incluido sin campos.
 
 Cambiar filtros o casillas limpia la vista previa para evitar exportar resultados
 de una consulta anterior. La generación y exportación se ejecutan en segundo
@@ -244,20 +264,24 @@ plano; mientras trabajan se desactivan los controles relacionados.
 
 Cada integrante debe confirmar que: `verificar` termina correctamente,
 `diagnostico` muestra ambos `[OK]`, la aplicación permite iniciar sesión y el flujo
-de usuario produce un PDF y un CSV con una cita de su base. La verificación de una
+de usuario produce un PDF y un CSV con varios apartados de su base. La verificación de una
 computadora no sustituye la de las otras tres.
 
 ## Archivos de la integración
 
 - `pom.xml` y `module-info.java`: dependencias y módulos JasperReports.
 - `src/main/resources/jasperreports.properties`: compilador JDT incluido por Maven.
-- `src/main/resources/reportes/citas.jrxml`: diseño editable del reporte.
-- `reportes/ReporteJasperService.java`: compilación, datos, columnas y exportadores.
-- `controllers/ReporteController.java`: filtros, vista previa y guardado desde JavaFX.
+- `src/main/resources/reportes/general.jrxml`: estructura y estilos del reporte activo.
+- `reportes/ApartadoReporte.java` y `SolicitudReporte.java`: campos y selección.
+- `dao/ReporteGeneralDAO.java`: consultas de solo lectura mediante Hibernate.
+- `reportes/ReporteGeneralJasperService.java`: generación de todos los apartados.
+- `reportes/ExportadorJasper.java`: guardado PDF y CSV con protección de fórmulas.
+- `controllers/ReporteController.java`: checklist, filtros, pestañas y guardado desde JavaFX.
 - `reportes/DiagnosticoReportes.java`: verificación del motor y PostgreSQL local.
 - `scripts/pae.ps1`: selección de JDK y comandos comunes del equipo.
 - `config/pae-local.example.properties`: ejemplo sin credenciales personales.
-- `src/test/java/.../ReporteJasperServiceTest.java`: pruebas sin base de datos.
-
-Se reemplazó la prueba antigua que referenciaba `HelloApplication` y una base H2,
-porque esa clase y esa configuración ya no forman parte del proyecto actual.
+- `src/test/java/.../reportes/`: pruebas de selección y exportación sin PostgreSQL.
+- `src/test/java/.../dao/ReporteGeneralDAOTest.java`: consultas con H2 aislado.
+- `src/test/java/.../controllers/ReporteControllerTest.java`: carga del FXML y flujo
+  de selección, vista previa, invalidación, errores y exportación. Necesita una
+  sesión gráfica JavaFX, pero no abre ventanas ni toca la base del equipo.

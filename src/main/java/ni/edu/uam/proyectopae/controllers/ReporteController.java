@@ -1,190 +1,271 @@
 package ni.edu.uam.proyectopae.controllers;
 
 import javafx.beans.InvalidationListener;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
-import net.sf.jasperreports.engine.JasperPrint;
-import ni.edu.uam.proyectopae.dao.ReporteDAO;
+import ni.edu.uam.proyectopae.dao.ReporteGeneralDAO;
 import ni.edu.uam.proyectopae.dao.ServicioDAO;
-import ni.edu.uam.proyectopae.models.Cita;
 import ni.edu.uam.proyectopae.models.Servicio;
+import ni.edu.uam.proyectopae.reportes.*;
+import ni.edu.uam.proyectopae.reportes.ReporteJasperService.Formato;
 import ni.edu.uam.proyectopae.util.Alertas;
-import ni.edu.uam.proyectopae.reportes.ColumnaCita;
-import ni.edu.uam.proyectopae.reportes.ReporteJasperService;
-import ni.edu.uam.proyectopae.util.Formato;
+import ni.edu.uam.proyectopae.util.TemaPAE;
 import ni.edu.uam.proyectopae.util.VentanaManager;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class ReporteController {
-
     @FXML private VBox configuracion;
     @FXML private DatePicker dpDesde;
     @FXML private DatePicker dpHasta;
     @FXML private ComboBox<Servicio> cmbServicio;
-
-    @FXML private CheckBox chkId;
-    @FXML private CheckBox chkFecha;
-    @FXML private CheckBox chkCliente;
-    @FXML private CheckBox chkServicio;
-    @FXML private CheckBox chkEstado;
-
-    @FXML private TableView<Cita> tabla;
-    @FXML private TableColumn<Cita, Integer> colId;
-    @FXML private TableColumn<Cita, LocalDateTime> colFecha;
-    @FXML private TableColumn<Cita, String> colCliente;
-    @FXML private TableColumn<Cita, String> colServicio;
-    @FXML private TableColumn<Cita, String> colEstado;
-
+    @FXML private VBox listaApartados;
+    @FXML private Label lblSeleccion;
+    @FXML private TabPane vistaPrevia;
+    @FXML private VBox panelSinResultados;
+    @FXML private Label lblResumen;
     @FXML private Label lblEstado;
     @FXML private Button btnExportar;
+    @FXML private ProgressIndicator progreso;
 
-    @FXML private Label lblTotalCitas;
-    @FXML private Label lblCitasProgramadas;
-    @FXML private Label lblCitasCompletadas;
-    @FXML private Label lblCitasCanceladas;
-
-    private final ReporteDAO reporteDAO = new ReporteDAO();
-    private final ServicioDAO servicioDAO = new ServicioDAO();
-    private final Servicio todosLosServicios = new Servicio();
+    private final Map<ApartadoReporte, CheckBox> apartados = new EnumMap<>(ApartadoReporte.class);
+    private final Map<ApartadoReporte, Map<CampoReporte, CheckBox>> campos = new EnumMap<>(ApartadoReporte.class);
     private final BooleanProperty ocupado = new SimpleBooleanProperty(false);
-    private final ReporteJasperService jasper = new ReporteJasperService();
-    private JasperPrint reporteGenerado;
-    private LocalDate reporteDesde;
-    private LocalDate reporteHasta;
-    private String reporteServicio;
+    private final BooleanProperty listo = new SimpleBooleanProperty(false);
+    private final Servicio todosLosServicios = new Servicio();
+    private final Function<SolicitudReporte, DatosReporte> consultar;
+    private final Callable<List<Servicio>> listarServicios;
+    private final ReporteGeneralJasperService jasper;
+    private DocumentoReporte reporteGenerado;
+
+    public ReporteController() {
+        this(new ReporteGeneralDAO()::consultar, new ServicioDAO()::listarTodos,
+                new ReporteGeneralJasperService());
+    }
+
+    /** Permite comprobar la pantalla sin conectarla a la base de datos del equipo. */
+    ReporteController(Function<SolicitudReporte, DatosReporte> consultar,
+                      Callable<List<Servicio>> listarServicios, ReporteGeneralJasperService jasper) {
+        this.consultar = consultar;
+        this.listarServicios = listarServicios;
+        this.jasper = jasper;
+    }
 
     @FXML
     private void initialize() {
-        colId.setCellValueFactory(new PropertyValueFactory<>("idCita"));
-        colFecha.setCellValueFactory(new PropertyValueFactory<>("fechaHora"));
-        colCliente.setCellValueFactory(new PropertyValueFactory<>("nombreCliente"));
-        colServicio.setCellValueFactory(new PropertyValueFactory<>("nombreServicio"));
-        colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
-        colId.setUserData(ColumnaCita.ID);
-        colFecha.setUserData(ColumnaCita.FECHA);
-        colCliente.setUserData(ColumnaCita.CLIENTE);
-        colServicio.setUserData(ColumnaCita.SERVICIO);
-        colEstado.setUserData(ColumnaCita.ESTADO);
-
-        Formato.columnaFechaHora(colFecha);
-        tabla.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-
-        colId.visibleProperty().bind(chkId.selectedProperty());
-        colFecha.visibleProperty().bind(chkFecha.selectedProperty());
-        colCliente.visibleProperty().bind(chkCliente.selectedProperty());
-        colServicio.visibleProperty().bind(chkServicio.selectedProperty());
-        colEstado.visibleProperty().bind(chkEstado.selectedProperty());
-
+        construirChecklist();
         configuracion.disableProperty().bind(ocupado);
-        tabla.disableProperty().bind(ocupado);
-        btnExportar.disableProperty().bind(
-                ocupado.or(Bindings.isEmpty(tabla.getItems())));
+        vistaPrevia.disableProperty().bind(ocupado);
+        btnExportar.disableProperty().bind(ocupado.or(listo.not()));
+        progreso.visibleProperty().bind(ocupado);
+        progreso.managedProperty().bind(ocupado);
+        vistaPrevia.visibleProperty().bind(listo);
+        vistaPrevia.managedProperty().bind(listo);
+        panelSinResultados.visibleProperty().bind(listo.not());
+        panelSinResultados.managedProperty().bind(listo.not());
 
         todosLosServicios.setNombreServicio("Todos los servicios");
         cmbServicio.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(Servicio servicio) {
+            @Override public String toString(Servicio servicio) {
                 return servicio == null ? "" : servicio.getNombreServicio();
             }
-
-            @Override
-            public Servicio fromString(String texto) {
-                return null;
-            }
+            @Override public Servicio fromString(String texto) { return null; }
         });
         cmbServicio.getItems().add(todosLosServicios);
         cmbServicio.setValue(todosLosServicios);
-
         InvalidationListener cambio = observable -> invalidarVistaPrevia();
         dpDesde.valueProperty().addListener(cambio);
         dpHasta.valueProperty().addListener(cambio);
         cmbServicio.valueProperty().addListener(cambio);
-        chkId.selectedProperty().addListener(cambio);
-        chkFecha.selectedProperty().addListener(cambio);
-        chkCliente.selectedProperty().addListener(cambio);
-        chkServicio.selectedProperty().addListener(cambio);
-        chkEstado.selectedProperty().addListener(cambio);
 
-        ejecutar(servicioDAO::listarTodos,
-                servicios -> cmbServicio.getItems().addAll(servicios),
-                "No se pudieron cargar los servicios");
+        lblEstado.setText("Cargando servicios…");
+        ejecutar(listarServicios, servicios -> {
+            cmbServicio.getItems().addAll(servicios);
+            invalidarVistaPrevia();
+        }, "No se pudieron cargar los servicios");
+    }
+
+    private void construirChecklist() {
+        for (ApartadoReporte apartado : ApartadoReporte.values()) {
+            CheckBox incluir = new CheckBox(apartado.titulo());
+            incluir.setId("apartado_" + apartado.name());
+            incluir.setSelected(true);
+            incluir.setWrapText(true);
+            apartados.put(apartado, incluir);
+
+            VBox contenido = new VBox(8);
+            contenido.setPadding(new Insets(10));
+            contenido.disableProperty().bind(incluir.selectedProperty().not());
+            Label alcance = new Label(apartado.alcance());
+            alcance.setWrapText(true);
+            alcance.setMinHeight(Region.USE_PREF_SIZE);
+            alcance.getStyleClass().add("hint-label");
+            Button todos = new Button("Todos los campos");
+            Button ninguno = new Button("Ninguno");
+            todos.getStyleClass().add("btn-ghost");
+            ninguno.getStyleClass().add("btn-ghost");
+            todos.setOnAction(evento -> seleccionarCampos(apartado, true));
+            ninguno.setOnAction(evento -> seleccionarCampos(apartado, false));
+            contenido.getChildren().addAll(alcance, new HBox(8, todos, ninguno));
+
+            Map<CampoReporte, CheckBox> casillas = new LinkedHashMap<>();
+            campos.put(apartado, casillas);
+            for (CampoReporte campo : apartado.campos()) {
+                CheckBox casilla = new CheckBox(campo.titulo());
+                casilla.setId("campo_" + apartado.name() + "_" + campo.clave());
+                casilla.setWrapText(true);
+                casilla.setSelected(true);
+                casilla.selectedProperty().addListener(observable -> cambioSeleccion());
+                casillas.put(campo, casilla);
+                contenido.getChildren().add(casilla);
+            }
+            TitledPane panel = new TitledPane("", contenido);
+            panel.setId("panel_" + apartado.name());
+            panel.setGraphic(incluir);
+            panel.setAnimated(false);
+            panel.setExpanded(false);
+            panel.setMaxWidth(Double.MAX_VALUE);
+            listaApartados.getChildren().add(panel);
+            incluir.selectedProperty().addListener(observable -> cambioSeleccion());
+        }
+        actualizarSeleccion();
+    }
+
+    @FXML private void seleccionarTodos() {
+        apartados.values().forEach(casilla -> casilla.setSelected(true));
+        campos.keySet().forEach(apartado -> seleccionarCampos(apartado, true));
+    }
+
+    @FXML private void desmarcarTodos() {
+        apartados.values().forEach(casilla -> casilla.setSelected(false));
+    }
+
+    private void seleccionarCampos(ApartadoReporte apartado, boolean seleccionados) {
+        campos.get(apartado).values().forEach(casilla -> casilla.setSelected(seleccionados));
+    }
+
+    private void cambioSeleccion() {
+        actualizarSeleccion();
+        invalidarVistaPrevia();
+    }
+
+    private void actualizarSeleccion() {
+        long cantidad = apartados.values().stream().filter(CheckBox::isSelected).count();
+        long cantidadCampos = campos.entrySet().stream()
+                .filter(e -> apartados.get(e.getKey()).isSelected())
+                .flatMap(e -> e.getValue().values().stream()).filter(CheckBox::isSelected).count();
+        lblSeleccion.setText(cantidad + " apartados · " + cantidadCampos + " campos seleccionados");
+    }
+
+    SolicitudReporte crearSolicitud() {
+        Map<ApartadoReporte, List<CampoReporte>> seleccion = new EnumMap<>(ApartadoReporte.class);
+        apartados.forEach((apartado, casilla) -> {
+            if (casilla.isSelected()) {
+                List<CampoReporte> incluidos = campos.get(apartado).entrySet().stream()
+                        .filter(e -> e.getValue().isSelected()).map(Map.Entry::getKey).toList();
+                if (incluidos.isEmpty()) {
+                    throw new IllegalArgumentException("Selecciona al menos un campo en " + apartado.titulo() + ".");
+                }
+                seleccion.put(apartado, incluidos);
+            }
+        });
+        Servicio servicio = cmbServicio.getValue();
+        return new SolicitudReporte(dpDesde.getValue(), dpHasta.getValue(),
+                servicio == null ? null : servicio.getIdServicio(),
+                servicio == null ? null : servicio.getNombreServicio(), seleccion);
     }
 
     @FXML
     private void generarReporte() {
-        LocalDate desde = dpDesde.getValue();
-        LocalDate hasta = dpHasta.getValue();
-
-        if (desde != null && hasta != null && desde.isAfter(hasta)) {
-            Alertas.validacion("La fecha inicial debe ser anterior o igual a la fecha final.");
+        SolicitudReporte solicitud;
+        try {
+            solicitud = crearSolicitud();
+        } catch (IllegalArgumentException error) {
+            Alertas.validacion(error.getMessage());
             return;
         }
-        if (tabla.getVisibleLeafColumns().isEmpty()) {
-            Alertas.validacion("Selecciona al menos una columna para el reporte.");
-            return;
-        }
-
-        Servicio servicio = cmbServicio.getValue();
-        Integer idServicio = servicio == null ? null : servicio.getIdServicio();
-        String nombreServicio = servicio == null ? "Todos los servicios" : servicio.getNombreServicio();
-        List<ColumnaCita> columnas = columnasSeleccionadas();
-
         invalidarVistaPrevia();
-        lblEstado.setText("Generando reporte…");
-
-        ejecutar(() -> {
-            List<Cita> citas = reporteDAO.buscarCitas(desde, hasta, idServicio);
-            return new ResultadoReporte(citas, jasper.generar(citas, columnas, desde, hasta, nombreServicio));
-        }, resultado -> {
-            List<Cita> citas = resultado.citas();
-            reporteGenerado = resultado.reporte();
-            reporteDesde = desde;
-            reporteHasta = hasta;
-            reporteServicio = nombreServicio;
-            tabla.getItems().setAll(citas);
-            tabla.sort();
-
-            long prog = citas.stream().filter(c -> "PROGRAMADA".equalsIgnoreCase(c.getEstado())).count();
-            long comp = citas.stream().filter(c -> "COMPLETADA".equalsIgnoreCase(c.getEstado())).count();
-            long canc = citas.stream().filter(c -> "CANCELADA".equalsIgnoreCase(c.getEstado())).count();
-
-            if (lblTotalCitas != null) lblTotalCitas.setText(citas.size() + " citas");
-            if (lblCitasProgramadas != null) lblCitasProgramadas.setText(prog + " programadas");
-            if (lblCitasCompletadas != null) lblCitasCompletadas.setText(comp + " completadas");
-            if (lblCitasCanceladas != null) lblCitasCanceladas.setText(canc + " canceladas");
-
-            lblEstado.setText(citas.isEmpty()
-                    ? "No se encontraron citas con esos filtros."
-                    : "Reporte listo. Citas en la vista previa: " + citas.size());
-        }, "No se pudo generar el reporte");
+        lblEstado.setText("Consultando datos y generando el reporte…");
+        ejecutar(() -> jasper.generar(consultar.apply(solicitud)), this::mostrarReporte,
+                "No se pudo generar el reporte");
     }
 
-    @FXML
-    private void limpiarFiltros() {
+    private void mostrarReporte(DocumentoReporte documento) {
+        reporteGenerado = documento;
+        for (SeccionReporte seccion : documento.datos().secciones()) {
+            TableView<Map<String, String>> tabla = new TableView<>();
+            tabla.getStyleClass().add("filas-multilinea");
+            tabla.setId("tabla_" + seccion.apartado().name());
+            tabla.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+            tabla.setPlaceholder(new Label("Sin registros con los filtros seleccionados."));
+            for (CampoReporte campo : seccion.campos()) {
+                TableColumn<Map<String, String>, String> columna = new TableColumn<>(campo.titulo());
+                columna.setId(campo.clave());
+                columna.setCellValueFactory(celda -> new SimpleStringProperty(celda.getValue().get(campo.clave())));
+                columna.setMinWidth(90);
+                columna.setPrefWidth(Math.max(110, campo.peso()));
+                // El PDF y el CSV mantienen el mismo orden de la consulta y de los campos.
+                columna.setSortable(false);
+                columna.setReorderable(false);
+                columna.setCellFactory(c -> new TableCell<>() {
+                    { setWrapText(true); }
+                    @Override protected void updateItem(String texto, boolean vacia) {
+                        super.updateItem(texto, vacia);
+                        setText(vacia ? null : texto);
+                    }
+                });
+                tabla.getColumns().add(columna);
+            }
+            tabla.getItems().setAll(seccion.filas());
+            Label alcance = new Label(seccion.apartado().alcance());
+            alcance.setWrapText(true);
+            alcance.setMinHeight(Region.USE_PREF_SIZE);
+            alcance.getStyleClass().add("hint-label");
+            Label resumen = new Label(seccion.resumen());
+            resumen.setWrapText(true);
+            resumen.setMinHeight(Region.USE_PREF_SIZE);
+            resumen.getStyleClass().add("form-label");
+            VBox contenido = new VBox(10, alcance, tabla, resumen);
+            contenido.setPadding(new Insets(12, 0, 0, 0));
+            VBox.setVgrow(tabla, Priority.ALWAYS);
+            Tab tab = new Tab(seccion.apartado().titulo() + " (" + seccion.filas().size() + ")", contenido);
+            tab.setId(seccion.apartado().name());
+            tab.setClosable(false);
+            vistaPrevia.getTabs().add(tab);
+        }
+        listo.set(true);
+        lblResumen.setText(documento.datos().secciones().size() + " apartados · "
+                + documento.datos().totalRegistros() + " filas · " + documento.paginasPdf() + " páginas PDF\n"
+                + documento.datos().solicitud().descripcionFiltros() + "\nGenerado el "
+                + documento.datos().generado().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+        lblEstado.setText("Reporte listo. Revisá los apartados en las pestañas y exportá en PDF o CSV.");
+        TemaPAE.aplicar(vistaPrevia);
+    }
+
+    @FXML private void limpiarFiltros() {
         dpDesde.setValue(null);
         dpHasta.setValue(null);
         cmbServicio.setValue(todosLosServicios);
@@ -193,95 +274,65 @@ public class ReporteController {
 
     private void invalidarVistaPrevia() {
         reporteGenerado = null;
-        tabla.getItems().clear();
-        if (lblTotalCitas != null) lblTotalCitas.setText("0 citas");
-        if (lblCitasProgramadas != null) lblCitasProgramadas.setText("0 programadas");
-        if (lblCitasCompletadas != null) lblCitasCompletadas.setText("0 completadas");
-        if (lblCitasCanceladas != null) lblCitasCanceladas.setText("0 canceladas");
+        listo.set(false);
+        vistaPrevia.getTabs().clear();
+        lblResumen.setText("Generá el reporte para consultar los apartados seleccionados.");
         lblEstado.setText("Pulsa Generar reporte para actualizar la vista previa.");
     }
 
     @FXML
     private void exportarReporte() {
-        if (reporteGenerado == null || tabla.getItems().isEmpty()) {
-            Alertas.validacion("Genera el reporte antes de exportarlo.");
-            return;
-        }
+        if (reporteGenerado == null) return;
         FileChooser selector = new FileChooser();
-        selector.setTitle("Guardar reporte de citas");
-        selector.setInitialFileName("reporte-citas.pdf");
+        selector.setTitle("Guardar reporte general");
+        selector.setInitialFileName("reporte-general.pdf");
         FileChooser.ExtensionFilter pdf = new FileChooser.ExtensionFilter("Documento PDF", "*.pdf");
         FileChooser.ExtensionFilter csv = new FileChooser.ExtensionFilter("Archivo CSV", "*.csv");
         selector.getExtensionFilters().addAll(pdf, csv);
         selector.setSelectedExtensionFilter(pdf);
+        File archivo = selector.showSaveDialog(vistaPrevia.getScene().getWindow());
+        if (archivo == null) return;
 
-        File archivo = selector.showSaveDialog(tabla.getScene().getWindow());
-        if (archivo == null) {
-            return;
-        }
-
-        ReporteJasperService.Formato formato = selector.getSelectedExtensionFilter() == csv
-                ? ReporteJasperService.Formato.CSV : ReporteJasperService.Formato.PDF;
-        String extension = formato == ReporteJasperService.Formato.PDF ? ".pdf" : ".csv";
+        Formato formato = selector.getSelectedExtensionFilter() == csv ? Formato.CSV : Formato.PDF;
+        String extension = formato == Formato.PDF ? ".pdf" : ".csv";
         Path destino = archivo.toPath();
         if (!archivo.getName().toLowerCase(Locale.ROOT).endsWith(extension)) {
             String nombre = archivo.getName().replaceFirst("(?i)\\.(pdf|csv)$", "");
             destino = destino.resolveSibling(nombre + extension);
             if (Files.exists(destino) && !Alertas.confirmar(
-                    "Reemplazar archivo", "¿Deseas reemplazar " + destino.getFileName() + "?")) {
-                return;
-            }
+                    "Reemplazar archivo", "¿Deseas reemplazar " + destino.getFileName() + "?")) return;
         }
+        guardarReporte(destino, formato);
+    }
 
-        List<ColumnaCita> columnas = columnasSeleccionadas();
-        List<Cita> citas = List.copyOf(tabla.getItems());
-        LocalDate desde = reporteDesde;
-        LocalDate hasta = reporteHasta;
-        String servicio = reporteServicio;
-        Path destinoFinal = destino;
+    void guardarReporte(Path destino, Formato formato) {
+        if (reporteGenerado == null || ocupado.get()) return;
+        DocumentoReporte documento = reporteGenerado;
         lblEstado.setText("Exportando reporte…");
-
         ejecutar(() -> {
-                    // Regenerar respeta también el orden actual de filas y columnas de la tabla.
-                    JasperPrint reporte = jasper.generar(citas, columnas, desde, hasta, servicio);
-                    jasper.exportar(reporte, destinoFinal, formato);
-                    return destinoFinal.getFileName().toString();
-                }, nombre -> lblEstado.setText("Archivo guardado: " + nombre),
-                "No se pudo exportar el reporte");
+            jasper.exportar(documento, destino, formato);
+            return destino.getFileName().toString();
+        }, nombre -> lblEstado.setText("Archivo guardado: " + nombre), "No se pudo exportar el reporte");
     }
-
-    private List<ColumnaCita> columnasSeleccionadas() {
-        return tabla.getVisibleLeafColumns().stream()
-                .map(columna -> (ColumnaCita) columna.getUserData()).toList();
-    }
-
-    private record ResultadoReporte(List<Cita> citas, JasperPrint reporte) { }
 
     private <T> void ejecutar(Callable<T> operacion, Consumer<T> completar, String mensajeError) {
         ocupado.set(true);
-
         Task<T> tarea = new Task<>() {
-            @Override
-            protected T call() throws Exception {
-                return operacion.call();
-            }
+            @Override protected T call() throws Exception { return operacion.call(); }
         };
-
         tarea.setOnSucceeded(evento -> {
             ocupado.set(false);
             completar.accept(tarea.getValue());
         });
-
         tarea.setOnFailed(evento -> {
             ocupado.set(false);
-            lblEstado.setText(mensajeError);
-
-            Scene escena = tabla.getScene();
+            String detalle = VentanaManager.causaRaiz(tarea.getException());
+            lblEstado.setText(mensajeError + ": " + detalle);
+            Scene escena = vistaPrevia.getScene();
             if (escena != null && escena.getWindow() != null && escena.getWindow().isShowing()) {
-                Alertas.error(mensajeError, VentanaManager.causaRaiz(tarea.getException()));
+                Alertas.error(mensajeError, detalle);
             }
         });
-
         Thread hilo = new Thread(tarea, "proyectopae-reportes");
         hilo.setDaemon(true);
         hilo.start();

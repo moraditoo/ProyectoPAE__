@@ -293,7 +293,19 @@ public final class TemaPAE {
             icono.setIconColor(tinta);
         }
 
-        if (nodo instanceof ScrollPane scroll) {
+        if (nodo instanceof TitledPane panel) {
+            TemaComplementos.aplicar(panel);
+            pintar(panel.getGraphic());
+            pintar(panel.getContent());
+
+        } else if (nodo instanceof TabPane panel) {
+            TemaComplementos.aplicar(panel);
+            for (Tab tab : panel.getTabs()) {
+                pintar(tab.getGraphic());
+                pintar(tab.getContent());
+            }
+
+        } else if (nodo instanceof ScrollPane scroll) {
             TemaComplementos.aplicar(scroll);
             pintar(scroll.getContent());
 
