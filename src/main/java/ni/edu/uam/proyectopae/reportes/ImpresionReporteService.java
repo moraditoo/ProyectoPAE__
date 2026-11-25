@@ -1,82 +1,52 @@
 package ni.edu.uam.proyectopae.reportes;
 
-import javafx.print.PageLayout;
-import javafx.print.PrinterJob;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelFormat;
-import javafx.scene.image.WritableImage;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperPrintManager;
+import net.sf.jasperreports.engine.SimplePrintPart;
+import net.sf.jasperreports.view.JasperViewer;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Locale;
 import java.util.Objects;
 
-/** Usa las mismas páginas que se exportan al PDF, sin volver a consultar la base. */
+/** Abre el visor original de JasperReports con todos los apartados del reporte. */
 public final class ImpresionReporteService {
-    private record Pagina(JasperPrint apartado, int indice) { }
-
-    private final List<Pagina> paginas = new ArrayList<>();
-
-    public ImpresionReporteService(DocumentoReporte documento) {
+    public JasperPrint preparar(DocumentoReporte documento) throws JRException {
         Objects.requireNonNull(documento, "Genera el reporte antes de imprimirlo.");
+        if (documento.paginasPdf() == 0) {
+            throw new IllegalArgumentException("El reporte no contiene páginas.");
+        }
+
+        JasperPrint completo = new JasperPrint();
+        completo.copyFrom(documento.apartadosPdf().getFirst());
+        completo.getPages().clear();
+        completo.setName("Reporte general - Proyecto PAE");
+
         for (JasperPrint apartado : documento.apartadosPdf()) {
-            for (int i = 0; i < apartado.getPages().size(); i++) {
-                paginas.add(new Pagina(apartado, i));
-            }
+            if (apartado.getPages().isEmpty()) continue;
+            completo.addPart(completo.getPages().size(),
+                    SimplePrintPart.fromJasperPrint(apartado, apartado.getName()));
+            for (var estilo : apartado.getStylesList()) completo.addStyle(estilo, true);
+            for (var origen : apartado.getOriginsList()) completo.addOrigin(origen);
+            for (var pagina : apartado.getPages()) completo.addPage(pagina);
         }
-        if (paginas.isEmpty()) throw new IllegalArgumentException("El reporte no contiene páginas.");
+        return completo;
     }
 
-    public int cantidadPaginas() {
-        return paginas.size();
-    }
-
-    public String tituloPagina(int indice) {
-        return paginas.get(indice).apartado().getName();
-    }
-
-    public Image renderizarPagina(int indice, float escala) throws JRException {
-        if (!Float.isFinite(escala) || escala <= 0 || escala > 4) {
-            throw new IllegalArgumentException("La escala debe ser mayor que cero y no superar 4.");
-        }
-        Pagina pagina = paginas.get(indice);
-        BufferedImage original = (BufferedImage) JasperPrintManager.printPageToImage(
-                pagina.apartado(), pagina.indice(), escala);
-        int ancho = original.getWidth();
-        int alto = original.getHeight();
-        int[] pixeles = original.getRGB(0, 0, ancho, alto, null, 0, ancho);
-        WritableImage imagen = new WritableImage(ancho, alto);
-        imagen.getPixelWriter().setPixels(0, 0, ancho, alto,
-                PixelFormat.getIntArgbInstance(), pixeles, 0, ancho);
-        original.flush();
-        return imagen;
-    }
-
-    /** Se ejecuta en segundo plano con nodos independientes de la vista previa. */
-    public void imprimir(PrinterJob trabajo) throws JRException {
-        Objects.requireNonNull(trabajo, "Selecciona una impresora.");
-        try {
-            PageLayout papel = trabajo.getJobSettings().getPageLayout();
-            // JavaFX aplica los rangos del diálogo a la numeración global del trabajo.
-            for (int i = 0; i < paginas.size(); i++) {
-                ImageView hoja = new ImageView(renderizarPagina(i, 3f));
-                hoja.setPreserveRatio(true);
-                hoja.setFitWidth(papel.getPrintableWidth());
-                hoja.setFitHeight(papel.getPrintableHeight());
-                if (!trabajo.printPage(papel, hoja)) {
-                    throw new IllegalStateException("La impresión se canceló o la impresora no pudo recibir una página.");
-                }
-            }
-            if (!trabajo.endJob()) {
-                throw new IllegalStateException("No se pudo completar el envío a la impresora.");
-            }
-        } catch (JRException | RuntimeException error) {
-            trabajo.cancelJob();
-            throw error;
-        }
+    /** La preparación se llama desde la tarea del controlador; Swing abre su propio visor. */
+    public void mostrar(DocumentoReporte documento)
+            throws JRException, InvocationTargetException, InterruptedException {
+        JasperPrint completo = preparar(documento);
+        Runnable abrir = () -> {
+            JasperViewer visor = new JasperViewer(completo, false, Locale.forLanguageTag("es"));
+            // Evita el fallo de limpieza de pestañas de JasperReports 7.0.6 al cerrar un libro.
+            for (var cierre : visor.getWindowListeners()) visor.removeWindowListener(cierre);
+            visor.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            visor.setVisible(true);
+        };
+        if (SwingUtilities.isEventDispatchThread()) abrir.run();
+        else SwingUtilities.invokeAndWait(abrir);
     }
 }

@@ -263,7 +263,7 @@ public class ReporteController {
                 + documento.datos().totalRegistros() + " filas · " + documento.paginasPdf() + " páginas PDF\n"
                 + documento.datos().solicitud().descripcionFiltros() + "\nGenerado el "
                 + documento.datos().generado().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-        lblEstado.setText("Reporte listo. Revisa los apartados y pulsa Imprimir para ver el PDF, imprimirlo o guardarlo.");
+        lblEstado.setText("Reporte listo. Pulsa Imprimir para abrir JasperViewer y usar sus opciones de impresión y guardado.");
         TemaPAE.aplicar(vistaPrevia);
     }
 
@@ -285,11 +285,13 @@ public class ReporteController {
     @FXML
     private void imprimirReporte() {
         if (reporteGenerado == null || ocupado.get()) return;
-        try {
-            VistaPreviaPdf.mostrar(vistaPrevia.getScene().getWindow(), reporteGenerado);
-        } catch (RuntimeException error) {
-            Alertas.error("No se pudo abrir la vista previa del PDF", VentanaManager.causaRaiz(error));
-        }
+        DocumentoReporte documento = reporteGenerado;
+        lblEstado.setText("Abriendo el visor de JasperReports.");
+        ejecutar(() -> {
+            new ImpresionReporteService().mostrar(documento);
+            return documento.paginasPdf();
+        }, paginas -> lblEstado.setText("Reporte abierto en JasperViewer: " + paginas + " páginas."),
+                "No se pudo abrir el visor de JasperReports");
     }
 
     @FXML

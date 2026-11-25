@@ -54,7 +54,7 @@
                         <Label text="Vista previa" styleClass="card-title"/>
                         <Button fx:id="btnImprimir" text="Imprimir" onAction="#imprimirReporte" styleClass="btn-primary">
                             <graphic><FontIcon iconLiteral="fas-print" iconSize="14"/></graphic>
-                            <tooltip><Tooltip text="Previsualizar el PDF para imprimirlo o guardarlo"/></tooltip>
+                            <tooltip><Tooltip text="Abrir el visor original de JasperReports para imprimir o guardar"/></tooltip>
                         </Button>
                         <Button fx:id="btnExportar" text="Exportar PDF / CSV" onAction="#exportarReporte" styleClass="btn-secondary">
                             <graphic><FontIcon iconLiteral="fas-download" iconSize="14"/></graphic>
