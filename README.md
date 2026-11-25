@@ -1,7 +1,7 @@
 # Proyecto PAE
 
 Aplicación JavaFX con JDK 21, Hibernate y PostgreSQL. Los reportes generales se
-generan con **JasperReports 7.0.6** y se exportan en PDF y CSV, con apartados y
+generan con **JasperReports 7.0.6** y se exportan únicamente en PDF, con apartados y
 campos seleccionables mediante casillas.
 
 La [guía de instalación del equipo](docs/CONFIGURACION_EQUIPO.md) contiene los pasos
@@ -51,18 +51,16 @@ En **Menú → Reportes**:
    **Ninguno**, junto a ese botón, desmarca los apartados conservando sus campos.
 3. Elegir fechas y servicio si corresponde; dejarlos vacíos incluye todo el período.
 4. Pulsar **Generar reporte** y revisar cada apartado en su pestaña.
-5. Pulsar **Imprimir** para abrir la vista previa del PDF. Recorrer las páginas
-   con **Anterior / Siguiente** y ajustar la ampliación si hace falta.
-6. Desde esa ventana, pulsar **Imprimir** para elegir impresora, copias y páginas,
-   o **Guardar PDF** para elegir la ubicación del documento.
-   **Exportar PDF / CSV** sigue disponible en el generador para elegir cualquiera
-   de los dos formatos.
+5. Pulsar **Imprimir** para abrir **JasperViewer**, el visor original de JasperReports.
+   Su barra de herramientas permite recorrer las páginas y ajustar la ampliación.
+6. Desde JasperViewer, usar el icono de impresora para imprimir o el icono de
+   guardar para elegir el formato **PDF** y la ubicación del documento.
+   **Exportar PDF** también permite guardar el documento desde el generador.
 
-La vista previa muestra las mismas páginas que se guardan en el PDF y conserva
-los datos del reporte generado. La impresión se ajusta al papel elegido sin
-recortar la página. Si no hay impresoras disponibles, se puede usar **Guardar PDF**.
-Los controles de la ventana respetan el modo claro y oscuro; las hojas conservan
-el fondo blanco del documento. Consulta la [guía de impresión](docs/IMPRESION_REPORTES.md).
+El visor reúne los apartados del reporte generado y conserva sus tamaños de página
+A4 o A3, sin consultar de nuevo la base. Utiliza la interfaz Swing propia de
+JasperReports, con sus controles y apariencia originales. Cerrar JasperViewer
+conserva abierta la aplicación. Consulta la [guía de impresión](docs/IMPRESION_REPORTES.md).
 
 Están disponibles resumen general, productos e inventario, lotes y caducidad,
 clientes, servicios, agenda de citas, ventas, detalle de ventas, consumos de
@@ -74,10 +72,9 @@ servicio afecta servicios, citas, consumos y los indicadores de citas del resume
 las ventas de productos son independientes del servicio.
 
 El PDF incluye una sección por apartado, con tablas en A4 o A3 horizontal según
-la cantidad de campos. El CSV reúne los apartados en cuatro columnas: **Apartado,
-Registro, Campo y Valor**, con una fila por campo seleccionado. Registro es la
-posición de la fila dentro del apartado; los identificadores de la base son campos
-seleccionables. PDF y CSV conservan la selección y los datos de la vista previa.
+la cantidad de campos. Los identificadores de la base son campos seleccionables.
+El PDF conserva la selección y los datos de la vista previa. JasperViewer ofrece
+únicamente PDF en su opción de guardado.
 
 Cambiar filtros o casillas limpia la vista previa y requiere generar de nuevo.
 Los apartados sin resultados se pueden exportar con el aviso **Sin registros con

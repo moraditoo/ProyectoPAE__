@@ -19,7 +19,6 @@ import ni.edu.uam.proyectopae.dao.ReporteGeneralDAO;
 import ni.edu.uam.proyectopae.dao.ServicioDAO;
 import ni.edu.uam.proyectopae.models.Servicio;
 import ni.edu.uam.proyectopae.reportes.*;
-import ni.edu.uam.proyectopae.reportes.ReporteJasperService.Formato;
 import ni.edu.uam.proyectopae.util.Alertas;
 import ni.edu.uam.proyectopae.util.TemaPAE;
 import ni.edu.uam.proyectopae.util.VentanaManager;
@@ -229,7 +228,7 @@ public class ReporteController {
                 columna.setCellValueFactory(celda -> new SimpleStringProperty(celda.getValue().get(campo.clave())));
                 columna.setMinWidth(90);
                 columna.setPrefWidth(Math.max(110, campo.peso()));
-                // El PDF y el CSV mantienen el mismo orden de la consulta y de los campos.
+                // El PDF mantiene el mismo orden de la consulta y de los campos.
                 columna.setSortable(false);
                 columna.setReorderable(false);
                 columna.setCellFactory(c -> new TableCell<>() {
@@ -263,7 +262,7 @@ public class ReporteController {
                 + documento.datos().totalRegistros() + " filas · " + documento.paginasPdf() + " páginas PDF\n"
                 + documento.datos().solicitud().descripcionFiltros() + "\nGenerado el "
                 + documento.datos().generado().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-        lblEstado.setText("Reporte listo. Revisa los apartados y pulsa Imprimir para ver el PDF, imprimirlo o guardarlo.");
+        lblEstado.setText("Reporte listo. Pulsa Imprimir para abrir JasperViewer y usar sus opciones de impresión y guardado.");
         TemaPAE.aplicar(vistaPrevia);
     }
 
@@ -285,44 +284,42 @@ public class ReporteController {
     @FXML
     private void imprimirReporte() {
         if (reporteGenerado == null || ocupado.get()) return;
-        try {
-            VistaPreviaPdf.mostrar(vistaPrevia.getScene().getWindow(), reporteGenerado);
-        } catch (RuntimeException error) {
-            Alertas.error("No se pudo abrir la vista previa del PDF", VentanaManager.causaRaiz(error));
-        }
+        DocumentoReporte documento = reporteGenerado;
+        lblEstado.setText("Abriendo el visor de JasperReports.");
+        ejecutar(() -> {
+            new ImpresionReporteService().mostrar(documento);
+            return documento.paginasPdf();
+        }, paginas -> lblEstado.setText("Reporte abierto en JasperViewer: " + paginas + " páginas."),
+                "No se pudo abrir el visor de JasperReports");
     }
 
     @FXML
     private void exportarReporte() {
         if (reporteGenerado == null) return;
         FileChooser selector = new FileChooser();
-        selector.setTitle("Guardar reporte general");
+        selector.setTitle("Guardar reporte general en PDF");
         selector.setInitialFileName("reporte-general.pdf");
         FileChooser.ExtensionFilter pdf = new FileChooser.ExtensionFilter("Documento PDF", "*.pdf");
-        FileChooser.ExtensionFilter csv = new FileChooser.ExtensionFilter("Archivo CSV", "*.csv");
-        selector.getExtensionFilters().addAll(pdf, csv);
+        selector.getExtensionFilters().add(pdf);
         selector.setSelectedExtensionFilter(pdf);
         File archivo = selector.showSaveDialog(vistaPrevia.getScene().getWindow());
         if (archivo == null) return;
 
-        Formato formato = selector.getSelectedExtensionFilter() == csv ? Formato.CSV : Formato.PDF;
-        String extension = formato == Formato.PDF ? ".pdf" : ".csv";
         Path destino = archivo.toPath();
-        if (!archivo.getName().toLowerCase(Locale.ROOT).endsWith(extension)) {
-            String nombre = archivo.getName().replaceFirst("(?i)\\.(pdf|csv)$", "");
-            destino = destino.resolveSibling(nombre + extension);
+        if (!archivo.getName().toLowerCase(Locale.ROOT).endsWith(".pdf")) {
+            destino = destino.resolveSibling(archivo.getName() + ".pdf");
             if (Files.exists(destino) && !Alertas.confirmar(
                     "Reemplazar archivo", "¿Deseas reemplazar " + destino.getFileName() + "?")) return;
         }
-        guardarReporte(destino, formato);
+        guardarReporte(destino);
     }
 
-    void guardarReporte(Path destino, Formato formato) {
+    void guardarReporte(Path destino) {
         if (reporteGenerado == null || ocupado.get()) return;
         DocumentoReporte documento = reporteGenerado;
         lblEstado.setText("Exportando reporte…");
         ejecutar(() -> {
-            jasper.exportar(documento, destino, formato);
+            jasper.exportarPdf(documento, destino);
             return destino.getFileName().toString();
         }, nombre -> lblEstado.setText("Archivo guardado: " + nombre), "No se pudo exportar el reporte");
     }

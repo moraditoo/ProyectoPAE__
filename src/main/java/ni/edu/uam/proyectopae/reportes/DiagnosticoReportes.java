@@ -1,7 +1,6 @@
 package ni.edu.uam.proyectopae.reportes;
 
 import ni.edu.uam.proyectopae.dao.ReporteGeneralDAO;
-import ni.edu.uam.proyectopae.reportes.ReporteJasperService.Formato;
 import ni.edu.uam.proyectopae.util.HibernateUtil;
 import ni.edu.uam.proyectopae.util.VentanaManager;
 
@@ -24,9 +23,8 @@ public final class DiagnosticoReportes {
         Files.createDirectories(carpeta);
         ReporteGeneralJasperService jasper = new ReporteGeneralJasperService();
         DocumentoReporte documento = jasper.generar(ejemplo());
-        jasper.exportar(documento, carpeta.resolve("reporte-general-ejemplo.pdf"), Formato.PDF);
-        jasper.exportar(documento, carpeta.resolve("reporte-general-ejemplo.csv"), Formato.CSV);
-        System.out.println("[OK] JasperReports: 12 apartados, JRXML, fuentes, PDF y CSV en " + carpeta.toAbsolutePath());
+        jasper.exportarPdf(documento, carpeta.resolve("reporte-general-ejemplo.pdf"));
+        System.out.println("[OK] JasperReports: 12 apartados, JRXML, fuentes y PDF en " + carpeta.toAbsolutePath());
         if (Arrays.asList(args).contains("--sin-bd")) return;
 
         try {

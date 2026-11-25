@@ -117,7 +117,7 @@ Cambiar `verificar` por `diagnostico` o `ejecutar` según corresponda.
 Resultados esperados:
 
 - **verificar:** `BUILD SUCCESS`, con todas las pruebas de reportes aprobadas.
-  Comprueba compilación, plantilla, PDF, CSV, columnas, varias páginas y textos
+  Comprueba compilación, plantilla, PDF, columnas, varias páginas y textos
   largos. No necesita servidor de base de datos ni interfaz gráfica.
 - **diagnostico:** muestra `[OK] JasperReports` y `[OK] PostgreSQL e Hibernate`,
   seguidos de `BUILD SUCCESS`. Usa el mismo sistema de módulos que la aplicación,
@@ -128,7 +128,7 @@ Resultados esperados:
   la cuenta inicial predeterminada es `admin` / `admin123`. Si la base ya tenía
   cuentas, usar una de esas cuentas.
 
-El diagnóstico escribe `reporte-general-ejemplo.pdf` y `reporte-general-ejemplo.csv` dentro de
+El diagnóstico escribe `reporte-general-ejemplo.pdf` dentro de
 `target/diagnostico-reportes`. `verificar` limpia `target`, por lo que debe
 ejecutarse antes del diagnóstico si se quieren conservar los ejemplos para revisar.
 
@@ -196,14 +196,12 @@ Jaspersoft documenta la [compatibilidad entre Studio y el motor](https://communi
 `GENERADO` y `RESUMEN`, los estilos `Cabecera` y `Celda`, las bandas de cabecera y
 detalle, y las claves `ancho_*` y `pagina`. `ReporteGeneralJasperService` agrega
 los campos String y sus columnas a esas bandas. Las claves de las columnas
-generadas son `cabecera_<clave>` y `detalle_<clave>`. Conservar las propiedades
-`export.csv` para excluir títulos, totales, pies y cabeceras repetidas del CSV.
+generadas son `cabecera_<clave>` y `detalle_<clave>`.
 
 El catálogo de opciones está en `ApartadoReporte`; la selección inmutable, en
 `SolicitudReporte`, y las consultas de solo lectura, en `ReporteGeneralDAO`.
 El PDF combina un documento por apartado y usa A3 horizontal al superar ocho
-campos. El CSV usa siempre Apartado, Registro, Campo y Valor para admitir varios
-apartados con campos distintos en un único archivo.
+campos.
 
 `citas.jrxml` y `ReporteJasperService` conservan el motor anterior y sus pruebas;
 la pantalla de reportes utiliza el motor general.
@@ -222,11 +220,11 @@ para conservar los acentos y el aspecto en los cuatro equipos.
 4. Elegir fechas que incluyan esa cita, pulsar **Generar reporte** y comprobar
    ambas pestañas, los campos y los datos. La tabla permite desplazarse para ver
    todas las columnas; el orden de la consulta se conserva en la exportación.
-5. Pulsar **Exportar PDF / CSV**, guardar un PDF y comprobar sus dos secciones.
-6. Elegir CSV en el mismo diálogo y comprobar sus columnas Apartado, Registro,
-   Campo y Valor. Un registro produce una fila por campo elegido.
+5. Pulsar **Exportar PDF**, guardar un PDF y comprobar sus dos secciones.
+6. Pulsar **Imprimir** y comprobar que JasperViewer permite imprimir y guardar
+   únicamente en PDF desde su barra de herramientas original.
 7. Desmarcar un campo: la vista previa se limpia y Exportar queda desactivado.
-   Generar de nuevo y comprobar que ese campo ya no aparece en ambos formatos.
+   Generar de nuevo y comprobar que ese campo ya no aparece en el PDF.
 8. Dejar solo Agenda de citas y probar un intervalo sin citas. La tabla muestra
    el aviso de ausencia de registros y permite exportar ese resultado.
 9. Pulsar **Seleccionar todo** y generar para comprobar los 12 apartados. Los
@@ -253,7 +251,7 @@ plano; mientras trabajan se desactivan los controles relacionados.
   Conservar la misma versión para las cuatro dependencias de JasperReports.
 - **Error al leer el JRXML:** comprobar que Studio usa la versión acordada,
   conservar las claves y campos de la plantilla y volver a ejecutar las pruebas.
-- **No se puede guardar el PDF o CSV:** cerrar el archivo en el visor o Excel,
+- **No se puede guardar el PDF:** cerrar el archivo en el visor,
   elegir una carpeta con permiso de escritura y volver a exportar.
 - **No aparecen datos:** comprobar las fechas y el servicio; cada compañero ve
   los datos de su propia base. El diagnóstico no registra citas ficticias.
@@ -264,7 +262,7 @@ plano; mientras trabajan se desactivan los controles relacionados.
 
 Cada integrante debe confirmar que: `verificar` termina correctamente,
 `diagnostico` muestra ambos `[OK]`, la aplicación permite iniciar sesión y el flujo
-de usuario produce un PDF y un CSV con varios apartados de su base. La verificación de una
+de usuario produce un PDF con varios apartados de su base. La verificación de una
 computadora no sustituye la de las otras tres.
 
 ## Archivos de la integración
@@ -275,7 +273,7 @@ computadora no sustituye la de las otras tres.
 - `reportes/ApartadoReporte.java` y `SolicitudReporte.java`: campos y selección.
 - `dao/ReporteGeneralDAO.java`: consultas de solo lectura mediante Hibernate.
 - `reportes/ReporteGeneralJasperService.java`: generación de todos los apartados.
-- `reportes/ExportadorJasper.java`: guardado PDF y CSV con protección de fórmulas.
+- `reportes/ExportadorJasper.java`: guardado PDF con escritura temporal.
 - `controllers/ReporteController.java`: checklist, filtros, pestañas y guardado desde JavaFX.
 - `reportes/DiagnosticoReportes.java`: verificación del motor y PostgreSQL local.
 - `scripts/pae.ps1`: selección de JDK y comandos comunes del equipo.

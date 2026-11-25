@@ -2,11 +2,6 @@
 <jasperReport name="ReporteCitas" language="java" pageWidth="842" pageHeight="595"
               orientation="Landscape" columnWidth="782" leftMargin="30" rightMargin="30"
               topMargin="25" bottomMargin="25" whenNoDataType="AllSectionsNoDetail">
-    <!-- CSV: solo encabezado y datos; el encabezado se exporta una vez. -->
-    <property name="net.sf.jasperreports.export.csv.exclude.origin.band.1" value="title"/>
-    <property name="net.sf.jasperreports.export.csv.exclude.origin.band.2" value="pageFooter"/>
-    <property name="net.sf.jasperreports.export.csv.exclude.origin.band.3" value="summary"/>
-    <property name="net.sf.jasperreports.export.csv.exclude.origin.keep.first.band.1" value="columnHeader"/>
     <style name="Base" default="true" fontName="DejaVu Sans" fontSize="10.0" forecolor="#302A35"/>
     <style name="Cabecera" style="Base" mode="Opaque" backcolor="#5B2D62" forecolor="#FFFFFF"
            bold="true" vTextAlign="Middle">

@@ -9,7 +9,7 @@
     <top>
         <VBox styleClass="encabezado-modulo" spacing="5">
             <Label text="Reportes generales" styleClass="header-title"/>
-            <Label text="Elegí los apartados y campos que querés incluir; revisalos y exportá en PDF o CSV."
+            <Label text="Elegí los apartados y campos que querés incluir; revisalos y exportá en PDF con JasperReports."
                    styleClass="header-subtitle" wrapText="true" minHeight="-Infinity"/>
         </VBox>
     </top>
@@ -54,9 +54,9 @@
                         <Label text="Vista previa" styleClass="card-title"/>
                         <Button fx:id="btnImprimir" text="Imprimir" onAction="#imprimirReporte" styleClass="btn-primary">
                             <graphic><FontIcon iconLiteral="fas-print" iconSize="14"/></graphic>
-                            <tooltip><Tooltip text="Previsualizar el PDF para imprimirlo o guardarlo"/></tooltip>
+                            <tooltip><Tooltip text="Abrir el visor original de JasperReports para imprimir o guardar"/></tooltip>
                         </Button>
-                        <Button fx:id="btnExportar" text="Exportar PDF / CSV" onAction="#exportarReporte" styleClass="btn-secondary">
+                        <Button fx:id="btnExportar" text="Exportar PDF" onAction="#exportarReporte" styleClass="btn-secondary">
                             <graphic><FontIcon iconLiteral="fas-download" iconSize="14"/></graphic>
                         </Button>
                         <ProgressIndicator fx:id="progreso" prefWidth="24" prefHeight="24" maxWidth="24" maxHeight="24"/>
@@ -71,7 +71,7 @@
                     </VBox>
                     <TabPane fx:id="vistaPrevia" tabClosingPolicy="UNAVAILABLE" tabMinWidth="120" tabMaxWidth="260"
                              minHeight="260" VBox.vgrow="ALWAYS"/>
-                    <Label text="PDF: una sección por apartado. CSV: columnas Apartado, Registro, Campo y Valor; una fila por campo seleccionado."
+                    <Label text="PDF con una sección por apartado. Imprimir abre el visor original de JasperReports."
                            styleClass="hint-label" wrapText="true" minHeight="-Infinity"/>
                     <Label fx:id="lblEstado" text="Pulsa Generar reporte para ver los resultados."
                            styleClass="estado-reporte, modo-label" maxWidth="Infinity" wrapText="true" minHeight="-Infinity"/>

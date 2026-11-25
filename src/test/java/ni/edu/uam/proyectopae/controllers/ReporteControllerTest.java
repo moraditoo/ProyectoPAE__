@@ -9,7 +9,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.VBox;
 import ni.edu.uam.proyectopae.models.Servicio;
 import ni.edu.uam.proyectopae.reportes.*;
-import ni.edu.uam.proyectopae.reportes.ReporteJasperService.Formato;
 import ni.edu.uam.proyectopae.util.TemaPAE;
 import ni.edu.uam.proyectopae.util.VentanaManager;
 import org.junit.jupiter.api.*;
@@ -112,7 +111,7 @@ class ReporteControllerTest {
             return null;
         });
         esperarReporte();
-        Path csv = temporal.resolve("seleccion.csv");
+        Path pdf = temporal.resolve("seleccion.pdf");
         // Las cabeceras nuevas tienen una breve animación nativa de JavaFX.
         Thread.sleep(400);
         fx(() -> {
@@ -148,16 +147,11 @@ class ReporteControllerTest {
         fx(() -> {
             TemaPAE.setModoOscuro(false);
             TemaPAE.aplicar(raiz);
-            controlador.guardarReporte(csv, Formato.CSV);
+            controlador.guardarReporte(pdf);
             return null;
         });
         esperar(() -> nodo("lblEstado", Label.class).getText().startsWith("Archivo guardado:"));
-        String contenido = Files.readString(csv);
-        assertTrue(contenido.contains("María"));
-        assertTrue(contenido.contains("Pérez"));
-        assertTrue(contenido.contains("C$ 690.00"));
-        assertFalse(contenido.contains("oculto@example.com"));
-        assertFalse(contenido.contains("ID cliente"));
+        assertEquals("%PDF-", new String(Files.readAllBytes(pdf), 0, 5, StandardCharsets.US_ASCII));
         assertEquals(1, consultas.get(), "Exportar no debe volver a consultar la BD");
     }
 
@@ -196,17 +190,13 @@ class ReporteControllerTest {
         fx(() -> { seleccionar(ApartadoReporte.CITAS); generar(); return null; });
         esperarReporte();
         Path pdf = temporal.resolve("sin-registros.pdf");
-        Path csv = temporal.resolve("sin-registros.csv");
         fx(() -> {
             assertEquals(1, nodo("vistaPrevia", TabPane.class).getTabs().size());
-            controlador.guardarReporte(pdf, Formato.PDF);
+            controlador.guardarReporte(pdf);
             return null;
         });
         esperar(() -> nodo("lblEstado", Label.class).getText().startsWith("Archivo guardado:"));
         assertEquals("%PDF", new String(Files.readAllBytes(pdf), 0, 4, StandardCharsets.US_ASCII));
-        fx(() -> { controlador.guardarReporte(csv, Formato.CSV); return null; });
-        esperar(() -> nodo("lblEstado", Label.class).getText().equals("Archivo guardado: sin-registros.csv"));
-        assertTrue(Files.readString(csv).contains("Sin registros con los filtros seleccionados."));
         assertEquals(1, consultas.get());
     }
 

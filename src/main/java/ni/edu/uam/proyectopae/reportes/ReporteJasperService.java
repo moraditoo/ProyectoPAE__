@@ -29,8 +29,6 @@ public final class ReporteJasperService {
     private static final String PLANTILLA = "/reportes/citas.jrxml";
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public enum Formato { PDF, CSV }
-
     public JasperPrint generar(List<Cita> citas, List<ColumnaCita> columnas,
                                LocalDate desde, LocalDate hasta, String servicio)
             throws JRException, IOException {
@@ -104,10 +102,8 @@ public final class ReporteJasperService {
         }
     }
 
-    /** Comparte los exportadores con los reportes de varios apartados. */
-    public void exportar(JasperPrint reporte, Path destino, Formato formato) throws IOException, JRException {
-        java.util.Objects.requireNonNull(formato, "Selecciona el formato de exportación.");
-        if (formato == Formato.PDF) ExportadorJasper.pdf(List.of(reporte), destino);
-        else ExportadorJasper.csv(reporte, destino);
+    /** Comparte el exportador PDF con los reportes de varios apartados. */
+    public void exportarPdf(JasperPrint reporte, Path destino) throws IOException, JRException {
+        ExportadorJasper.pdf(List.of(reporte), destino);
     }
 }
