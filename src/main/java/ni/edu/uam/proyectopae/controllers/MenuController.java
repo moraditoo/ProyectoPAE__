@@ -193,6 +193,11 @@ public class MenuController {
     }
 
     @FXML
+    public void abrirCatalogoProveedor() {
+        VentanaManager.abrir("catalogo-proveedor-view.fxml", "Catálogo del proveedor", "fas-truck", "#0d9488");
+    }
+
+    @FXML
     private void cerrarSesion() {
         if (!Alertas.confirmar("Cerrar sesión", "¿Desea cerrar la sesión? Se cerrarán todas las ventanas abiertas.")) {
             return;

@@ -13,6 +13,7 @@ import ni.edu.uam.proyectopae.dao.ProductoDAO;
 import ni.edu.uam.proyectopae.models.Lote;
 import ni.edu.uam.proyectopae.models.Producto;
 import ni.edu.uam.proyectopae.util.Alertas;
+import ni.edu.uam.proyectopae.util.ComboBuscable;
 import ni.edu.uam.proyectopae.util.Filas;
 import ni.edu.uam.proyectopae.util.Formato;
 import ni.edu.uam.proyectopae.util.Refrescable;
@@ -58,6 +59,9 @@ public class LotesServiciosController implements Refrescable {
     /** Lote seleccionado; null significa que se registrará uno nuevo. */
     private Lote loteEnEdicion;
 
+    /** Selector de producto con búsqueda por nombre, marca o categoría. */
+    private ComboBuscable<Producto> buscadorProducto;
+
     @FXML
     public void initialize() {
         colId.setCellValueFactory(
@@ -89,6 +93,20 @@ public class LotesServiciosController implements Refrescable {
         );
 
         Formato.columnaFecha(colCaducidad);
+
+        buscadorProducto = ComboBuscable.aplicar(cmbProducto,
+                Producto::getNombreProducto,
+                p -> p.getNombreProducto() + " " + p.getNombreMarca() + " " + p.getNombreCategoria(),
+                "Escribe nombre, marca o categoría del producto...");
+
+        cmbProducto.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Producto p, boolean empty) {
+                super.updateItem(p, empty);
+                setText(empty || p == null ? null
+                        : p.getNombreProducto() + "  ·  " + p.getNombreMarca() + "  ·  " + p.getNombreCategoria());
+            }
+        });
 
         lblLeyendaPorVencer.setText(
                 "Vence en " + Lote.DIAS_ALERTA_VENCIMIENTO
@@ -163,17 +181,11 @@ public class LotesServiciosController implements Refrescable {
     }
 
     public void cargarProductos() {
-        Producto actual = cmbProducto.getValue();
-
-        cmbProducto.setItems(
-                FXCollections.observableArrayList(
-                        productoDAO.listarConRelaciones()
-                )
+        // setDatos conserva el producto elegido si todavía existe
+        buscadorProducto.setDatos(
+                productoDAO.listarConRelaciones(),
+                Producto::getIdProducto
         );
-
-        if (actual != null) {
-            seleccionarProducto(actual.getIdProducto());
-        }
     }
 
     @FXML
@@ -249,18 +261,14 @@ public class LotesServiciosController implements Refrescable {
     }
 
     private void seleccionarProducto(Integer idProducto) {
-        cmbProducto.setValue(null);
-
         if (idProducto == null) {
+            buscadorProducto.limpiar();
             return;
         }
 
-        cmbProducto.getItems().stream()
-                .filter(producto ->
-                        idProducto.equals(producto.getIdProducto())
-                )
-                .findFirst()
-                .ifPresent(cmbProducto::setValue);
+        buscadorProducto.seleccionar(producto ->
+                idProducto.equals(producto.getIdProducto())
+        );
     }
 
     private void actualizarModo() {
@@ -444,7 +452,7 @@ public class LotesServiciosController implements Refrescable {
         txtCodigoLote.clear();
         txtCantidad.clear();
         dpFechaCaducidad.setValue(null);
-        cmbProducto.setValue(null);
+        buscadorProducto.limpiar();
 
         tblLotes.getSelectionModel().clearSelection();
 

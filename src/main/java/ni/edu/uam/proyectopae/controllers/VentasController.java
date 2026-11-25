@@ -13,6 +13,7 @@ import ni.edu.uam.proyectopae.models.DetalleVenta;
 import ni.edu.uam.proyectopae.models.Producto;
 import ni.edu.uam.proyectopae.models.Venta;
 import ni.edu.uam.proyectopae.util.Alertas;
+import ni.edu.uam.proyectopae.util.ComboBuscable;
 import ni.edu.uam.proyectopae.util.Formato;
 import ni.edu.uam.proyectopae.util.Refrescable;
 import ni.edu.uam.proyectopae.util.VentanaManager;
@@ -57,6 +58,10 @@ public class VentasController implements Refrescable {
 
     private final ObservableList<DetalleVenta> carrito = FXCollections.observableArrayList();
 
+    /** Selectores con búsqueda: se escribe parte del nombre y se elige de la lista filtrada. */
+    private ComboBuscable<Cliente> buscadorCliente;
+    private ComboBuscable<Producto> buscadorProducto;
+
     @FXML
     public void initialize() {
         colCarProducto.setCellValueFactory(new PropertyValueFactory<>("nombreProducto"));
@@ -85,7 +90,28 @@ public class VentasController implements Refrescable {
         Formato.columnaMoneda(colDetCosto);
         Formato.columnaMoneda(colDetSubtotal);
 
-        // El combo de productos muestra precio y existencias
+        // Cliente: se busca por nombre, apellido, teléfono o correo
+        buscadorCliente = ComboBuscable.aplicar(cmbCliente,
+                Cliente::getNombreCompleto,
+                c -> c.getNombreCompleto() + " " + valor(c.getTelefono()) + " " + valor(c.getCorreo()),
+                "Escribe nombre, apellido o teléfono del cliente...");
+        cmbCliente.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Cliente c, boolean empty) {
+                super.updateItem(c, empty);
+                setText(empty || c == null ? null
+                        : c.getNombreCompleto() + (c.getTelefono() == null || c.getTelefono().isBlank()
+                        ? "" : "  ·  Tel: " + c.getTelefono()));
+            }
+        });
+
+        // Producto: se busca por nombre, marca o categoría
+        buscadorProducto = ComboBuscable.aplicar(cmbProducto,
+                Producto::getNombreProducto,
+                p -> p.getNombreProducto() + " " + p.getNombreMarca() + " " + p.getNombreCategoria(),
+                "Escribe nombre, marca o categoría del producto...");
+
+        // La lista de productos muestra precio y existencias
         cmbProducto.setCellFactory(lv -> new ListCell<>() {
             @Override
             protected void updateItem(Producto p, boolean empty) {
@@ -105,20 +131,11 @@ public class VentasController implements Refrescable {
     @Override
     public void refrescar() {
         try {
-            Integer idCliente = cmbCliente.getValue() != null ? cmbCliente.getValue().getIdCliente() : null;
-            cmbCliente.setItems(FXCollections.observableArrayList(clienteDAO.listarTodos()));
-            if (idCliente != null) {
-                cmbCliente.getItems().stream().filter(c -> idCliente.equals(c.getIdCliente()))
-                        .findFirst().ifPresent(cmbCliente::setValue);
-            }
-
-            Integer idProducto = cmbProducto.getValue() != null ? cmbProducto.getValue().getIdProducto() : null;
-            cmbProducto.setItems(FXCollections.observableArrayList(
-                    productoDAO.listarConStock().stream().filter(p -> p.getStockActual() > 0).toList()));
-            if (idProducto != null) {
-                cmbProducto.getItems().stream().filter(p -> idProducto.equals(p.getIdProducto()))
-                        .findFirst().ifPresent(cmbProducto::setValue);
-            }
+            // setDatos conserva el cliente/producto elegido si todavía existe
+            buscadorCliente.setDatos(clienteDAO.listarTodos(), Cliente::getIdCliente);
+            buscadorProducto.setDatos(
+                    productoDAO.listarConStock().stream().filter(p -> p.getStockActual() > 0).toList(),
+                    Producto::getIdProducto);
 
             tblVentas.setItems(FXCollections.observableArrayList(ventaDAO.listarConCliente()));
             BigDecimal hoy = tblVentas.getItems().stream()
@@ -154,7 +171,7 @@ public class VentasController implements Refrescable {
         String cantTxt = txtCantidad.getText() == null ? "" : txtCantidad.getText().trim();
 
         if (p == null) {
-            Alertas.validacion("Seleccione un producto.");
+            Alertas.validacion("Escriba y seleccione un producto de la lista.");
             return;
         }
         if (!cantTxt.matches("^[1-9]\\d{0,4}$")) {
@@ -214,7 +231,7 @@ public class VentasController implements Refrescable {
     protected void handleRegistrarVenta() {
         Cliente cliente = cmbCliente.getValue();
         if (cliente == null) {
-            Alertas.validacion("Seleccione el cliente de la venta.");
+            Alertas.validacion("Escriba y seleccione de la lista el cliente de la venta.");
             return;
         }
         if (carrito.isEmpty()) {
@@ -246,7 +263,7 @@ public class VentasController implements Refrescable {
 
     private void limpiarVenta() {
         carrito.clear();
-        cmbProducto.setValue(null);
+        buscadorProducto.limpiar();
         txtCantidad.clear();
         actualizarDisponible();
         actualizarTotales();
@@ -257,6 +274,10 @@ public class VentasController implements Refrescable {
         BigDecimal ganancia = carrito.stream().map(DetalleVenta::getGanancia).reduce(BigDecimal.ZERO, BigDecimal::add);
         lblTotal.setText("Total: " + Formato.moneda(total));
         lblGananciaEstimada.setText(carrito.isEmpty() ? "" : "Ganancia estimada: " + Formato.moneda(ganancia));
+    }
+
+    private static String valor(String texto) {
+        return texto == null ? "" : texto;
     }
 
     private void cargarDetalle(Venta v) {

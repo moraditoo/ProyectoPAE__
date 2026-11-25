@@ -4,6 +4,8 @@ module ni.edu.uam.proyectopae {
     requires java.desktop;
     requires java.sql;
     requires java.naming;
+    requires java.net.http;
+    requires com.fasterxml.jackson.databind;
     requires jakarta.persistence;
     requires org.hibernate.orm.core;
     requires org.kordamp.ikonli.javafx;
@@ -16,6 +18,7 @@ module ni.edu.uam.proyectopae {
     opens ni.edu.uam.proyectopae to javafx.fxml;
     opens ni.edu.uam.proyectopae.controllers to javafx.fxml;
     opens ni.edu.uam.proyectopae.models to org.hibernate.orm.core, javafx.base;
+    opens ni.edu.uam.proyectopae.api to com.fasterxml.jackson.databind, javafx.base;
 
     exports ni.edu.uam.proyectopae;
     exports ni.edu.uam.proyectopae.controllers;
@@ -23,4 +26,5 @@ module ni.edu.uam.proyectopae {
     exports ni.edu.uam.proyectopae.dao;
     exports ni.edu.uam.proyectopae.util;
     exports ni.edu.uam.proyectopae.reportes;
+    exports ni.edu.uam.proyectopae.api;
 }
