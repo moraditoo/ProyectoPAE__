@@ -1,6 +1,7 @@
 module ni.edu.uam.proyectopae {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.desktop;
     requires java.sql;
     requires java.naming;
     requires jakarta.persistence;
