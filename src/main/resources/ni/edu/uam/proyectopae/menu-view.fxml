@@ -264,6 +264,25 @@
                                 </VBox>
                             </graphic>
                         </Button>
+
+                        <!-- Tarjeta 8: Catálogo del proveedor (API REST) -->
+                        <Button accessibleText="Catálogo del proveedor" onAction="#abrirCatalogoProveedor" styleClass="tarjeta-menu"
+                                contentDisplay="GRAPHIC_ONLY" maxWidth="Infinity" minHeight="115" prefHeight="115"
+                                GridPane.columnIndex="3" GridPane.rowIndex="1">
+                            <graphic>
+                                <VBox spacing="4">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <StackPane styleClass="chip-turquesa" minWidth="36" minHeight="36">
+                                            <FontIcon iconLiteral="fas-truck" iconSize="17"/>
+                                        </StackPane>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <FontIcon iconLiteral="fas-chevron-right" iconSize="10"/>
+                                    </HBox>
+                                    <Label text="Catálogo proveedor" styleClass="menu-card-title"/>
+                                    <Label text="Servicio web REST del proveedor" styleClass="menu-card-subtitle" wrapText="true"/>
+                                </VBox>
+                            </graphic>
+                        </Button>
                     </GridPane>
                 </VBox>
 

@@ -1,0 +1,221 @@
+{
+  "info": {
+    "name": "Catálogo del proveedor - api-catalogo",
+    "description": "Pruebas de la API REST simulada del proyecto PAE. Ejecutar primero ApiCatalogoApplication (puerto 8080).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/productos"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Listar todos",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}",
+        "description": "Esperado: 200 y 13 productos."
+      }
+    },
+    {
+      "name": "02 Buscar con filtros",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}?buscar=labial&categoria=Labiales",
+        "description": "Esperado: 200 y 2 productos."
+      }
+    },
+    {
+      "name": "03 Búsqueda sin resultados",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}?buscar=zzz",
+        "description": "Esperado: 200 y lista vacía []."
+      }
+    },
+    {
+      "name": "04 Categorías",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/categorias",
+        "description": "Esperado: 200 y lista de categorías."
+      }
+    },
+    {
+      "name": "05 Detalle por ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/1",
+        "description": "Esperado: 200 y el producto 1."
+      }
+    },
+    {
+      "name": "06 Detalle inexistente (404)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/999",
+        "description": "Esperado: 404 {\"mensaje\":\"Producto no encontrado: 999\"}."
+      }
+    },
+    {
+      "name": "07 Crear producto (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}",
+        "description": "Esperado: 201 y el producto con id 14.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo\": \"PRV-020\",\n  \"nombre\": \"Rubor en polvo Cheek Heat\",\n  \"marca\": \"Maybelline\",\n  \"categoria\": \"Rubores\",\n  \"precio\": 360.0,\n  \"existencias\": 14,\n  \"descripcion\": \"Rubor de acabado natural.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "08 Crear con código repetido (409)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}",
+        "description": "Ejecutar después de la 07. Esperado: 409.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo\": \"PRV-020\",\n  \"nombre\": \"Rubor en polvo Cheek Heat\",\n  \"marca\": \"Maybelline\",\n  \"categoria\": \"Rubores\",\n  \"precio\": 360.0,\n  \"existencias\": 14,\n  \"descripcion\": \"Rubor de acabado natural.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "09 Crear inválido (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}",
+        "description": "Esperado: 400 con los mensajes de validación.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo\": \"PRV-021\",\n  \"nombre\": \"\",\n  \"marca\": \"NYX\",\n  \"categoria\": \"Labiales\",\n  \"precio\": -5,\n  \"existencias\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "10 Actualizar (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/14",
+        "description": "Esperado: 200 con precio 399.90.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo\": \"PRV-020\",\n  \"nombre\": \"Rubor en polvo Cheek Heat\",\n  \"marca\": \"Maybelline\",\n  \"categoria\": \"Rubores\",\n  \"precio\": 399.9,\n  \"existencias\": 10,\n  \"descripcion\": \"Rubor de acabado natural.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "11 Eliminar (DELETE)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/14",
+        "description": "Esperado: 204. Si se repite: 404."
+      }
+    }
+  ]
+}
