@@ -16,7 +16,6 @@ import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.type.StretchTypeEnum;
 import net.sf.jasperreports.engine.type.TextAdjustEnum;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
-import ni.edu.uam.proyectopae.reportes.ReporteJasperService.Formato;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,38 +31,27 @@ import java.util.Objects;
 /** Genera únicamente los apartados y campos que contiene el resultado inmutable de Hibernate. */
 public final class ReporteGeneralJasperService {
     private static final String PLANTILLA = "/reportes/general.jrxml";
-    private static final List<CampoReporte> CAMPOS_CSV = List.of(
-            new CampoReporte("apartado", "Apartado", 170),
-            new CampoReporte("registro", "Registro", 65),
-            new CampoReporte("campo", "Campo", 180),
-            new CampoReporte("valor", "Valor", 367));
 
     public DocumentoReporte generar(DatosReporte datos) throws IOException, JRException {
         Objects.requireNonNull(datos, "Los datos del reporte son obligatorios.");
         List<JasperPrint> pdf = new ArrayList<>();
         for (SeccionReporte seccion : datos.secciones()) {
             JasperPrint apartado = generarTabla(datos, seccion.apartado().name(), seccion.apartado().titulo(),
-                    seccion.apartado().alcance(), seccion.resumen(), seccion.campos(), seccion.filas(), false);
+                    seccion.apartado().alcance(), seccion.resumen(), seccion.campos(), seccion.filas());
             apartado.setName(seccion.apartado().titulo());
             pdf.add(apartado);
         }
-        JasperPrint csv = generarTabla(datos, "CSV", "Reporte general",
-                "Un registro se distribuye en varias filas: una por cada campo seleccionado.",
-                "Apartados: " + datos.secciones().size(), CAMPOS_CSV, filasCsv(datos), true);
-        csv.setName("Reporte general CSV");
-        return new DocumentoReporte(datos, pdf, csv);
+        return new DocumentoReporte(datos, pdf);
     }
 
-    public void exportar(DocumentoReporte reporte, Path destino, Formato formato) throws IOException, JRException {
+    public void exportarPdf(DocumentoReporte reporte, Path destino) throws IOException, JRException {
         Objects.requireNonNull(reporte, "Genera el reporte antes de exportarlo.");
-        Objects.requireNonNull(formato, "Selecciona el formato de exportación.");
-        if (formato == Formato.PDF) ExportadorJasper.pdf(reporte.apartadosPdf(), destino);
-        else ExportadorJasper.csv(reporte.csv(), destino);
+        ExportadorJasper.pdf(reporte.apartadosPdf(), destino);
     }
 
     private JasperPrint generarTabla(DatosReporte datos, String nombre, String titulo, String alcance,
                                       String resumen, List<CampoReporte> campos,
-                                      List<Map<String, String>> filas, boolean csv) throws IOException, JRException {
+                                      List<Map<String, String>> filas) throws IOException, JRException {
         JasperDesign diseno;
         try (InputStream entrada = ReporteGeneralJasperService.class.getResourceAsStream(PLANTILLA)) {
             if (entrada == null) throw new IOException("No se encontró " + PLANTILLA + ". Recompila el proyecto.");
@@ -76,7 +64,7 @@ public final class ReporteGeneralJasperService {
             diseno.setPageHeight(842);
             diseno.setColumnWidth(1131);
         }
-        diseno.setIgnorePagination(csv);
+        diseno.setIgnorePagination(false);
         ajustarAnchos(diseno);
         agregarColumnas(diseno, campos);
 
@@ -147,23 +135,4 @@ public final class ReporteGeneralJasperService {
         }
     }
 
-    /** Cuatro columnas estables evitan mezclar tablas de distintos tamaños dentro del mismo CSV. */
-    private List<Map<String, String>> filasCsv(DatosReporte datos) {
-        List<Map<String, String>> filas = new ArrayList<>();
-        for (SeccionReporte seccion : datos.secciones()) {
-            if (seccion.filas().isEmpty()) {
-                filas.add(Map.of("apartado", seccion.apartado().titulo(), "registro", "0",
-                        "campo", "Resultado", "valor", "Sin registros con los filtros seleccionados."));
-                continue;
-            }
-            for (int i = 0; i < seccion.filas().size(); i++) {
-                Map<String, String> registro = seccion.filas().get(i);
-                for (CampoReporte campo : seccion.campos()) {
-                    filas.add(Map.of("apartado", seccion.apartado().titulo(), "registro", String.valueOf(i + 1),
-                            "campo", campo.titulo(), "valor", registro.get(campo.clave())));
-                }
-            }
-        }
-        return filas;
-    }
 }

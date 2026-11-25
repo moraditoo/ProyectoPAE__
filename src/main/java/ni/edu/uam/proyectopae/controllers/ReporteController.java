@@ -19,7 +19,6 @@ import ni.edu.uam.proyectopae.dao.ReporteGeneralDAO;
 import ni.edu.uam.proyectopae.dao.ServicioDAO;
 import ni.edu.uam.proyectopae.models.Servicio;
 import ni.edu.uam.proyectopae.reportes.*;
-import ni.edu.uam.proyectopae.reportes.ReporteJasperService.Formato;
 import ni.edu.uam.proyectopae.util.Alertas;
 import ni.edu.uam.proyectopae.util.TemaPAE;
 import ni.edu.uam.proyectopae.util.VentanaManager;
@@ -229,7 +228,7 @@ public class ReporteController {
                 columna.setCellValueFactory(celda -> new SimpleStringProperty(celda.getValue().get(campo.clave())));
                 columna.setMinWidth(90);
                 columna.setPrefWidth(Math.max(110, campo.peso()));
-                // El PDF y el CSV mantienen el mismo orden de la consulta y de los campos.
+                // El PDF mantiene el mismo orden de la consulta y de los campos.
                 columna.setSortable(false);
                 columna.setReorderable(false);
                 columna.setCellFactory(c -> new TableCell<>() {
@@ -298,33 +297,29 @@ public class ReporteController {
     private void exportarReporte() {
         if (reporteGenerado == null) return;
         FileChooser selector = new FileChooser();
-        selector.setTitle("Guardar reporte general");
+        selector.setTitle("Guardar reporte general en PDF");
         selector.setInitialFileName("reporte-general.pdf");
         FileChooser.ExtensionFilter pdf = new FileChooser.ExtensionFilter("Documento PDF", "*.pdf");
-        FileChooser.ExtensionFilter csv = new FileChooser.ExtensionFilter("Archivo CSV", "*.csv");
-        selector.getExtensionFilters().addAll(pdf, csv);
+        selector.getExtensionFilters().add(pdf);
         selector.setSelectedExtensionFilter(pdf);
         File archivo = selector.showSaveDialog(vistaPrevia.getScene().getWindow());
         if (archivo == null) return;
 
-        Formato formato = selector.getSelectedExtensionFilter() == csv ? Formato.CSV : Formato.PDF;
-        String extension = formato == Formato.PDF ? ".pdf" : ".csv";
         Path destino = archivo.toPath();
-        if (!archivo.getName().toLowerCase(Locale.ROOT).endsWith(extension)) {
-            String nombre = archivo.getName().replaceFirst("(?i)\\.(pdf|csv)$", "");
-            destino = destino.resolveSibling(nombre + extension);
+        if (!archivo.getName().toLowerCase(Locale.ROOT).endsWith(".pdf")) {
+            destino = destino.resolveSibling(archivo.getName() + ".pdf");
             if (Files.exists(destino) && !Alertas.confirmar(
                     "Reemplazar archivo", "¿Deseas reemplazar " + destino.getFileName() + "?")) return;
         }
-        guardarReporte(destino, formato);
+        guardarReporte(destino);
     }
 
-    void guardarReporte(Path destino, Formato formato) {
+    void guardarReporte(Path destino) {
         if (reporteGenerado == null || ocupado.get()) return;
         DocumentoReporte documento = reporteGenerado;
         lblEstado.setText("Exportando reporte…");
         ejecutar(() -> {
-            jasper.exportar(documento, destino, formato);
+            jasper.exportarPdf(documento, destino);
             return destino.getFileName().toString();
         }, nombre -> lblEstado.setText("Archivo guardado: " + nombre), "No se pudo exportar el reporte");
     }

@@ -1,7 +1,7 @@
 # Proyecto PAE
 
 Aplicación JavaFX con JDK 21, Hibernate y PostgreSQL. Los reportes generales se
-generan con **JasperReports 7.0.6** y se exportan en PDF y CSV, con apartados y
+generan con **JasperReports 7.0.6** y se exportan únicamente en PDF, con apartados y
 campos seleccionables mediante casillas.
 
 La [guía de instalación del equipo](docs/CONFIGURACION_EQUIPO.md) contiene los pasos
@@ -58,8 +58,7 @@ En **Menú → Reportes**:
    Su barra de herramientas permite recorrer las páginas y ajustar la ampliación.
 6. Desde JasperViewer, usar el icono de impresora para imprimir o el icono de
    guardar para elegir el formato **PDF** y la ubicación del documento.
-   **Exportar PDF / CSV** sigue disponible en el generador para elegir cualquiera
-   de los dos formatos.
+   **Exportar PDF** también permite guardar el documento desde el generador.
 
 El visor reúne los apartados del reporte generado y conserva sus tamaños de página
 A4 o A3, sin consultar de nuevo la base. Utiliza la interfaz Swing propia de
@@ -76,10 +75,9 @@ servicio afecta servicios, citas, consumos y los indicadores de citas del resume
 las ventas de productos son independientes del servicio.
 
 El PDF incluye una sección por apartado, con tablas en A4 o A3 horizontal según
-la cantidad de campos. El CSV reúne los apartados en cuatro columnas: **Apartado,
-Registro, Campo y Valor**, con una fila por campo seleccionado. Registro es la
-posición de la fila dentro del apartado; los identificadores de la base son campos
-seleccionables. PDF y CSV conservan la selección y los datos de la vista previa.
+la cantidad de campos. Los identificadores de la base son campos seleccionables.
+El PDF conserva la selección y los datos de la vista previa. JasperViewer ofrece
+únicamente PDF en su opción de guardado.
 
 Cambiar filtros o casillas limpia la vista previa y requiere generar de nuevo.
 Los apartados sin resultados se pueden exportar con el aviso **Sin registros con

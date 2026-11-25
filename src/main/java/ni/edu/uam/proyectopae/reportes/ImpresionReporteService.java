@@ -3,10 +3,15 @@ package ni.edu.uam.proyectopae.reportes;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.SimplePrintPart;
+import net.sf.jasperreports.pdf.view.save.JRPdfSaveContributor;
+import net.sf.jasperreports.swing.JRViewerToolbar;
+import net.sf.jasperreports.view.JRSaveContributor;
 import net.sf.jasperreports.view.JasperViewer;
 
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import java.awt.Component;
+import java.awt.Container;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
 import java.util.Objects;
@@ -41,6 +46,10 @@ public final class ImpresionReporteService {
         JasperPrint completo = preparar(documento);
         Runnable abrir = () -> {
             JasperViewer visor = new JasperViewer(completo, false, Locale.forLanguageTag("es"));
+            if (!limitarGuardadoAPdf(visor.getContentPane())) {
+                visor.dispose();
+                throw new IllegalStateException("No se pudo configurar el guardado PDF de JasperReports.");
+            }
             // Evita el fallo de limpieza de pestañas de JasperReports 7.0.6 al cerrar un libro.
             for (var cierre : visor.getWindowListeners()) visor.removeWindowListener(cierre);
             visor.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -48,5 +57,21 @@ public final class ImpresionReporteService {
         };
         if (SwingUtilities.isEventDispatchThread()) abrir.run();
         else SwingUtilities.invokeAndWait(abrir);
+    }
+
+    private boolean limitarGuardadoAPdf(Container panel) {
+        for (Component componente : panel.getComponents()) {
+            if (componente instanceof JRViewerToolbar barra) {
+                for (JRSaveContributor formato : barra.getSaveContributors()) {
+                    if (formato instanceof JRPdfSaveContributor) {
+                        barra.setSaveContributors(new JRSaveContributor[]{formato});
+                        return true;
+                    }
+                }
+                return false;
+            }
+            if (componente instanceof Container contenido && limitarGuardadoAPdf(contenido)) return true;
+        }
+        return false;
     }
 }

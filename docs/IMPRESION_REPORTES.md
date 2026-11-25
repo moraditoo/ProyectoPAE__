@@ -6,8 +6,8 @@
 2. Pulsar **Imprimir** para abrir **JasperViewer**, el visor original de JasperReports.
 3. Usar las flechas, el número de página y el zoom de su barra de herramientas.
 4. Pulsar el icono de impresora para abrir el diálogo de impresión.
-5. Pulsar el icono de guardar, elegir **PDF** en el selector de formato e indicar
-   el nombre y la ubicación del archivo.
+5. Pulsar el icono de guardar e indicar el nombre y la ubicación del archivo.
+   **PDF** es el único formato disponible.
 
 La barra de herramientas, los diálogos y la apariencia pertenecen a JasperReports.
 El visor utiliza Swing, incluido en Java, y conserva la presentación original de
@@ -19,7 +19,7 @@ del documento que se abrió; no vuelve a consultar PostgreSQL.
 
 Todos los apartados se reúnen en un JasperPrint con partes, conservando el orden
 de las páginas y el formato A4 o A3 de cada apartado. El guardado del visor incluye
-el documento completo. La exportación PDF y CSV del generador sigue disponible.
+el documento completo. La exportación PDF del generador sigue disponible.
 
 JasperViewer se abre con `isExitOnClose=false` y cierre `DISPOSE_ON_CLOSE`: cerrar
 su ventana no cierra el programa principal. Se reemplaza únicamente el manejador
@@ -48,7 +48,7 @@ visor y comprobar que la aplicación sigue abierta. La impresión física requie
 una impresora disponible.
 
 Comprobado con datos de ejemplo: el visor original abre 12 apartados y 12 páginas;
-su selector de guardado ofrece PDF y el diálogo de impresión reconoce las 12
+su selector de guardado ofrece PDF como único formato de exportación y el diálogo de impresión reconoce las 12
 páginas. La exportación del mismo JasperPrint genera un PDF válido de 12 páginas,
 con formato A4 en la primera y A3 en la segunda. No se imprimió en papel.
 El cierre corregido se comprobó sin excepciones y conservó abierto el generador.
@@ -62,5 +62,5 @@ Compilación sin ejecutar pruebas automatizadas:
 Nombre sugerido para el commit:
 
 ```text
-refactor(reportes): usar el visor original de JasperReports para imprimir
+refactor(reportes): dejar únicamente PDF con JasperReports
 ```
