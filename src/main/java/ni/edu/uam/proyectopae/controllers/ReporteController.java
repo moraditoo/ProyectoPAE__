@@ -49,6 +49,7 @@ public class ReporteController {
     @FXML private Label lblResumen;
     @FXML private Label lblEstado;
     @FXML private Button btnExportar;
+    @FXML private Button btnImprimir;
     @FXML private ProgressIndicator progreso;
 
     private final Map<ApartadoReporte, CheckBox> apartados = new EnumMap<>(ApartadoReporte.class);
@@ -80,6 +81,7 @@ public class ReporteController {
         configuracion.disableProperty().bind(ocupado);
         vistaPrevia.disableProperty().bind(ocupado);
         btnExportar.disableProperty().bind(ocupado.or(listo.not()));
+        btnImprimir.disableProperty().bind(ocupado.or(listo.not()));
         progreso.visibleProperty().bind(ocupado);
         progreso.managedProperty().bind(ocupado);
         vistaPrevia.visibleProperty().bind(listo);
@@ -261,7 +263,7 @@ public class ReporteController {
                 + documento.datos().totalRegistros() + " filas · " + documento.paginasPdf() + " páginas PDF\n"
                 + documento.datos().solicitud().descripcionFiltros() + "\nGenerado el "
                 + documento.datos().generado().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-        lblEstado.setText("Reporte listo. Revisá los apartados en las pestañas y exportá en PDF o CSV.");
+        lblEstado.setText("Reporte listo. Revisa los apartados y pulsa Imprimir para ver el PDF, imprimirlo o guardarlo.");
         TemaPAE.aplicar(vistaPrevia);
     }
 
@@ -278,6 +280,16 @@ public class ReporteController {
         vistaPrevia.getTabs().clear();
         lblResumen.setText("Generá el reporte para consultar los apartados seleccionados.");
         lblEstado.setText("Pulsa Generar reporte para actualizar la vista previa.");
+    }
+
+    @FXML
+    private void imprimirReporte() {
+        if (reporteGenerado == null || ocupado.get()) return;
+        try {
+            VistaPreviaPdf.mostrar(vistaPrevia.getScene().getWindow(), reporteGenerado);
+        } catch (RuntimeException error) {
+            Alertas.error("No se pudo abrir la vista previa del PDF", VentanaManager.causaRaiz(error));
+        }
     }
 
     @FXML

@@ -54,7 +54,18 @@ En **Menú → Reportes**:
    **Ninguno**, junto a ese botón, desmarca los apartados conservando sus campos.
 3. Elegir fechas y servicio si corresponde; dejarlos vacíos incluye todo el período.
 4. Pulsar **Generar reporte** y revisar cada apartado en su pestaña.
-5. Pulsar **Exportar PDF / CSV** y elegir el formato en el diálogo de guardado.
+5. Pulsar **Imprimir** para abrir la vista previa del PDF. Recorrer las páginas
+   con **Anterior / Siguiente** y ajustar la ampliación si hace falta.
+6. Desde esa ventana, pulsar **Imprimir** para elegir impresora, copias y páginas,
+   o **Guardar PDF** para elegir la ubicación del documento.
+   **Exportar PDF / CSV** sigue disponible en el generador para elegir cualquiera
+   de los dos formatos.
+
+La vista previa muestra las mismas páginas que se guardan en el PDF y conserva
+los datos del reporte generado. La impresión se ajusta al papel elegido sin
+recortar la página. Si no hay impresoras disponibles, se puede usar **Guardar PDF**.
+Los controles de la ventana respetan el modo claro y oscuro; las hojas conservan
+el fondo blanco del documento. Consulta la [guía de impresión](docs/IMPRESION_REPORTES.md).
 
 Están disponibles resumen general, productos e inventario, lotes y caducidad,
 clientes, servicios, agenda de citas, ventas, detalle de ventas, consumos de
